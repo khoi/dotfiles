@@ -1,5 +1,24 @@
+# GUI apps
+cask "1password"
+cask "visual-studio-code"
+cask "google-chrome"
+cask "dash"
+cask "raycast"
+cask "adguard"
+cask "homebrew/cask-fonts/font-jetbrains-mono"
+cask "homebrew/cask-fonts/font-jetbrains-mono-nerd-font"
+cask "sf-symbols"
+cask "Alacritty"
+cask "cleanshot"
+cask "proxyman"
+cask "xcodes"
+cask "obsidian"
+cask "fork"
+
 # CLI
+brew "1password-cli"
 brew "aria2"
+brew "chezmoi"
 brew "watchexec"
 brew "fd"
 brew "ffmpeg"
@@ -14,7 +33,6 @@ brew "jq"
 brew "parallel"
 brew "ripgrep"
 brew "starship"
-brew "stow"
 brew "tldr"
 brew "yt-dlp"
 brew "zsh"
@@ -30,37 +48,3 @@ brew "ifstat"
 brew "exa"
 brew "reattach-to-user-namespace"
 brew "nnn"
-# GUI apps
-cask "visual-studio-code"
-cask "google-chrome"
-cask "dash"
-cask "raycast"
-cask "adguard"
-cask "jetbrains-toolbox"
-cask "homebrew/cask-fonts/font-jetbrains-mono"
-cask "homebrew/cask-fonts/font-jetbrains-mono-nerd-font"
-cask "sf-symbols"
-cask "Alacritty"
-cask "sublime-merge"
-cask "cleanshot"
-cask "proxyman"
-cask "camo-studio"
-cask "gpg-suite-no-mail"
-cask "1password-cli"
-cask "xcodes"
-cask "resilio-sync"
-cask "obsidian"
-cask "fork"
-cask "amethyst"
-cask "dozer"
-
-# GUI apps from Appstore
-mas "Telegram", id: 747648890
-mas "The Unarchiver", id: 425424353
-mas "Slack", id: 803453959
-mas "Spark", id: 1176895641
-mas "1Password 7 - Password Manager", id: 1333542190
-mas "A Companion for SwiftUI", id: 1485436674
-mas "Keystroke Pro", id: 1572206224
-mas "Cursor Pro", id: 1447043133
-mas "Mirror Magnet", id: 1563698880
