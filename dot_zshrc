@@ -1,0 +1,98 @@
+source ~/antigen.zsh
+
+[ -f ~/.zsh_local ] && source ~/.zsh_local # local configs, private envs
+
+# lang
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# antigen setup
+antigen use oh-my-zsh
+
+antigen bundle git
+antigen bundle pip
+antigen bundle bundler
+antigen bundle z
+
+antigen bundle zsh-users/zsh-completions
+antigen bundle Aloxaf/fzf-tab
+
+antigen apply
+
+# Aliases
+alias o="open"
+alias dl="aria2c"
+
+# History size
+setopt HIST_IGNORE_SPACE # command without history when prefix with Space
+HISTSIZE=10000000
+SAVEHIST=$HISTSIZE
+
+# Editor
+export EDITOR="nvim"
+
+# homebrew
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_VERBOSE=1
+
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
+if type brew &>/dev/null; then
+  export PATH="$(brew --prefix)/bin:$PATH"
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+
+  autoload -Uz compinit
+  compinit
+fi
+
+# PATH
+export PATH=~/.bin:$PATH
+
+# Nvim
+if type nvim >/dev/null; then
+  alias vi="nvim"
+  alias v="nvim"
+  alias vim="nvim"
+fi
+
+# Github CLI
+if type gh >/dev/null; then
+  eval "$(gh completion -s zsh)"
+fi
+
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --no-ignore-vcs'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# starship
+if type starship >/dev/null; then
+  eval "$(starship init zsh)"
+fi
+
+# ghq https://github.com/x-motemen/ghq
+export GHQ_ROOT=~/code
+
+# restic
+export RESTIC_REPOSITORY="rest:http://restic:restic@vault:8000"
+export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
+
+# exa alias
+if type exa >/dev/null; then
+  # general use
+  alias ls='exa'                                                         # ls
+  alias l='exa -lbF --git'                                               # list, size, type, git
+  alias ll='exa -lbGF --git'                                             # long list
+  alias llm='exa -lbGF --git --sort=modified'                            # long list, modified date sort
+  alias la='exa -lbhHigUmuSa --time-style=long-iso --git --color-scale'  # all list
+  alias lx='exa -lbhHigUmuSa@ --time-style=long-iso --git --color-scale' # all + extended list
+
+  # speciality views
+  alias lS='exa -1'               # one column, just names
+  alias lt='exa --tree --level=2' # tree
+fi
+
+# fzf-tab
+# disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false

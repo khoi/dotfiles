@@ -1,0 +1,41 @@
+[push]
+  default = current
+[color]
+  ui = true
+[core]
+  excludesfile = ~/.gitignore_global
+  autocrlf = input
+  commentChar = %
+[merge]
+  ff = only
+[pull]
+  ff = only
+  default = current
+[rerere]
+  enabled = true
+[fetch]
+  prune = true
+[rebase]
+  autosquash = true
+  autostash = true
+[user]
+  name = khoi
+  email = git@khoi.io
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDF54tnYI6lVm2PaWR55fkakNXwbWNF66oQqOphwBRzN
+[commit]
+  gpgsign = true
+[ghq]
+  root = ~/code
+[init]
+  defaultBranch = main
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+[alias]
+  graph = log --graph --all --format='%h %s%n        (%an, %ar)%d' --abbrev-commit
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign

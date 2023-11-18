@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+
+pid=`pgrep "^Xcode"`
+
+if [[ -n $pid ]]; then
+  echo "Closing Xcode"
+  kill -9 $pid
+  sleep 1
+fi
+
+echo "Opening Xcode"
+if [[ $# -ne 1 ]]; then
+  xed .
+else
+  xed $@
+fi
