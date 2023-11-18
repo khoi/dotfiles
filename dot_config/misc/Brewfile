@@ -1,5 +1,6 @@
 # GUI apps
 cask "1password"
+cask "arc"
 cask "visual-studio-code"
 cask "google-chrome"
 cask "dash"
