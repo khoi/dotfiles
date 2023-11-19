@@ -11,13 +11,13 @@ alt - k : yabai -m window --focus north || yabai -m window --focus north
 alt - l : yabai -m window --focus east || yabai -m window --focus east
 
 # full screen 
-alt - return : yabai -m window --toggle zoom-fullscreen; 
+alt - return : yabai -m window --toggle zoom-fullscreen; sketchybar --trigger window_focus
 
 # float currently focused window
-alt - f : yabai -m window --toggle float && yabai -m window --grid 4:4:1:1:2:2
+alt - f : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2; sketchybar --trigger window_focus
 
 # Toggle zoom parent
-alt - z : yabai -m window --toggle zoom-parent
+alt - z : yabai -m window --toggle zoom-parent; sketchybar --trigger window_focus
 
 # moves focus between spaces 
 lalt - 1 : SPACES=($(yabai -m query --displays --display | jq '.spaces[]')) && [[ -n $SPACES[1] ]] && yabai -m space --focus $SPACES[1]

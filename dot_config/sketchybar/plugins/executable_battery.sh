@@ -1,39 +1,33 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
+source "$CONFIG_DIR/icons.sh"
 source "$CONFIG_DIR/colors.sh"
 
-PERCENTAGE="$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)"
-CHARGING=$(pmset -g batt | grep 'AC Power')
-TIME_TO_FULL=$(ioreg -rw0 -c AppleSmartBattery | grep 'AvgTimeToFull' | cut -d'=' -f2 | xargs)
-
-LABEL="$PERCENTAGE%"
+BATTERY_INFO="$(pmset -g batt)"
+PERCENTAGE=$(echo "$BATTERY_INFO" | grep -Eo "\d+%" | cut -d% -f1)
+CHARGING=$(echo "$BATTERY_INFO" | grep 'AC Power')
 
 if [ $PERCENTAGE = "" ]; then
   exit 0
 fi
 
+DRAWING=on
+COLOR=$WHITE
 case ${PERCENTAGE} in
-9[0-9] | 100)
-  ICON="􀛨" ICON_HIGHLIGHT_COLOR="$ICON_COLOR"
+  9[0-9]|100) ICON=$BATTERY_100; DRAWING=off
   ;;
-[6-8][0-9])
-  ICON="􀺸" ICON_HIGHLIGHT_COLOR="$ICON_COLOR"
+  [6-8][0-9]) ICON=$BATTERY_75; DRAWING=off
   ;;
-[3-5][0-9])
-  ICON="􀺶" ICON_HIGHLIGHT_COLOR="$ICON_COLOR"
+  [3-5][0-9]) ICON=$BATTERY_50
   ;;
-[1-2][0-9])
-  ICON="􀛩" ICON_HIGHLIGHT_COLOR="$RED"
+  [1-2][0-9]) ICON=$BATTERY_25; COLOR=$ORANGE
   ;;
-*) ICON="􀛪" ICON_HIGHLIGHT_COLOR="$ICON_COLOR" ;;
+  *) ICON=$BATTERY_0; COLOR=$RED
 esac
 
 if [[ $CHARGING != "" ]]; then
-  ICON="􀫮"
-  ICON_HIGHLIGHT_COLOR="$GREEN"
-  LABEL="$PERCENTAGE%($(($TIME_TO_FULL))m)"
+  ICON=$BATTERY_CHARGING
+  DRAWING=off
 fi
 
-# The item invoking this script (name $NAME) will get its icon and label
-# updated with the current battery status
-sketchybar --set $NAME icon="$ICON" icon.highlight=on icon.highlight_color="$ICON_HIGHLIGHT_COLOR" label="$LABEL"
+sketchybar --set $NAME drawing=$DRAWING icon="$ICON" icon.color=$COLOR
