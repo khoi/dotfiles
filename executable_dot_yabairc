@@ -5,17 +5,14 @@ sudo yabai --load-sa
 
 yabai -m config window_topmost off
 
-# Set all padding and gaps to 10pt (default: 0)
-padding_size=4
-yabai -m config top_padding    $padding_size
-yabai -m config bottom_padding $padding_size
-yabai -m config left_padding   $padding_size
-yabai -m config right_padding  $padding_size
-yabai -m config window_gap     $padding_size
+yabai -m config top_padding    4
+yabai -m config bottom_padding 4
+yabai -m config left_padding   4
+yabai -m config right_padding  4
+yabai -m config window_gap     6
 
 # set mouse interaction modifier key (default: fn)
 yabai -m config mouse_modifier fn
-
 # set modifier + left-click drag to move window (default: move)
 yabai -m config mouse_action1 move
 
@@ -35,6 +32,9 @@ yabai -m config window_opacity on
 yabai -m config active_window_opacity 1.0
 yabai -m config normal_window_opacity 0.9
 
+yabai -m config split_ratio                  0.50
+yabai -m config auto_balance                 off 
+
 # Exclude problematic apps from being managed:
 yabai -m rule --add app="^(CleanShot X|Software Update|VLC|System Preferences|System Settings|zoom.us|Photo Booth|Archive Utility|App Store|Steam|Activity Monitor)$" manage=off
 yabai -m rule --add label="Finder" app="^Finder$" title="(Co(py|nnect)|Move|Info|Pref)" manage=off
@@ -44,6 +44,6 @@ yabai -m rule --add label="About This Mac" app="System Information" title="About
 yabai -m config layout bsp
 
 # borders
-borders active_color=0xffF76B15 inactive_color=0xff494d64 width=5.0 2>/dev/null 1>&2 &
+borders active_color=0xffF76B15 inactive_color=0xff494d64 width=3.0 2>/dev/null 1>&2 &
 
 echo "yabai configuration loaded.."

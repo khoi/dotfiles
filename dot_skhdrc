@@ -1,22 +1,76 @@
+# Navigation
+alt - h : yabai -m window --focus west
+alt - j : yabai -m window --focus south
+alt - k : yabai -m window --focus north
+alt - l : yabai -m window --focus east
+
+# full screen 
+alt - return : yabai -m window --toggle zoom-fullscreen; 
+
 # float currently focused window
-cmd + shift - f : yabai -m window --toggle float
+alt - f : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2
 
-# create workspace on current display
-cmd + shift - c : yabai -m space --create
+# Toggle zoom parent
+alt - z : yabai -m window --toggle zoom-parent
 
-# remove current workspace and switch to the first workspace on current display
-cmd + shift - d : yabai -m space --destroy
+# moves focus between spaces 
+alt - 1 : yabai -m space --focus 1
+alt - 2 : yabai -m space --focus 2
+alt - 3 : yabai -m space --focus 3
+alt - 4 : yabai -m space --focus 4
+alt - 5 : yabai -m space --focus 5
+alt - 6 : yabai -m space --focus 6
+alt - 7 : yabai -m space --focus 7
+alt - 8 : yabai -m space --focus 8
+alt - 9 : yabai -m space --focus 9
+alt - 0  : yabai -m space --focus 10
 
-# move focused window to previous workspace
-cmd + shift - left : yabai -m window --space prev
+# delete focused space
+alt - d : yabai -m space --destroy
 
-# move focused window to next workspace
-cmd + shift - right : yabai -m window --space next
+# swap window
+shift + alt - h : yabai -m window --swap west
+shift + alt - j : yabai -m window --swap south
+shift + alt - k : yabai -m window --swap north
+shift + alt - l : yabai -m window --swap east
 
-# cycle windows counterclockwise
-cmd + alt - right : bash ~/.config/yabai/cycle_windows.sh
+# Move focus container to workspace
+shift + alt - p : yabai -m window --space prev; yabai -m space --focus prev
+shift + alt - n : yabai -m window --space next; yabai -m space --focus next
+shift + alt - 1 : yabai -m window --space 1; yabai -m space --focus 1
+shift + alt - 2 : yabai -m window --space 2; yabai -m space --focus 2
+shift + alt - 3 : yabai -m window --space 3; yabai -m space --focus 3
+shift + alt - 4 : yabai -m window --space 4; yabai -m space --focus 4
 
-# cycle windows clockwise
-cmd + alt - left : bash ~/.config/yabai/cycle_windows_reverse.sh
+# Resize windows
+lctrl + alt - h : yabai -m window --resize left:-50:0; \
+                  yabai -m window --resize right:-50:0
+lctrl + alt - j : yabai -m window --resize bottom:0:50; \
+                  yabai -m window --resize top:0:50
+lctrl + alt - k : yabai -m window --resize top:0:-50; \
+                  yabai -m window --resize bottom:0:-50
+lctrl + alt - l : yabai -m window --resize right:50:0; \
+                  yabai -m window --resize left:50:0
 
-cmd + alt - r : yabai --restart-service
+# Equalize size of windows
+lctrl + alt - e : yabai -m space --balance
+
+# Enable / Disable gaps in current workspace
+lctrl + alt - g : yabai -m space --toggle padding; yabai -m space --toggle gap
+
+# Rotate windows clockwise and anticlockwise
+alt - r         : yabai -m space --rotate 270
+shift + alt - r : yabai -m space --rotate 90
+
+cmd + alt - r : /usr/bin/env osascript <<< \
+        "display notification \"Restarting Yabai\" with title \"Yabai\""; yabai --restart-service
+
+# create a new space and follow focus
+alt - n : yabai -m space --create && \
+                  index="$(yabai -m query --displays --display | jq '.spaces[-1]')" && \
+                  yabai -m space --focus "${index}"
+# create a new space, move window and follow focus
+shift + alt - n : yabai -m space --create && \
+                  index="$(yabai -m query --displays --display | jq '.spaces[-1]')" && \
+                  yabai -m window --space "${index}" && \
+                  yabai -m space --focus "${index}"
