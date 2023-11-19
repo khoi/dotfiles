@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
+
+yabai -m config layout bsp
+yabai -m config window_topmost off
+
+# Set all padding and gaps to 10pt (default: 0)
+padding_size=4
+yabai -m config top_padding    $padding_size
+yabai -m config bottom_padding $padding_size
+yabai -m config left_padding   $padding_size
+yabai -m config right_padding  $padding_size
+yabai -m config window_gap     $padding_size
+
+# set mouse interaction modifier key (default: fn)
+yabai -m config mouse_modifier fn
+
+# set modifier + left-click drag to move window (default: move)
+yabai -m config mouse_action1 move
+
+# set modifier + right-click drag to resize window (default: resize)
+yabai -m config mouse_action2 resize
+
+# set focus follows mouse mode (default: off, options: off, autoraise, autofocus)
+yabai -m config focus_follows_mouse autofocus
+
+# modify window shadows (default: on, options: on, off, float)
+# example: show shadows only for floating windows
+yabai -m config window_shadow float
+
+# window opacity (default: off)
+# example: render all unfocused windows with 90% opacity
+yabai -m config window_opacity on
+yabai -m config active_window_opacity 1.0
+yabai -m config normal_window_opacity 0.9
+
+# float system preferences
+yabai -m rule --add app="(Preferences|Install|Parallels|Steam|CleanShot X|System Settings)" manage=off
+
+# borders
+borders active_color=0xffF76B15 inactive_color=0xff494d64 width=5.0 2>/dev/null 1>&2 &
+
+echo "yabai configuration loaded.."
