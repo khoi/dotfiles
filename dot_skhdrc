@@ -1,29 +1,29 @@
+# Application Switchers
+shift + cmd - a: open /Applications/Arc.app
+shift + cmd - c: open /Applications/Visual\ Studio\ Code.app
+shift + cmd - s: open /Applications/Alacritty.app
+shift + cmd - x: open /Applications/Xcode.app
+
 # Navigation
-alt - h : yabai -m window --focus west
-alt - j : yabai -m window --focus south
-alt - k : yabai -m window --focus north
-alt - l : yabai -m window --focus east
+alt - h : yabai -m window --focus west || yabai -m window --focus west
+alt - j : yabai -m window --focus south || yabai -m window --focus south
+alt - k : yabai -m window --focus north || yabai -m window --focus north
+alt - l : yabai -m window --focus east || yabai -m window --focus east
 
 # full screen 
 alt - return : yabai -m window --toggle zoom-fullscreen; 
 
 # float currently focused window
-alt - f : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2
+alt - f : yabai -m window --toggle float && yabai -m window --grid 4:4:1:1:2:2
 
 # Toggle zoom parent
 alt - z : yabai -m window --toggle zoom-parent
 
 # moves focus between spaces 
-alt - 1 : yabai -m space --focus 1
-alt - 2 : yabai -m space --focus 2
-alt - 3 : yabai -m space --focus 3
-alt - 4 : yabai -m space --focus 4
-alt - 5 : yabai -m space --focus 5
-alt - 6 : yabai -m space --focus 6
-alt - 7 : yabai -m space --focus 7
-alt - 8 : yabai -m space --focus 8
-alt - 9 : yabai -m space --focus 9
-alt - 0  : yabai -m space --focus 10
+lalt - 1 : SPACES=($(yabai -m query --displays --display | jq '.spaces[]')) && [[ -n $SPACES[1] ]] && yabai -m space --focus $SPACES[1]
+lalt - 2 : SPACES=($(yabai -m query --displays --display | jq '.spaces[]')) && [[ -n $SPACES[2] ]] && yabai -m space --focus $SPACES[2]
+lalt - 3 : SPACES=($(yabai -m query --displays --display | jq '.spaces[]')) && [[ -n $SPACES[3] ]] && yabai -m space --focus $SPACES[3]
+lalt - 4 : SPACES=($(yabai -m query --displays --display | jq '.spaces[]')) && [[ -n $SPACES[4] ]] && yabai -m space --focus $SPACES[4]
 
 # delete focused space
 alt - d : yabai -m space --destroy
