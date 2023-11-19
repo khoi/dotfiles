@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+source "$CONFIG_DIR/colors.sh"
+ITEM_DIR="$CONFIG_DIR/items"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+FONT="JetBrainsMono Nerd Font"
+ICON_FONT="SF Pro"
+PADDINGS=3
+
+# Setting up and starting the helper process
+HELPER=git.felix.helper
+killall helper
+cd $HOME/.config/sketchybar/helper && make
+$HOME/.config/sketchybar/helper/helper $HELPER >/dev/null 2>&1 &
+
+# Setting up the general bar appearance of the bar
+bar=(
+  color=$BAR_COLOR
+  shadow=off
+  position=top
+  sticky=on
+  height=32
+  padding_right=10
+  padding_left=10
+  margin=-2
+  display=all
+)
+
+# Setting up default values
+defaults=(
+  updates=when_shown
+  drawing=on
+  icon.font="$ICON_FONT:Bold:14.0"
+  icon.color=$ICON_COLOR
+  icon.padding_left=$PADDINGS
+  icon.padding_right=$PADDINGS
+  label.font="$FONT:Bold:14.0"
+  label.color=$LABEL_COLOR
+  label.padding_left=$PADDINGS
+  label.padding_right=$PADDINGS
+  label.y_offset=0.5
+  padding_right=$PADDINGS
+  padding_left=$PADDINGS
+  background.height=26
+  background.corner_radius=9
+  background.border_width=2
+  popup.background.border_width=2
+  popup.background.corner_radius=9
+  popup.background.border_color=$POPUP_BORDER_COLOR
+  popup.background.color=$POPUP_BACKGROUND_COLOR
+  popup.blur_radius=20
+  popup.background.shadow.drawing=on
+)
+
+sketchybar --bar "${bar[@]}"
+sketchybar --default "${defaults[@]}"
+
+# left
+source "$ITEM_DIR/apple.sh"
+source "$ITEM_DIR/spaces.sh"
+source "$ITEM_DIR/front_app.sh"
+
+# right
+source "$ITEM_DIR/battery.sh"
+source "$ITEM_DIR/input.sh"
+source "$ITEM_DIR/calendar.sh"
+source "$ITEM_DIR/volume.sh"
+source "$ITEM_DIR/wifi.sh"
+source "$ITEM_DIR/network.sh"
+source "$ITEM_DIR/cpu.sh"
+# source "$ITEM_DIR/crypto.sh"
+
+sketchybar --update
+
+echo "sketchybar configuration loaded.."
