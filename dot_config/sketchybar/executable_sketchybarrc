@@ -15,9 +15,6 @@ killall helper
 (cd $CONFIG_DIR/helper && make)
 $CONFIG_DIR/helper/helper $HELPER > /dev/null 2>&1 &
 
-# Unload the macOS on screen indicator overlay for volume change
-launchctl unload -F /System/Library/LaunchAgents/com.apple.OSDUIHelper.plist > /dev/null 2>&1 &
-
 # check if $HOME/Library/Fonts/sketchybar-app-font.ttf$HOME/Library/Fonts/sketchybar-app-font.ttf exists
 if [ ! -f "$HOME/Library/Fonts/sketchybar-app-font.ttf" ]; then
   curl -L https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v1.0.16/sketchybar-app-font.ttf -o $HOME/Library/Fonts/sketchybar-app-font.ttf
