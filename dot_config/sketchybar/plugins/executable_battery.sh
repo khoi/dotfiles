@@ -14,9 +14,9 @@ fi
 DRAWING=on
 COLOR=$WHITE
 case ${PERCENTAGE} in
-  9[0-9]|100) ICON=$BATTERY_100; DRAWING=off
+  9[0-9]|100) ICON=$BATTERY_100
   ;;
-  [6-8][0-9]) ICON=$BATTERY_75; DRAWING=off
+  [6-8][0-9]) ICON=$BATTERY_75
   ;;
   [3-5][0-9]) ICON=$BATTERY_50
   ;;
