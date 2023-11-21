@@ -5,10 +5,10 @@ shift + cmd - s: open /Applications/Alacritty.app
 shift + cmd - x: open /Applications/Xcode.app
 
 # Navigation
-alt - h : yabai -m window --focus west || yabai -m window --focus west
-alt - j : yabai -m window --focus south || yabai -m window --focus south
-alt - k : yabai -m window --focus north || yabai -m window --focus north
-alt - l : yabai -m window --focus east || yabai -m window --focus east
+alt - h : yabai -m window --focus west || yabai -m display --focus west || yabai -m window --focus south || yabai -m display --focus south
+alt - j : yabai -m window --focus south || yabai -m display --focus south || yabai -m window --focus east || yabai -m display --focus east
+alt - k : yabai -m window --focus north || yabai -m display --focus north || yabai -m window --focus west || yabai -m display --focus west
+alt - l : yabai -m window --focus east || yabai -m display --focus east || yabai -m window --focus north || yabai -m display --focus north
 
 # full screen 
 alt - return : yabai -m window --toggle zoom-fullscreen; sketchybar --trigger window_focus
