@@ -4,38 +4,31 @@ yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
 sudo yabai --load-sa
 
-yabai -m config window_topmost off
-
-yabai -m config top_padding    2
-yabai -m config bottom_padding 4
-yabai -m config left_padding   4
-yabai -m config right_padding  4
-yabai -m config window_gap     6
-
-# set mouse interaction modifier key (default: fn)
-yabai -m config mouse_modifier fn
-# set modifier + left-click drag to move window (default: move)
-yabai -m config mouse_action1 move
-
-# set modifier + right-click drag to resize window (default: resize)
-yabai -m config mouse_action2 resize
-
-# set focus follows mouse mode (default: off, options: off, autoraise, autofocus)
-yabai -m config focus_follows_mouse autofocus
-
-# modify window shadows (default: on, options: on, off, float)
-# example: show shadows only for floating windows
-yabai -m config window_shadow float
-
-# window opacity (default: off)
-# example: render all unfocused windows with 90% opacity
-yabai -m config window_opacity on
-yabai -m config active_window_opacity 1.0
-yabai -m config normal_window_opacity 0.9
-
-yabai -m config split_ratio                  0.50
-yabai -m config auto_balance                 off 
-yabai -m config external_bar                 all:35:0 
+yabai -m config external_bar               all:35:0     \
+                mouse_follows_focus        off          \
+                focus_follows_mouse        on           \
+                window_zoom_persist        on           \
+                window_placement           second_child \
+                window_topmost             off          \
+                window_shadow              float        \
+                window_opacity             on           \
+                window_opacity_duration    0.2          \
+                active_window_opacity      1.0          \
+                normal_window_opacity      0.95         \
+                window_animation_duration  0.0          \
+                split_ratio                0.50         \
+                auto_balance               off          \
+                auto_padding               on           \
+                mouse_modifier             fn           \
+                mouse_action1              move         \
+                mouse_action2              resize       \
+                mouse_drop_action          swap         \
+                                                        \
+                top_padding                4            \
+                bottom_padding             4            \
+                left_padding               4            \
+                right_padding              4            \
+                window_gap                 6
 
 # Exclude problematic apps from being managed:
 yabai -m rule --add app="^(CleanShot X|Software Update|VLC|System Preferences|System Settings|zoom.us|Photo Booth|Archive Utility|App Store|Steam|Activity Monitor|Finder|1Password|Toggl Track)$" manage=off
