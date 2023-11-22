@@ -14,5 +14,6 @@ restic backup "$HOME" \
   --exclude "$HOME/Parallels" \
   --exclude "$HOME/Pictures" \
   --exclude "$HOME/Movies" \
+  --exclude "$HOME/Documents" \
   --exclude "$HOME/Music" \
   --exclude "$HOME/.Trash"
