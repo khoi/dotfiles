@@ -14,7 +14,7 @@ alt - l : yabai -m window --focus east || yabai -m display --focus east
 alt - return : yabai -m window --toggle zoom-fullscreen; sketchybar --trigger window_focus
 
 # float currently focused window
-alt - f : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2; sketchybar --trigger window_focus
+alt - f : yabai -m window --toggle float; yabai -m window --grid 5:5:1:1:3:3; sketchybar --trigger window_focus
 
 # Toggle zoom parent
 alt - z : yabai -m window --toggle zoom-parent; sketchybar --trigger window_focus
