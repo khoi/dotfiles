@@ -1,67 +1,56 @@
-dofile(vim.g.base46_cache .. "lsp")
-require "nvchad.lsp"
+return function(_, _)
+  local lsp = require "astronvim.utils.lsp"
+  local utils = require "astronvim.utils"
+  local get_icon = utils.get_icon
+  local signs = {
+    { name = "DiagnosticSignError", text = get_icon "DiagnosticError", texthl = "DiagnosticSignError" },
+    { name = "DiagnosticSignWarn", text = get_icon "DiagnosticWarn", texthl = "DiagnosticSignWarn" },
+    { name = "DiagnosticSignHint", text = get_icon "DiagnosticHint", texthl = "DiagnosticSignHint" },
+    { name = "DiagnosticSignInfo", text = get_icon "DiagnosticInfo", texthl = "DiagnosticSignInfo" },
+    { name = "DapStopped", text = get_icon "DapStopped", texthl = "DiagnosticWarn" },
+    { name = "DapBreakpoint", text = get_icon "DapBreakpoint", texthl = "DiagnosticInfo" },
+    { name = "DapBreakpointRejected", text = get_icon "DapBreakpointRejected", texthl = "DiagnosticError" },
+    { name = "DapBreakpointCondition", text = get_icon "DapBreakpointCondition", texthl = "DiagnosticInfo" },
+    { name = "DapLogPoint", text = get_icon "DapLogPoint", texthl = "DiagnosticInfo" },
+  }
 
-local M = {}
-local utils = require "core.utils"
+  for _, sign in ipairs(signs) do
+    vim.fn.sign_define(sign.name, sign)
+  end
+  lsp.setup_diagnostics(signs)
 
--- export on_attach & capabilities for custom lspconfigs
-
-M.on_attach = function(client, bufnr)
-  client.server_capabilities.documentFormattingProvider = false
-  client.server_capabilities.documentRangeFormattingProvider = false
-
-  utils.load_mappings("lspconfig", { buffer = bufnr })
-
-  if client.server_capabilities.signatureHelpProvider then
-    require("nvchad.signature").setup(client)
+  local orig_handler = vim.lsp.handlers["$/progress"]
+  vim.lsp.handlers["$/progress"] = function(_, msg, info)
+    local progress, id = astronvim.lsp.progress, ("%s.%s"):format(info.client_id, msg.token)
+    progress[id] = progress[id] and utils.extend_tbl(progress[id], msg.value) or msg.value
+    if progress[id].kind == "end" then
+      vim.defer_fn(function()
+        progress[id] = nil
+        utils.event "LspProgress"
+      end, 100)
+    end
+    utils.event "LspProgress"
+    orig_handler(_, msg, info)
   end
 
-  if not utils.load_config().ui.lsp_semantic_tokens and client.supports_method "textDocument/semanticTokens" then
-    client.server_capabilities.semanticTokensProvider = nil
+  if vim.g.lsp_handlers_enabled then
+    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded", silent = true })
+    vim.lsp.handlers["textDocument/signatureHelp"] =
+      vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded", silent = true })
+  end
+  local setup_servers = function()
+    vim.tbl_map(require("astronvim.utils.lsp").setup, astronvim.user_opts "lsp.servers")
+    vim.api.nvim_exec_autocmds("FileType", {})
+    require("astronvim.utils").event "LspSetup"
+  end
+  if require("astronvim.utils").is_available "mason-lspconfig.nvim" then
+    vim.api.nvim_create_autocmd("User", {
+      desc = "set up LSP servers after mason-lspconfig",
+      pattern = "AstroMasonLspSetup",
+      once = true,
+      callback = setup_servers,
+    })
+  else
+    setup_servers()
   end
 end
-
-M.capabilities = vim.lsp.protocol.make_client_capabilities()
-
-M.capabilities.textDocument.completion.completionItem = {
-  documentationFormat = { "markdown", "plaintext" },
-  snippetSupport = true,
-  preselectSupport = true,
-  insertReplaceSupport = true,
-  labelDetailsSupport = true,
-  deprecatedSupport = true,
-  commitCharactersSupport = true,
-  tagSupport = { valueSet = { 1 } },
-  resolveSupport = {
-    properties = {
-      "documentation",
-      "detail",
-      "additionalTextEdits",
-    },
-  },
-}
-
-require("lspconfig").lua_ls.setup {
-  on_attach = M.on_attach,
-  capabilities = M.capabilities,
-
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { "vim" },
-      },
-      workspace = {
-        library = {
-          [vim.fn.expand "$VIMRUNTIME/lua"] = true,
-          [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
-          [vim.fn.stdpath "data" .. "/lazy/ui/nvchad_types"] = true,
-          [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
-        },
-        maxPreload = 100000,
-        preloadFileSize = 10000,
-      },
-    },
-  },
-}
-
-return M
