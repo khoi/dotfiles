@@ -5,7 +5,7 @@ yabai -m signal --add event=window_focused action="sketchybar --trigger window_f
 sudo yabai --load-sa
 
 yabai -m config external_bar               all:35:0     \
-                mouse_follows_focus        off          \
+                mouse_follows_focus        on           \
                 focus_follows_mouse        on           \
                 window_zoom_persist        on           \
                 window_placement           second_child \
@@ -36,6 +36,9 @@ yabai -m rule --add label="Arc PiP" app="^Arc$" title="^$" manage=off
 yabai -m rule --add label="Little Arc Launcher" app="^Arc$" title="^Space 1$" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
+
+# Ignore everything without title
+yabai -m rule --add label="untitled" app=".+" title="^$" manage=off
 
 yabai -m config layout bsp
 
