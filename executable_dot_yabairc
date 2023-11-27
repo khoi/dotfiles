@@ -4,6 +4,14 @@ yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
 sudo yabai --load-sa
 
+move_to_space() {
+  id=$(yabai -m query --windows | jq ".[] | select(.app | contains(\"$1\")) | .id")
+
+  if [ -n "$id" ]; then
+    yabai -m window "$id" --space "$2"
+  fi
+}
+
 yabai -m config external_bar               all:35:0     \
                 mouse_follows_focus        on           \
                 focus_follows_mouse        on           \
@@ -39,6 +47,38 @@ yabai -m rule --add label="About This Mac" app="System Information" title="About
 
 # Ignore everything without title
 yabai -m rule --add label="untitled" app=".+" title="^$" manage=off
+
+SPACE_COUNT=$(yabai -m query --spaces --display 1 | jq length)
+
+# Create more spaces if insufficient
+if [ "$SPACE_COUNT" -lt 4 ]; then
+  for _i in $(seq 1 $((4 - SPACE_COUNT))); do
+    yabai -m space --create
+  done
+fi
+
+# Label spaces
+yabai -m space 1 --label "Browser"
+yabai -m space 2 --label "Code"
+yabai -m space 3 --label "Misc"
+
+# Move all windows to Space Misc by default
+yabai -m rule --add app=".*" label="All Apps" space=3
+yabai -m rule --remove "All Apps"
+
+# Spaces
+## Space 1: Browser
+# yabai -m rule --add app="kitty" title=".+" space=Browser
+move_to_space "Arc" Browser
+move_to_space "Safari" Browser
+
+## Space 2: Code
+# yabai -m rule --add app="Code" title=".+" space=Code
+move_to_space "Code" Code
+move_to_space "Xcode" Code
+move_to_space "Alacritty" Code
+
+yabai -m space --focus 1
 
 yabai -m config layout bsp
 
