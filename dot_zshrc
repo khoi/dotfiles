@@ -23,7 +23,14 @@ antigen apply
 alias o="open"
 alias dl="aria2c"
 
-# History size
+# HISTORY
+setopt EXTENDED_HISTORY   # enable more detailed history (time, command, etc.)   
+setopt SHARE_HISTORY      # share history across multiple zsh sessions
+setopt APPEND_HISTORY     # append to history
+setopt INC_APPEND_HISTORY # adds commands as they are typed, not at shell exit
+setopt HIST_VERIFY        # let you edit !$, !! and !* before executing the command
+setopt HIST_IGNORE_DUPS   # do not store duplications
+setopt HIST_REDUCE_BLANKS # removes blank lines from history
 setopt HIST_IGNORE_SPACE # command without history when prefix with Space
 HISTSIZE=10000000
 SAVEHIST=$HISTSIZE
