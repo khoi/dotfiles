@@ -46,6 +46,7 @@ yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
 
 # Ignore everything without title
+yabai -m rule --add label="" app=".+" title="^$" manage=off
 yabai -m rule --add label="untitled" app=".+" title="^$" manage=off
 
 SPACE_COUNT=$(yabai -m query --spaces --display 1 | jq length)
