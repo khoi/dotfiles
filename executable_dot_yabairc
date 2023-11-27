@@ -13,7 +13,7 @@ move_to_space() {
 }
 
 yabai -m config external_bar               all:35:0     \
-                mouse_follows_focus        on           \
+                mouse_follows_focus        off          \
                 focus_follows_mouse        on           \
                 window_zoom_persist        on           \
                 window_placement           second_child \
