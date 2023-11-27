@@ -40,7 +40,7 @@ yabai -m config external_bar               all:35:0     \
 
 # Exclude problematic apps from being managed:
 yabai -m rule --add app="^(CleanShot X|Software Update|VLC|System Preferences|System Settings|zoom.us|Photo Booth|Archive Utility|App Store|Steam|Activity Monitor|Finder|1Password|Toggl Track)$" manage=off
-yabai -m rule --add label="Arc PiP" app="^Arc$" title="^$" manage=off
+yabai -m rule --add label="Arc PiP" app="^Arc$" title="^$" manage=off mouse_follows_focus=off
 yabai -m rule --add label="Little Arc Launcher" app="^Arc$" title="^Space 1$" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
