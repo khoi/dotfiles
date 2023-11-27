@@ -15,6 +15,7 @@ cask "proxyman"
 cask "xcodes"
 cask "obsidian"
 cask "fork"
+cask "vlc"
 
 # CLI
 brew "1password-cli"
