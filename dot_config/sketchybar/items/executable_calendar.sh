@@ -6,6 +6,7 @@ calendar=(
   icon.padding_right=0
   label.width=45
   label.align=right
+  label.color=$ORANGE
   padding_left=15
   update_freq=30
   script="$PLUGIN_DIR/calendar.sh"
