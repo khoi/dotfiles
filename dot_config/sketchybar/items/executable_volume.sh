@@ -19,7 +19,7 @@ volume_icon=(
   icon=$VOLUME_100
   icon.width=0
   icon.align=left
-  icon.color=$GREY
+  icon.color=$LABEL_COLOR
   icon.font="$FONT:Regular:14.0"
   label.width=25
   label.align=left
@@ -27,7 +27,7 @@ volume_icon=(
 )
 
 status_bracket=(
-  background.color=$BACKGROUND_1
+  background.color=$BACKGROUND
   background.border_color=$BACKGROUND_2
 )
 
