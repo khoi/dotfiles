@@ -69,11 +69,10 @@ cmd + alt - r : /usr/bin/env osascript <<< \
 alt - n : yabai -m space --create && \
                   index="$(yabai -m query --displays --display | jq '.spaces[-1]')" && \
                   yabai -m space --focus "${index}"
-# create a new space, move window and follow focus
+# create a new space, move window 
 shift + alt - n : yabai -m space --create && \
                   index="$(yabai -m query --displays --display | jq '.spaces[-1]')" && \
-                  yabai -m window --space "${index}" && \
-                  yabai -m space --focus "${index}"
+                  yabai -m window --space "${index}" 
 
 ## Stacks (shift + ctrl - ...)
 # Add the active window to the window or stack to the {direction}: shift + ctrl - {j, k, l, ö}
