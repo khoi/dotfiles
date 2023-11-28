@@ -14,8 +14,8 @@ move_to_space() {
 }
 
 yabai -m config external_bar               all:35:0     \
-                mouse_follows_focus        off          \
-                focus_follows_mouse        on           \
+                mouse_follows_focus        on           \
+                focus_follows_mouse        autofocus    \
                 window_zoom_persist        on           \
                 window_placement           second_child \
                 window_topmost             off          \
@@ -47,8 +47,8 @@ yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password
 yabai -m rule --add label="About This Mac" app="System Information" title="About This Mac" manage=off
 
 # Ignore everything without title
-yabai -m rule --add label="" app=".+" title="^$" manage=off
-yabai -m rule --add label="untitled" app=".+" title="^$" manage=off
+yabai -m rule --add label="" app=".+" title="^$" manage=off mouse_follows_focus=off
+yabai -m rule --add label="untitled" app=".+" title="^$" manage=off mouse_follows_focus=off
 
 SPACE_COUNT=$(yabai -m query --spaces --display 1 | jq length)
 
@@ -79,8 +79,6 @@ move_to_space "Safari" Browser
 move_to_space "Code" Code
 move_to_space "Xcode" Code
 move_to_space "Alacritty" Code
-
-yabai -m space --focus 1
 
 yabai -m config layout bsp
 
