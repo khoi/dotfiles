@@ -19,6 +19,7 @@ cask "vlc"
 
 # CLI
 brew "1password-cli"
+brew "libyaml"
 brew "aria2"
 brew "chezmoi"
 brew "watchexec"
