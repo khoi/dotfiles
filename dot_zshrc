@@ -100,6 +100,10 @@ if type exa >/dev/null; then
   alias lt='exa --tree --level=2' # tree
 fi
 
+if type rtx >/dev/null; then
+  eval "$(rtx activate zsh)"
+fi
+
 # fzf-tab
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
