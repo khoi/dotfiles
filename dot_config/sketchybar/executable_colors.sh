@@ -55,3 +55,4 @@ export BLUE=$BASE0D
 export ORANGE=$BASE09
 export YELLOW=$BASE0A
 export GREEN=$BASE0B
+export MAGENTA=$BASE0E
