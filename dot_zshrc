@@ -105,7 +105,7 @@ if type rtx >/dev/null; then
 fi
 
 # nnn config
-export NNN_PLUG='z:autojump;c:fzcd;y:cbcopy-mac;p:cbpaste-mac'
+export NNN_PLUG='z:autojump;c:fzcd;p:rsynccp'
 BLK="0B" CHR="0B" DIR="04" EXE="0A" REG="00" HLINK="06" SLINK="0E" MISSING="00" ORPHAN="09" FIFO="06" SOCK="0B" OTHER="06"
 export NNN_FCOLORS="$BLK$CHR$DIR$EXE$REG$HLINK$SLINK$MISSING$ORPHAN$FIFO$SOCK$OTHER"
 export NNN_FIFO=/tmp/nnn.fifo
