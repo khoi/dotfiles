@@ -38,6 +38,10 @@ yabai -m config external_bar all:35:0 \
   right_padding 4 \
   window_gap 6
 
+# Move all windows to Space Misc by default
+yabai -m rule --add app=".*" label="All Apps" space=4
+yabai -m rule --remove "All Apps"
+
 # Exclude problematic apps from being managed:
 yabai -m rule --add app="1Password" manage=off
 yabai -m rule --add app="Activity Monitor" manage=off
@@ -50,7 +54,7 @@ yabai -m rule --add app="OrcaSlicer" manage=off
 yabai -m rule --add app="Photo Booth" manage=off
 yabai -m rule --add app="Software Update" manage=off
 yabai -m rule --add app="Steam" manage=off
-yabai -m rule --add app="SuperSlicer" manage=off
+yabai -m rule --add app="SuperSlicer" manage=offbrew install bleunlock
 yabai -m rule --add app="System Information" manage=off
 yabai -m rule --add app="System Preferences" manage=off
 yabai -m rule --add app="System Settings" manage=off
@@ -59,6 +63,18 @@ yabai -m rule --add app="VLC" manage=off
 yabai -m rule --add app="zoom.us" manage=off
 yabai -m rule --add label="Little Arc Launcher" app="^Arc$" title="^Space 1$" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
+
+# Move apps to their correct spaces
+yabai -m rule --add app="Arc" space=1
+
+# move Code, Xcode, Alacritty to space 2
+yabai -m rule --add app="Visual Studio Code" space=2
+yabai -m rule --add app="Xcode" space=2
+yabai -m rule --add app="Alacritty" space=2
+
+# Move social apps to space 3
+yabai -m rule --add app="Telegram" space=3
+yabai -m rule --add app="Zalo" space=3
 
 # Ignore everything without title
 yabai -m rule --add label="" app=".+" title="^$" manage=off mouse_follows_focus=off
@@ -76,23 +92,8 @@ fi
 # Label spaces
 yabai -m space 1 --label "Browser"
 yabai -m space 2 --label "Code"
-yabai -m space 3 --label "Misc"
-
-# Move all windows to Space Misc by default
-yabai -m rule --add app=".*" label="All Apps" space=3
-yabai -m rule --remove "All Apps"
-
-# Spaces
-## Space 1: Browser
-# yabai -m rule --add app="kitty" title=".+" space=Browser
-move_to_space "Arc" Browser
-move_to_space "Safari" Browser
-
-## Space 2: Code
-# yabai -m rule --add app="Code" title=".+" space=Code
-move_to_space "Code" Code
-move_to_space "Xcode" Code
-move_to_space "Alacritty" Code
+yabai -m space 3 --label "Social"
+yabai -m space 4 --label "Misc"
 
 yabai -m config layout bsp
 
