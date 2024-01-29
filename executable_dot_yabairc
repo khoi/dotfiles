@@ -39,10 +39,24 @@ yabai -m config external_bar all:35:0 \
   window_gap 6
 
 # Exclude problematic apps from being managed:
-yabai -m rule --add app="^(CleanShot X|Software Update|VLC|System Preferences|System Settings|zoom.us|Photo Booth|Archive Utility|App Store|Steam|Activity Monitor|Finder|1Password|Toggl Track|SuperSlicer)$" manage=off
-yabai -m rule --add app="OrcaSlicer" manage=off
-yabai -m rule --add app="System Information" manage=off
+yabai -m rule --add app="1Password" manage=off
+yabai -m rule --add app="Activity Monitor" manage=off
+yabai -m rule --add app="App Store" manage=off
+yabai -m rule --add app="Archive Utility" manage=off
+yabai -m rule --add app="CleanShot X" manage=off
+yabai -m rule --add app="Finder" manage=off
 yabai -m rule --add app="Fork" manage=off
+yabai -m rule --add app="OrcaSlicer" manage=off
+yabai -m rule --add app="Photo Booth" manage=off
+yabai -m rule --add app="Software Update" manage=off
+yabai -m rule --add app="Steam" manage=off
+yabai -m rule --add app="SuperSlicer" manage=off
+yabai -m rule --add app="System Information" manage=off
+yabai -m rule --add app="System Preferences" manage=off
+yabai -m rule --add app="System Settings" manage=off
+yabai -m rule --add app="Toggl Track" manage=off
+yabai -m rule --add app="VLC" manage=off
+yabai -m rule --add app="zoom.us" manage=off
 yabai -m rule --add label="Little Arc Launcher" app="^Arc$" title="^Space 1$" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
 
