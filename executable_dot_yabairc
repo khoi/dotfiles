@@ -63,6 +63,7 @@ yabai -m rule --add app="VLC" manage=off
 yabai -m rule --add app="zoom.us" manage=off
 yabai -m rule --add label="Little Arc Launcher" app="^Arc$" title="^Space 1$" manage=off
 yabai -m rule --add label="Safari" app="^Safari$" title="^(General|(Tab|Password|Website|Extension)s|AutoFill|Se(arch|curity)|Privacy|Advance)$" manage=off
+yabai -m rule --add subrole="^AXSystemDialog$" manage=off mouse_follows_focus=off
 
 # Move apps to their correct spaces
 yabai -m rule --add app="Arc" space=1
