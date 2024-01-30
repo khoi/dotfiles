@@ -17,4 +17,5 @@ restic backup "$HOME" \
   --exclude "$HOME/Documents" \
   --exclude "$HOME/Music" \
   --exclude "$HOME/.Trash" \
-  --exclude "$HOME/.orbstack/"
+  --exclude "$HOME/.orbstack/" \
+  --exclude "$HOME/.ollama/"
