@@ -63,7 +63,7 @@ alt - r         : yabai -m space --rotate 270
 shift + alt - r : yabai -m space --rotate 90
 
 cmd + alt - r : /usr/bin/env osascript <<< \
-        "display notification \"Restarting Yabai\" with title \"Yabai\""; yabai --restart-service
+        "display notification \"Restarting Yabai\" with title \"Yabai\""; yabai --restart-service; brew services reload sketchybar
 
 # create a new space and follow focus
 alt - n : yabai -m space --create && \
