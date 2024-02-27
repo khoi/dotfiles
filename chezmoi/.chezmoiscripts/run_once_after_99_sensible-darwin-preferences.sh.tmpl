@@ -1,3 +1,4 @@
+{{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
 # Fork of https://mths.be/macos
@@ -224,3 +225,4 @@ for app in "Activity Monitor" \
 	killall "${app}" &>/dev/null
 done
 echo "Done. Note that some of these changes require a logout/restart to take effect."
+{{ end -}}

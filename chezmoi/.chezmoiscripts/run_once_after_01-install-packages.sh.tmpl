@@ -6,7 +6,6 @@ echo "🍺 Install macOS homebrew packages"
 set -eufo pipefail
 
 {{ $brews := list
-  "1password-cli"
   "aria2"
   "chezmoi"
   "exa"
@@ -43,6 +42,7 @@ set -eufo pipefail
 
 {{ $casks := list
   "1password"
+  "1password-cli"
   "arc"
   "visual-studio-code"
   "google-chrome"
