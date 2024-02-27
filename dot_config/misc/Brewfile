@@ -17,6 +17,7 @@ cask "obsidian"
 cask "fork"
 cask "vlc"
 cask "nikitabobko/tap/aerospace"
+cask "FelixKratz/formulae/borders"
 
 # CLI
 brew "1password-cli"
