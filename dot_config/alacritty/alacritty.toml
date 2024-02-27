@@ -40,10 +40,6 @@ family = "JetbrainsMono Nerd Font"
 family = "JetbrainsMono Nerd Font"
 style = "Regular"
 
-[shell]
-args = ["--login", "-c", "tat"]
-program = "/bin/zsh"
-
 [window]
 decorations = "buttonless"
 option_as_alt = "Both"
