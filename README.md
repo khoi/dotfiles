@@ -4,10 +4,11 @@ These are my personal highly opinonated dotfiles. Feel free to look around and c
 
 ## Installation
 
-Ideally this should be a bash script, but for now I'm too lazy to write it, maybe one day.
+```sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply khoi
+```
 
 - Install homebrew
-- Install chezmoi
 - chezmoi clone this repo
 - `brew bundle`
 - Run `config_sensible_darwin`
