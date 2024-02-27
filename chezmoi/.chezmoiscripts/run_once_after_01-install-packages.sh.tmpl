@@ -1,0 +1,75 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/bin/sh
+
+echo "🍺 Install macOS homebrew packages"
+
+set -eufo pipefail
+
+{{ $brews := list
+  "1password-cli"
+  "aria2"
+  "chezmoi"
+  "exa"
+  "fd"
+  "ffmpeg"
+  "fzf"
+  "gh"
+  "ghq"
+  "git"
+  "git-crypt"
+  "git-extras"
+  "git-lfs"
+  "go"
+  "htop"
+  "ifstat"
+  "jq"
+  "libyaml"
+  "m-cli"
+  "mosh"
+  "nvim"
+  "parallel"
+  "reattach-to-user-namespace"
+  "ripgrep"
+  "starship"
+  "switchaudio-osx"
+  "tldr"
+  "tmux"
+  "watchexec"
+  "yt-dlp"
+  "z"
+  "zerotier-one"
+  "zsh"
+-}}
+
+{{ $casks := list
+  "1password"
+  "arc"
+  "visual-studio-code"
+  "google-chrome"
+  "dash"
+  "raycast"
+  "adguard"
+  "homebrew/cask-fonts/font-jetbrains-mono"
+  "homebrew/cask-fonts/font-jetbrains-mono-nerd-font"
+  "sf-symbols"
+  "Alacritty"
+  "cleanshot"
+  "proxyman"
+  "xcodes"
+  "obsidian"
+  "fork"
+  "vlc"
+  "nikitabobko/tap/aerospace"
+  "FelixKratz/formulae/borders"
+-}}
+
+brew bundle --no-lock --file=/dev/stdin <<EOF || :
+{{ range ($brews | sortAlpha | uniq) -}}
+brew "{{ . }}"
+{{ end }}
+{{ range ($casks | sortAlpha | uniq) -}}
+cask "{{ . }}"
+{{ end }}
+EOF
+
+{{ end -}}
