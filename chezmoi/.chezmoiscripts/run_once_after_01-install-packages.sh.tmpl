@@ -63,7 +63,7 @@ set -eufo pipefail
   "FelixKratz/formulae/borders"
 -}}
 
-brew bundle --no-lock --file=/dev/stdin <<EOF || :
+brew bundle --verbose --no-lock --file=/dev/stdin <<EOF || :
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end }}
