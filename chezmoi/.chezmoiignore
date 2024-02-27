@@ -1,10 +1,2 @@
-.config/kitty
-.config/sketchybar
-.local/macos
-.duti
-.hammerspoon
-.mackup
-.mackup.cfg
-.skhdrc
-.yabai*
-obsidian
+.config/nnn
+.config/raycast
