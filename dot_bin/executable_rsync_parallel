@@ -33,7 +33,7 @@ if [[ "$1" == --parallel=* ]]; then
 	PARALLEL="${1##*=}"
 	shift
 else
-	PARALLEL=$(nproc || echo 10)
+	PARALLEL=$(sysctl -n hw.logicalcpu || echo 10)
 fi
 echo -e "${GREEN}INFO: Using up to ${PARALLEL} processes for transfer ...${NC}"
 
