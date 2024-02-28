@@ -2,7 +2,7 @@ after-login-command = []
 
 after-startup-command = [
     'exec-and-forget borders active_color=0xffe78a4e inactive_color=0xff404344 width=5.0',
-    'workspace 1'
+    'workspace 1',
 ]
 
 start-at-login = true
@@ -29,12 +29,12 @@ default-root-container-orientation = 'auto'
 #                 In this example, 24 is a default value when there is no match.
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide.html#assign-workspaces-to-monitors
-gaps.inner.horizontal = 8
-gaps.inner.vertical = 8
-gaps.outer.left = 8
-gaps.outer.bottom = 8
-gaps.outer.top = 8
-gaps.outer.right = 8
+gaps.inner.horizontal = 4
+gaps.inner.vertical = 4
+gaps.outer.left = 4
+gaps.outer.bottom = 4
+gaps.outer.top = 4
+gaps.outer.right = 4
 
 # Visual indent makes it easier to understand that containers of the same orientation are nested.
 # If you have 'enable-normalization-opposite-orientation-for-nested-containers' enabled then
@@ -174,25 +174,25 @@ alt-shift-l = ['join-with right', 'mode main']
 esc = 'mode main'
 
 # default everything to be in workspace 1
-[[on-window-detected]] 
+[[on-window-detected]]
 check-further-callbacks = true
 run = 'move-node-to-workspace 1'
 
 # W - Web - workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
-run = 'move-node-to-workspace W' 
+run = 'move-node-to-workspace W'
 
 # E - Editor workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Code'
-run = 'move-node-to-workspace E' 
+run = 'move-node-to-workspace E'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Xcode'
-run = 'move-node-to-workspace E' 
+run = 'move-node-to-workspace E'
 
 # T - Terminal workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Alacritty'
-run = 'move-node-to-workspace T' 
+run = 'move-node-to-workspace T'
