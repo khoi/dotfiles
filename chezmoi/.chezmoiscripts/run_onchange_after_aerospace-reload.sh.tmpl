@@ -1,0 +1,10 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+
+#!/bin/bash
+
+# hash: {{ include "dot_aerospace.toml" | sha256sum }}
+
+echo "🛰️ Reloading aerospace"
+aerospace reload-config
+
+{{ end -}}

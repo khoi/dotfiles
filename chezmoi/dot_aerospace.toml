@@ -178,10 +178,12 @@ esc = 'mode main'
 check-further-callbacks = true
 run = 'move-node-to-workspace 1'
 
+# W - Web - workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
 run = 'move-node-to-workspace W' 
 
+# E - Editor workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Code'
 run = 'move-node-to-workspace E' 
@@ -190,6 +192,7 @@ run = 'move-node-to-workspace E'
 if.app-name-regex-substring = 'Xcode'
 run = 'move-node-to-workspace E' 
 
+# T - Terminal workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Alacritty'
 run = 'move-node-to-workspace T' 
