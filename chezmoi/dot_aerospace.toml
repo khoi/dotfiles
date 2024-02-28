@@ -174,16 +174,16 @@ esc = 'mode main'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
-run = 'move-node-to-workspace w' 
+run = 'move-node-to-workspace W' 
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Visual Studio Code'
-run = 'move-node-to-workspace e' 
+if.app-name-regex-substring = 'Code'
+run = 'move-node-to-workspace E' 
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Xcode'
-run = 'move-node-to-workspace e' 
+run = 'move-node-to-workspace E' 
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Alacritty'
-run = 'move-node-to-workspace t' 
+run = 'move-node-to-workspace T' 
