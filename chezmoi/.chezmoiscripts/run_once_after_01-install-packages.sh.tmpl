@@ -12,6 +12,12 @@ echo "🍺 Install macOS homebrew packages"
 
 set -eufo pipefail
 
+{{ $taps := list
+  "homebrew/cask-fonts"
+  "FelixKratz/formulae"
+  "nikitabobko/tap"
+-}}
+
 {{ $brews := list
   "aria2"
   "chezmoi"
@@ -56,8 +62,8 @@ set -eufo pipefail
   "dash"
   "raycast"
   "adguard"
-  "homebrew/cask-fonts/font-jetbrains-mono"
-  "homebrew/cask-fonts/font-jetbrains-mono-nerd-font"
+  "font-jetbrains-mono"
+  "font-jetbrains-mono-nerd-font"
   "sf-symbols"
   "Alacritty"
   "cleanshot"
@@ -66,11 +72,14 @@ set -eufo pipefail
   "obsidian"
   "fork"
   "vlc"
-  "nikitabobko/tap/aerospace"
-  "FelixKratz/formulae/borders"
+  "aerospace"
+  "borders"
 -}}
 
-brew bundle --verbose --no-lock --file=/dev/stdin <<EOF || :
+brew bundle --no-lock --file=/dev/stdin <<EOF || :
+{{ range ($taps | sortAlpha | uniq) -}}
+tap "{{ . }}"
+{{ end }}
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end }}
