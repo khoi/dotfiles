@@ -111,6 +111,4 @@ fi
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
 
-# write a random string to the prompt
-
 PATH=~/.console-ninja/.bin:$PATH
