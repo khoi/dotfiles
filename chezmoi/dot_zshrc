@@ -85,6 +85,9 @@ export GHQ_ROOT=~/code
 export RESTIC_REPOSITORY="rest:http://restic:restic@vault:8000"
 export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
 
+# ripgrep
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
 # exa alias
 if type exa >/dev/null; then
   # general use
