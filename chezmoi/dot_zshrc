@@ -104,28 +104,8 @@ if type rtx >/dev/null; then
   eval "$(rtx activate zsh)"
 fi
 
-# nnn config
-export NNN_PLUG='z:autojump;c:fzcd;p:rsynccp'
-BLK="0B" CHR="0B" DIR="04" EXE="0A" REG="00" HLINK="06" SLINK="0E" MISSING="00" ORPHAN="09" FIFO="06" SOCK="0B" OTHER="06"
-export NNN_FCOLORS="$BLK$CHR$DIR$EXE$REG$HLINK$SLINK$MISSING$ORPHAN$FIFO$SOCK$OTHER"
-export NNN_FIFO=/tmp/nnn.fifo
-n ()
-{
-    [ "${NNNLVL:-0}" -eq 0 ] || {
-        echo "nnn is already running"
-        return
-    }
-
-    export NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
-
-    command nnn "$@"
-
-    [ ! -f "$NNN_TMPFILE" ] || {
-        . "$NNN_TMPFILE"
-        rm -f "$NNN_TMPFILE" > /dev/null
-    }
-}
-
 # fzf-tab
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
+
+# write a random string to the prompt
