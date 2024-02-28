@@ -21,11 +21,10 @@ done 2>/dev/null &
 # General UI/UX                                                               #
 ###############################################################################
 
-# Some new stuff
 defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
-defaults write NSGlobalDomain _HIHideMenuBar -bool true
+defaults write NSGlobalDomain _HIHideMenuBar -bool false
 
 # Increase window resize speed for Cocoa applications
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001

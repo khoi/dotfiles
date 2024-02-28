@@ -60,7 +60,7 @@ indent-for-nested-containers-with-the-same-orientation = 30
 
 # All possible commands: https://nikitabobko.github.io/AeroSpace/commands.html
 
-alt-enter = 'exec-and-forget open -n /Applications/Alacritty.app'
+alt-enter = 'exec-and-forget open /Applications/Alacritty.app'
 
 alt-slash = 'layout tiles horizontal vertical'
 alt-comma = 'layout accordion horizontal vertical'

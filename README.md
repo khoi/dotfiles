@@ -14,5 +14,6 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --ssh khoi
   - 1Password
     - Turn on SSH Agent
     - Integrate with 1Password CLI
+  - Aerospace
   - Raycast
   - Adguard
