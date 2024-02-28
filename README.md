@@ -5,7 +5,7 @@ These are my personal highly opinonated dotfiles. Feel free to look around and c
 ## Installation
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply khoi
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --ssh khoi
 ```
 
 ## Manual setups
