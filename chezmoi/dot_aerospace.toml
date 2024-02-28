@@ -2,6 +2,7 @@ after-login-command = []
 
 after-startup-command = [
     'exec-and-forget borders active_color=0xffe78a4e inactive_color=0xff404344 width=5.0',
+    'workspace 1'
 ]
 
 start-at-login = true
@@ -171,6 +172,11 @@ alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
 esc = 'mode main'
+
+# default everything to be in workspace 1
+[[on-window-detected]] 
+check-further-callbacks = true
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
