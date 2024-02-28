@@ -179,6 +179,11 @@ check-further-callbacks = true
 run = 'move-node-to-workspace 1'
 if.during-aerospace-startup = true
 
+# Floating
+[[on-window-detected]]
+if.app-name-regex-substring = '1Password'
+run = 'layout floating'
+
 # W - Web - workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
