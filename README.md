@@ -1,6 +1,6 @@
 # dotfiles
 
-These are my personal highly opinonated dotfiles. Feel free to look around and copy what you like.
+My highly opinonated dotfiles. Feel free to look around and copy what you like.
 
 ## Installation
 
