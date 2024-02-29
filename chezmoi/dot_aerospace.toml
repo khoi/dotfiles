@@ -184,6 +184,10 @@ if.during-aerospace-startup = true
 if.app-name-regex-substring = '1Password'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'LuLu'
+run = 'layout floating'
+
 # W - Web - workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
