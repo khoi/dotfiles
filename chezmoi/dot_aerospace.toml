@@ -185,6 +185,10 @@ if.app-name-regex-substring = 'Finder'
 run = 'layout floating'
 
 [[on-window-detected]]
+if.app-name-regex-substring = 'VLC'
+run = 'layout floating'
+
+[[on-window-detected]]
 if.app-name-regex-substring = '1Password'
 run = 'layout floating'
 
