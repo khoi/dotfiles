@@ -13,7 +13,7 @@ antigen bundle git
 antigen bundle pip
 antigen bundle bundler
 antigen bundle z
-
+antigen bundle asdf
 antigen bundle zsh-users/zsh-completions
 antigen bundle Aloxaf/fzf-tab
 
@@ -72,6 +72,9 @@ fi
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --no-ignore-vcs'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# asdf check if
+[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
 
 # starship
 if type starship >/dev/null; then
