@@ -214,3 +214,12 @@ run = 'move-node-to-workspace E'
 [[on-window-detected]]
 if.app-name-regex-substring = 'Alacritty'
 run = 'move-node-to-workspace T'
+
+# S - Social
+[[on-window-detected]]
+if.app-name-regex-substring = 'Telegram'
+run = 'move-node-to-workspace S'
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Whatsapp'
+run = 'move-node-to-workspace S'
