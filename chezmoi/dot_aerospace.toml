@@ -29,12 +29,12 @@ default-root-container-orientation = 'auto'
 #                 In this example, 24 is a default value when there is no match.
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide.html#assign-workspaces-to-monitors
-gaps.inner.horizontal = 4
-gaps.inner.vertical = 4
-gaps.outer.left = 6
-gaps.outer.bottom = 6
-gaps.outer.top = 6
-gaps.outer.right = 6
+gaps.inner.horizontal = [{ monitor."Studio Display" = 8 }, 6]
+gaps.inner.vertical = [{ monitor."Studio Display" = 8 }, 6]
+gaps.outer.left = [{ monitor."Studio Display" = 8 }, 6]
+gaps.outer.bottom = [{ monitor."Studio Display" = 8 }, 6]
+gaps.outer.top = [{ monitor."Studio Display" = 8 }, 6]
+gaps.outer.right = [{ monitor."Studio Display" = 8 }, 6]
 
 # Visual indent makes it easier to understand that containers of the same orientation are nested.
 # If you have 'enable-normalization-opposite-orientation-for-nested-containers' enabled then
