@@ -31,10 +31,10 @@ default-root-container-orientation = 'auto'
 #                 See: https://nikitabobko.github.io/AeroSpace/guide.html#assign-workspaces-to-monitors
 gaps.inner.horizontal = 4
 gaps.inner.vertical = 4
-gaps.outer.left = 4
-gaps.outer.bottom = 4
-gaps.outer.top = 4
-gaps.outer.right = 14
+gaps.outer.left = 6
+gaps.outer.bottom = 6
+gaps.outer.top = 6
+gaps.outer.right = 6
 
 # Visual indent makes it easier to understand that containers of the same orientation are nested.
 # If you have 'enable-normalization-opposite-orientation-for-nested-containers' enabled then
