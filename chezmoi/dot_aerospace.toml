@@ -196,6 +196,10 @@ run = 'layout floating'
 if.app-name-regex-substring = 'LuLu'
 run = 'layout floating'
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'Webex'
+run = 'layout floating'
+
 # W - Web - workspace
 [[on-window-detected]]
 if.app-name-regex-substring = 'Arc'
