@@ -2,7 +2,7 @@
 
 set -Eeuo pipefail
 
-HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')"
+HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')-$(hostname)"
 
 restic unlock
 
