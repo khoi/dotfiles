@@ -4,6 +4,18 @@ disabled = true
 [ruby]
 disabled = true
 
+[java]
+disabled = true
+
+[gradle]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[nodejs]
+disabled = true
+
 [git_status]
 ahead = "⇡${count}"
 diverged = "⇡${ahead_count}⇣${behind_count}"
