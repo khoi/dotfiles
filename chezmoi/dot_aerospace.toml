@@ -82,6 +82,10 @@ if.during-aerospace-startup = true
 
 # Floating
 [[on-window-detected]]
+if.app-name-regex-substring = 'Simulator'
+run = 'layout floating'
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'Finder'
 run = 'layout floating'
 
