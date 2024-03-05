@@ -2,10 +2,14 @@
 
 set -Eeuo pipefail
 
+HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')"
+
 restic unlock
 
-echo "💾 Backing up"
+echo "💾 Backing up with hostname $HOST"
+
 restic backup "$HOME" \
+  -H "$HOST" \
   --compression "max" \
   --exclude-caches \
   --one-file-system \
