@@ -25,7 +25,7 @@ gaps.outer.right = [{ monitor."Studio Display" = 8 }, 6]
 indent-for-nested-containers-with-the-same-orientation = 30
 
 [mode.main.binding]
-alt-enter = 'exec-and-forget open /Applications/Alacritty.app'
+alt-backtick = 'exec-and-forget open /Applications/Alacritty.app'
 alt-slash = 'layout tiles horizontal vertical'
 alt-comma = 'layout accordion horizontal vertical'
 alt-f = [
