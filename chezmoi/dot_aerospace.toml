@@ -81,6 +81,11 @@ run = 'move-node-to-workspace 1'
 if.during-aerospace-startup = true
 
 # Floating
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Goodnotes'
+run = 'layout floating'
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Simulator'
 run = 'layout floating'
