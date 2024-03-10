@@ -72,7 +72,6 @@ backspace = ['close-all-windows-but-current', 'mode main']
 esc = ['reload-config', 'mode main']
 
 [workspace-to-monitor-force-assignment]
-T = 'secondary'
 1 = 'secondary'
 
 # default everything to be in workspace 1
