@@ -32,6 +32,7 @@ alt-f = [
     'layout floating tiling',
     'mode main',
 ] # Toggle between floating and tiling layout
+alt-space = ['fullscreen']
 alt-h = 'focus left'
 alt-j = 'focus down'
 alt-k = 'focus up'
