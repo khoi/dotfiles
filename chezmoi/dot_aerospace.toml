@@ -83,6 +83,10 @@ if.during-aerospace-startup = true
 
 # Floating
 [[on-window-detected]]
+if.app-name-regex-substring = 'Bezel'
+run = 'layout floating'
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'Fork'
 run = 'layout floating'
 
