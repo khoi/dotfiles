@@ -21,7 +21,7 @@
 [user]
 	name = khoi
 	email = git@khoi.io
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDF54tnYI6lVm2PaWR55fkakNXwbWNF66oQqOphwBRzN
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEIR0MxbYdOCgxOp1D27lGSjolzabibv88N2wplMbcbE
 [commit]
 	gpgsign = true
 [ghq]
