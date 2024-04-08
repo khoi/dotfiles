@@ -74,6 +74,7 @@ esc = ['reload-config', 'mode main']
 
 [workspace-to-monitor-force-assignment]
 1 = 'secondary'
+S = 'secondary'
 
 # default everything to be in workspace 1
 [[on-window-detected]]
