@@ -120,4 +120,8 @@ function yy() {
 	rm -f -- "$tmp"
 }
 
+if type zoxide >/dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
 PATH=~/.console-ninja/.bin:$PATH
