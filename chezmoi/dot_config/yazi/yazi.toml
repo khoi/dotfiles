@@ -1,0 +1,12 @@
+[manager]
+sort_by = "modified"
+sort_dir_first = true
+linemode = "size"
+show_hidden = true
+show_symlink = true
+
+[[manager.prepend_keymap]]
+on   = [ "l" ]
+run  = "plugin --sync smart-enter"
+desc = "Enter the child directory, or open the file"
+
