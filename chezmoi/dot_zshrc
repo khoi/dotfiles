@@ -12,7 +12,6 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle pip
 antigen bundle bundler
-antigen bundle z
 antigen bundle asdf
 antigen bundle zsh-users/zsh-completions
 antigen bundle Aloxaf/fzf-tab
@@ -112,12 +111,12 @@ zstyle ':completion:*:git-checkout:*' sort false
 
 # yazi
 function yy() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-	yazi "$@" --cwd-file="$tmp"
-	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-		cd -- "$cwd"
-	fi
-	rm -f -- "$tmp"
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
 }
 
 if type zoxide >/dev/null; then
