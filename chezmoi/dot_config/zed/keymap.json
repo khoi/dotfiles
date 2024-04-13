@@ -1,0 +1,45 @@
+[
+  {
+    "context": "Editor && VimControl && !VimWaiting && !menu",
+    "bindings": {
+      "ctrl-w z": "workspace::ToggleZoom",
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "g ]": "editor::GoToDiagnostic",
+      "g [": "editor::GoToPrevDiagnostic",
+      "shift-k": "editor::Hover",
+      "g a": "editor::ToggleCodeActions",
+      "g r": "editor::Rename",
+      "space w": "workspace::Save"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "g c c": "editor::ToggleComments"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == visual",
+    "bindings": {
+      "g c": "editor::ToggleComments"
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-l": "terminal::Clear"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"]
+    }
+  }
+]
