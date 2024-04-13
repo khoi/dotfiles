@@ -126,6 +126,10 @@ run = 'move-node-to-workspace W'
 
 # E - Editor workspace
 [[on-window-detected]]
+if.app-name-regex-substring = 'Zed'
+run = 'move-node-to-workspace E'
+
+[[on-window-detected]]
 if.app-name-regex-substring = 'Code'
 run = 'move-node-to-workspace E'
 
