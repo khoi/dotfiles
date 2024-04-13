@@ -12,7 +12,8 @@
       "shift-k": "editor::Hover",
       "g a": "editor::ToggleCodeActions",
       "g r": "editor::Rename",
-      "space w": "workspace::Save"
+      "space w": "workspace::Save",
+      "space t": "task::Rerun"
     }
   },
   {
@@ -30,7 +31,8 @@
   {
     "context": "Terminal",
     "bindings": {
-      "ctrl-l": "terminal::Clear"
+      "ctrl-l": "terminal::Clear",
+      "ctrl-w z": "workspace::ToggleZoom"
     }
   },
   {
