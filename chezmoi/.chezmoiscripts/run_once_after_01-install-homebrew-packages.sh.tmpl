@@ -81,7 +81,7 @@ set -eufo pipefail
   "zerotier-one"
 -}}
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+{{ output "/opt/homebrew/bin/brew" "shellenv" | trim }}
 
 brew bundle --no-lock --file=/dev/stdin <<EOF || :
 {{ range ($taps | sortAlpha | uniq) -}}
