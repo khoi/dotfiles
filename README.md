@@ -17,3 +17,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --ssh khoi
   - Aerospace
   - Raycast
   - Adguard
+- Install xcodes using the CLI (not part of the script since it takes forever)
+```sh
+xcodes install --latest --select --experimental-unxip
+```
