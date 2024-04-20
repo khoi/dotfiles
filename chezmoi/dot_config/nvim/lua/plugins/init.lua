@@ -28,12 +28,14 @@ return {
 			"TmuxNavigateRight",
 			"TmuxNavigatePrevious",
 		},
-		keys = {
-			{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-			{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-			{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-			{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-			{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
-		},
+		init = function()
+			-- local nav = require("nvim-tmux-navigator")
+			local map = vim.keymap.set
+			map("n", "<c-h>", "<cmd>TmuxNavigateLeft<cr>")
+			map("n", "<c-j>", "<cmd>TmuxNavigateDown<cr>")
+			map("n", "<c-k>", "<cmd>TmuxNavigateUp<cr>")
+			map("n", "<c-l>", "<cmd>TmuxNavigateRight<cr>")
+			map("n", "<c-\\>", "<cmd>TmuxNavigatePrevious<cr>")
+		end,
 	},
 }
