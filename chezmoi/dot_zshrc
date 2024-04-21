@@ -105,9 +105,6 @@ if type exa >/dev/null; then
   alias lt='exa --tree --level=2' # tree
 fi
 
-# git ssh conversion alias
-alias git-ssh="git remote set-url origin $(git remote get-url origin | sed 's/^git@\(.*\):\/*\(.*\).git/https:\/\/\1\/\2.git/')"
-
 # fzf-tab
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
