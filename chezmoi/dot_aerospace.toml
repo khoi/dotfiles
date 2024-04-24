@@ -90,10 +90,6 @@ if.app-name-regex-substring = 'Fork'
 run = 'layout floating'
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Goodnotes'
-run = 'layout floating'
-
-[[on-window-detected]]
 if.app-name-regex-substring = 'Simulator'
 run = 'layout floating'
 
@@ -133,6 +129,10 @@ run = 'move-node-to-workspace E'
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Xcode'
+run = 'move-node-to-workspace E'
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Goodnotes'
 run = 'move-node-to-workspace E'
 
 # T - Terminal workspace
