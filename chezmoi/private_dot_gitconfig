@@ -13,6 +13,7 @@
 	default = current
 [rerere]
 	enabled = true
+	autoUpdate = true
 [fetch]
 	prune = true
 [rebase]
