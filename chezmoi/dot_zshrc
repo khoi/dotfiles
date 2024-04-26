@@ -81,7 +81,7 @@ if type starship >/dev/null; then
 fi
 
 # ghq https://github.com/x-motemen/ghq
-export GHQ_ROOT=~/code
+export GHQ_ROOT=~/Developer/code
 
 # restic
 export RESTIC_REPOSITORY="rest:http://restic:restic@vault:8000"
