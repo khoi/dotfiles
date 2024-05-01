@@ -14,7 +14,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --ssh khoi
   - 1Password
     - Turn on SSH Agent
     - Integrate with 1Password CLI
-  - Aerospace
+  - Moom
   - Raycast
   - Adguard
 - Install xcodes using the CLI (not part of the script since it takes forever)
