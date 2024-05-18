@@ -1,3 +1,3 @@
 local map = vim.keymap.set
 
-map("n", ";", ":", { desc = "Semicolon to colon to avoid extra shift" })
+map("i", "jj", "<ESC>", { desc = "jj to quit insert mode" })
