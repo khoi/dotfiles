@@ -14,6 +14,17 @@ return {
     },
   },
 
+  {
+    "alexghergh/nvim-tmux-navigation",
+    config = function()
+      local nvim_tmux_nav = require("nvim-tmux-navigation")
+
+      nvim_tmux_nav.setup({
+        disable_when_zoomed = true, -- defaults to false
+      })
+    end,
+  },
+
   -- add more treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
@@ -79,7 +90,6 @@ return {
 
   {
     "hrsh7th/nvim-cmp",
-    ---@param opts cmp.ConfigSchema
     opts = function(_, opts)
       local has_words_before = function()
         unpack = unpack or table.unpack
