@@ -14,6 +14,20 @@ return {
     },
   },
 
+  -- toggle term
+  {
+    "akinsho/nvim-toggleterm.lua",
+    config = function()
+      require("toggleterm").setup({
+        size = 20,
+        open_mapping = [[<c-t>]],
+        start_in_insert = true,
+        persist_size = true,
+        direction = "horizontal",
+      })
+    end,
+  },
+
   {
     "alexghergh/nvim-tmux-navigation",
     config = function()

@@ -35,6 +35,7 @@
   "nvim-snippets": { "branch": "main", "commit": "f394d17b9a83820714957a06c6ed8e12223f3034" },
   "nvim-spectre": { "branch": "master", "commit": "50e96602153f14c913e1969aaf9720e080394eb3" },
   "nvim-tmux-navigation": { "branch": "main", "commit": "4898c98702954439233fdaf764c39636681e2861" },
+  "nvim-toggleterm.lua": { "branch": "main", "commit": "066cccf48a43553a80a210eb3be89a15d789d6e6" },
   "nvim-treesitter": { "branch": "master", "commit": "1eabe69bfa8f78e14fcf5d42a2b3881babaca30a" },
   "nvim-treesitter-textobjects": { "branch": "master", "commit": "51a8e0b76647e83da8e3ddcb11ded3e7c8f28703" },
   "nvim-ts-autotag": { "branch": "main", "commit": "531f48334c422222aebc888fd36e7d109cb354cd" },
