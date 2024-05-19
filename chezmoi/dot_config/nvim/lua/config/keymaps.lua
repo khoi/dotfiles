@@ -2,7 +2,7 @@ local map = vim.keymap.set
 
 map("i", "jj", "<ESC>", { desc = "jj to quit insert mode" })
 
-map("n", "<leader>w\\", "<cmd>vsplit<cr>", { desc = "Split Window Right" })
+map("n", "<leader>w", "<cmd>:w<cr>", { desc = "Save with leader space" })
 
 -- map backspace to CTRL-^
 map("n", "<BS>", "<C-^>", { desc = "Switch to previous buffer" })
