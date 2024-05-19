@@ -73,6 +73,9 @@ if type nvim >/dev/null; then
   alias vim="nvim"
 fi
 
+# lazygit 
+alias lg="lazygit"
+
 # Github CLI
 if type gh >/dev/null; then
   eval "$(gh completion -s zsh)"
