@@ -46,7 +46,7 @@ option_as_alt = "Both"
 startup_mode = "Maximized"
 
 [window.padding]
-x = 0
+x = 2
 y = 0
 
 [hints]
