@@ -161,6 +161,14 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     opts = function()
+      local function show_macro_recording()
+        local recording_register = vim.fn.reg_recording()
+        if recording_register == "" then
+          return ""
+        else
+          return "Recording @" .. recording_register
+        end
+      end
       -- PERF: we don't need this lualine require madness 🤷
       local lualine_require = require("lualine_require")
       lualine_require.require = require
@@ -176,7 +184,10 @@ return {
           disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
         },
         sections = {
-          lualine_a = { "mode" },
+          lualine_a = {
+            "mode",
+            { "macro-recording", fmt = show_macro_recording },
+          },
           lualine_b = { "branch" },
 
           lualine_c = {
