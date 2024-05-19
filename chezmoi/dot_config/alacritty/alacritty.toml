@@ -46,8 +46,8 @@ option_as_alt = "Both"
 startup_mode = "Maximized"
 
 [window.padding]
-x = 3
-y = 3
+x = 0
+y = 0
 
 [hints]
 alphabet = "hutenosadigpc.r,l'"
