@@ -104,6 +104,10 @@ export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
 # ripgrep
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
+if type bat >/dev/null; then
+  alias cat="bat"
+fi
+
 # eza alias
 if type eza >/dev/null; then
   # general use
