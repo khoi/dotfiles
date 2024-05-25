@@ -104,8 +104,8 @@ export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
 # ripgrep
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
-# exa alias
-if type exa >/dev/null; then
+# eza alias
+if type eza >/dev/null; then
   # general use
   alias ls='exa'                                                         # ls
   alias l='exa -lbF --git'                                               # list, size, type, git
