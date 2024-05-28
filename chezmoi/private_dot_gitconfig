@@ -36,6 +36,7 @@
 	required = true
 [alias]
 	graph = log --graph --all --format='%h %s%n        (%an, %ar)%d' --abbrev-commit
+	auto-commit = !git commit -m \"$(gh commit)\" || git commit -a -m \"$(gh commit)\" && git log HEAD...HEAD~1
 [gpg]
 	format = ssh
 [gpg "ssh"]
