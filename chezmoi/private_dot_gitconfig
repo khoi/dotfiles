@@ -25,6 +25,7 @@
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEIR0MxbYdOCgxOp1D27lGSjolzabibv88N2wplMbcbE
 [commit]
 	gpgsign = true
+	status = false
 [ghq]
 	root = ~/code
 [init]
