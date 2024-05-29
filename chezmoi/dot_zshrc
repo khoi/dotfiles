@@ -112,7 +112,7 @@ fi
 if type eza >/dev/null; then
   # general use
   alias ls='eza'                                                         # ls
-  alias l='eza --icons -lbF --git'                                               # list, size, type, git
+  alias l='eza -lbF --git'                                               # list, size, type, git
   alias lt='eza --icons --git --tree --level=2' # tree
 fi
 
