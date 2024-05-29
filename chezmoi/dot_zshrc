@@ -134,6 +134,10 @@ if type zoxide >/dev/null; then
   eval "$(zoxide init zsh)"
 fi
 
+if type aicommits >/dev/null; then
+  alias aic='aicommits'
+fi
+
 # TLDR update
 export TLDR_AUTO_UPDATE_DISABLED=1
 
