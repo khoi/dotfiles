@@ -13,7 +13,7 @@ op document get .zsh_history --force -o $history1
 test ! -f $history1 && echo "File $history1 not found" && exit 1
 test ! -f $history2 && echo "File $history2 not found" && exit 1
 
-cat $history1 $history2 | awk -v date="WILL_NOT_APPEAR$(date +"%s")" '{if (sub(/\\$/,date)) printf "%s", $0; else print $0}' | LC_ALL=C sort -u | awk -v date="WILL_NOT_APPEAR$(date +"%s")" '{gsub('date',"\\\n"); print $0}' > $merged
+cat $history1 $history2 | gawk -v date="WILL_NOT_APPEAR$(date +"%s")" '{if (sub(/\\$/,date)) printf "%s", $0; else print $0}' | LC_ALL=C sort -u | gawk -v date="WILL_NOT_APPEAR$(date +"%s")" '{gsub('date',"\\\n"); print $0}' > $merged
 
 echo "Replacing $merged to + $history2"
 cp -f $merged $history2
