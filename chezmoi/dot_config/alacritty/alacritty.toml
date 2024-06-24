@@ -53,6 +53,14 @@ y = 0
 alphabet = "hutenosadigpc.r,l'"
 
 [[hints.enabled]]
-regex = """(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+|(?P<match>([.\\w\\-@$~\\[\\]]+)?(\\/[.\\w\\-@$\\[\\]]+)+)|(/[^/ \"']*[a-zA-Z0-9][^/ \"']*)|([a-f0-9]{40}|[a-f0-9]{7,8})|((?:[0-9]{1,3}\\.){3}[0-9]{1,3})"""
+regex = """(mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
+    [^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"""
+hyperlinks = true
+post_processing = true
+command = "open"
+binding = { key = "O", mods = "Control|Shift" }
+
+[[hints.enabled]]
+regex = """(?P<match>([.\\w\\-@$~\\[\\]]+)?(\\/[.\\w\\-@$\\[\\]]+)+)|(/[^/ \"']*[a-zA-Z0-9][^/ \"']*)|([a-f0-9]{40}|[a-f0-9]{7,8})|((?:[0-9]{1,3}\\.){3}[0-9]{1,3})"""
 action = "Copy"
 binding = { key = "P", mods = "Control|Shift" }
