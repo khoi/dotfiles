@@ -2,7 +2,7 @@
 
 set -Eeuo pipefail
 
-curl -o ~/Downloads/KoboRoot.tgz -L https://github.com/lelinhtinh/kobo-tieng-viet/releases/download/v0.4.0/KoboRoot.tgz
+curl -o ~/Downloads/KoboRoot.tgz -L https://github.com/lelinhtinh/kobo-tieng-viet/releases/download/v0.5.0/KoboRoot.tgz
 cp ~/Downloads/KoboRoot.tgz /Volumes/KOBOeReader/.kobo
 
 curl -o ~/Downloads/dictutil -L https://github.com/pgaskin/dictutil/releases/download/v0.3.2/dictutil-darwin-64bit
