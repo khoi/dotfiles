@@ -38,6 +38,20 @@
 [alias]
 	graph = log --graph --all --format='%h %s%n        (%an, %ar)%d' --abbrev-commit
 	auto-commit = !git commit -m \"$(gh commit)\" || git commit -a -m \"$(gh commit)\" && git log HEAD...HEAD~1
+  llm = "!f() { \
+      if git diff --cached --quiet $1; then \
+          echo \"No changes to commit. Aborting.\"; \
+      else \
+          commit_msg=$(git diff --cached $1 | llm -s \"$(cat ~/.config/prompts/git-commit-message.txt)\"); \
+          echo \"Commit message:\n$commit_msg\"; \
+          read -p \"Do you want to commit with this message? [y/N] \" confirm; \
+          if [[ $confirm =~ ^[Yy]$ ]]; then \
+              git commit -m \"$commit_msg\"; \
+          else \
+              echo \"Commit aborted.\"; \
+          fi; \
+      fi; \
+  }; f"
 [gpg]
 	format = ssh
 [gpg "ssh"]
