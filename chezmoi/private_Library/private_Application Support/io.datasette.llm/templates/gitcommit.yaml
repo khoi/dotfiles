@@ -45,3 +45,5 @@ system: >
 
 prompt: >
 
+
+  Diff: """$input"""
