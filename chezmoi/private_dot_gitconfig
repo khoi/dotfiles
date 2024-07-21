@@ -36,17 +36,6 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-[alias]
-  llm = "!f() { \
-      commit_msg=$(git diff --cached -U1 --minimal -B --compact-summary --find-copies-harder -w $1 | llm -t gitcommit); \
-      echo \"Commit message:\n$commit_msg\"; \
-      read -p \"Do you want to commit with this message? [y/N] \" confirm; \
-      if [[ $confirm =~ ^[Yy]$ ]]; then \
-          git commit -m \"$commit_msg\"; \
-      else \
-          echo \"Commit aborted.\"; \
-      fi; \
-  }; f"
 [gpg]
 	format = ssh
 [gpg "ssh"]
