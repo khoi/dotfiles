@@ -1,4 +1,4 @@
-model: gpt4
+model: gpt-4o
 system: >
   You will receive a git diff. Write a commit message as if you are a staff software engineer.
 
