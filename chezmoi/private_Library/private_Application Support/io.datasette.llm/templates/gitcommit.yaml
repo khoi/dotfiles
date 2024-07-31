@@ -1,4 +1,4 @@
-model: gpt-4o
+model: llama3.1:8b-instruct-q8_0
 system: >
   You will receive a git diff. Write a commit message as if you are a staff software engineer.
 
