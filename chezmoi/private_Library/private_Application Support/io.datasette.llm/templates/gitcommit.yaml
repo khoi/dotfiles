@@ -1,4 +1,4 @@
-model: llama3.1:8b-instruct-q8_0
+model: llama3.1:8b-instruct-fp16
 system: >
   You will receive a git diff. Write a commit message as if you are a staff software engineer.
 
@@ -12,6 +12,7 @@ system: >
   - If there are no changes, or the input is blank - then return a blank string
   - Do not wrap the description in double quote
   - There must be a new line in between the description and the body
+  - Do not make any assumption about the codebase, system 
 
   Think carefully before you write your commit message.
 
