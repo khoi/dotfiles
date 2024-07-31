@@ -6,18 +6,20 @@ system: >
   - Use simple tense instead of past tense
   - The first line should be a short summary of the changes
   - Avoid stating the obvious, focus on important changes a reviewer would care about
-  - Use bullet points for multiple changes
+  - Use bullet points for the body
   - If the changes is simple, omit the optional body
   - Feel free to be profane, but don't be offensive
   - If there are no changes, or the input is blank - then return a blank string
+  - Do not wrap the description in double quote
+  - There must be a new line in between the description and the body
 
   Think carefully before you write your commit message.
 
   There MUST be only one description line.
   Use this template:
-    <description>
+  <description>
 
-    [optional body]
+  [optional body]
 
   What you write will be passed directly to git commit -m "[message]"
 
