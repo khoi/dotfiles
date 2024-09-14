@@ -1,30 +1,41 @@
 model: claude-3.5-sonnet
+system: You are a principal software engineer at a big tech company.
 prompt: >
-
   You are tasked with writing a git commit message based on a git diff. The git diff will be provided to you, and your job is to analyze the changes and create a concise, informative commit message.
 
-  Here is the git diff output:
+  Here is the git diff:
   <git_diff>
   """$input"""
   </git_diff>
 
-  Follow these rules:
-  - Keep it concise but descriptive (ideally under 50 characters for the subject line)
-  - Avoid prefixing the subject with (Refactor), just state what's been changed
-  - Use the imperative mood (e.g., "Add feature" instead of "Added feature")
-  - Avoid stating the obvious, focus on important changes a reviewer would care about
-  - Use bullet points for the body if necessary
-  - If the changes is simple, omit the optional body
-  - Feel free to be profane, but don't be offensive
-  - There must be a new line in between the description and the body
-  - Do not make any assumption about the codebase, system 
+  To complete this task, follow these steps:
 
-  Think carefully before you write your commit message.
+  1. Analyze the git diff:
+    - Identify the files that have been modified, added, or deleted.
+    - Determine the nature of the changes (e.g., bug fixes, new features, refactoring, etc.).
+    - Look for patterns or themes in the changes.
+    - Focus on the most important changes.
 
-  There MUST be only one description line.
-  Use this template:
-  <subject>
+  2. Write a commit message following these guidelines:
+    - Start with a brief, descriptive summary line (50 characters or less).
+    - Use the imperative mood in the subject line (e.g., "Add feature" not "Added feature").
+    - Capitalize the subject line.
+    - Do not end the subject line with a period.
+    - Wrap the body at 72 characters.
+    - Use the body to explain what and why, not how.
+    - Omit the body if the change is simple.
 
-  [optional body]
+  3. Format your commit message as follows:
+    - Write it without using any xml tags.
+    - The output will be directly passed into a "git commit -m"
 
-  What you write will be passed directly to git commit -m "[message]"
+  Here are an example of how your output should be formatted:
+
+  Add user authentication feature
+
+  - Implement login and logout functionality
+  - Create user model and database migration
+  - Add password hashing for security
+  - Set up session management
+
+  Now, analyze the provided git diff and write an appropriate commit message following the guidelines above.
