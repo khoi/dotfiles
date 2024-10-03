@@ -1,0 +1,51 @@
+{
+  "theme": "One Dark",
+  "base_keymap": "VSCode",
+  "cursor_blink": false,
+  "features": {
+    "copilot": false
+  },
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "ui_font_family": "JetBrainsMono Nerd Font",
+  "vim_mode": true,
+  "relative_line_numbers": true,
+  "collaboration_panel": {
+    "button": false
+  },
+  "chat_panel": {
+    "button": false
+  },
+  "message_editor": {
+    "auto_replace_emoji_shortcode": true
+  },
+  "notification_panel": {
+    // Whether to show the notification panel button in the status bar.
+    "button": true,
+    // Where to dock the notification panel. Can be 'left' or 'right'.
+    "dock": "right",
+    // Default width of the notification panel.
+    "default_width": 380
+  },
+  "assistant": {
+    "version": "2",
+    "enabled": false
+  },
+  "show_call_status_icon": false,
+  "enable_language_server": true,
+  "tabs": {
+    "git_status": false,
+    "close_position": "right"
+  },
+  "format_on_save": "on",
+  "formatter": "auto",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  // Vim settings
+  "vim": {
+    "use_system_clipboard": "always",
+    "use_multiline_find": false,
+    "use_smartcase_find": false
+  }
+}
