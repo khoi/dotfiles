@@ -3,7 +3,13 @@
   "base_keymap": "VSCode",
   "cursor_blink": false,
   "features": {
-    "copilot": false
+    "copilot": true
+  },
+  "project_panel": {
+    "scrollbar": { "show": "never" }
+  },
+  "scrollbar": {
+    "show": "never"
   },
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "ui_font_family": "JetBrainsMono Nerd Font",
@@ -27,8 +33,12 @@
     "default_width": 380
   },
   "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20240620"
+    },
     "version": "2",
-    "enabled": false
+    "enabled": true
   },
   "show_call_status_icon": false,
   "enable_language_server": true,
