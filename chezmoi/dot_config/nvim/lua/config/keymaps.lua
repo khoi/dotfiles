@@ -1,11 +1,9 @@
 local map = vim.keymap.set
 
-map("i", "jj", "<ESC>", { desc = "jj to quit insert mode" })
-
-map("n", "<leader>w", "<cmd>:w<cr>", { desc = "Save with leader space" })
-
--- map backspace to CTRL-^
 map("n", "<BS>", "<C-^>", { desc = "Switch to previous buffer" })
+
+-- map ; to : in normal mode
+map("n", ";", ":", { noremap = true })
 
 if os.getenv("TMUX") then
   vim.keymap.set("n", "<C-h>", "<cmd>NvimTmuxNavigateLeft<cr>")
