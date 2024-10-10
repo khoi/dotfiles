@@ -21,5 +21,11 @@ config.font = wezterm.font("JetbrainsMono Nerd Font")
 config.enable_tab_bar = false
 config.window_decorations = "RESIZE"
 config.color_scheme = scheme_for_appearance(get_appearance())
+config.window_padding = {
+	left = 0,
+	right = 0,
+	top = 0,
+	bottom = 0,
+}
 
 return config
