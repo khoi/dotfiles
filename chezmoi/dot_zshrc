@@ -83,8 +83,9 @@ fi
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --no-ignore-vcs'
+export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore --follow'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS="--tiebreak end"
 
 # asdf check if
 [ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
