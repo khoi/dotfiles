@@ -5,3 +5,4 @@
 local opt = vim.opt
 
 opt.background = "dark"
+opt.swapfile = false
