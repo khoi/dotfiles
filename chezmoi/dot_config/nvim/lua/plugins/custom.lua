@@ -70,9 +70,6 @@ return {
 
   {
     "nvim-telescope/telescope.nvim",
-    keys = {
-      { "<leader>p", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
-    },
     dependencies = {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = "make",
