@@ -223,6 +223,12 @@ return {
     event = "VeryLazy",
     opts = {
       hints = { enabled = false },
+      mappings = {
+        submit = {
+          normal = "<CR>",
+          insert = "<CR>",
+        },
+      },
     },
     build = LazyVim.is_win() and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" or "make",
   },
