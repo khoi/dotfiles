@@ -21,7 +21,6 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle pip
 antigen bundle bundler
-antigen bundle asdf
 antigen bundle zsh-users/zsh-completions
 antigen bundle Aloxaf/fzf-tab
 antigen theme romkatv/powerlevel10k
@@ -87,9 +86,6 @@ export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore --follow'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--tiebreak end"
 
-# asdf check if
-[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
-
 # starship
 if type starship >/dev/null; then
   eval "$(starship init zsh)"
@@ -141,6 +137,9 @@ fi
 
 # TLDR update
 export TLDR_AUTO_UPDATE_DISABLED=1
+
+# Mise
+eval "$(/Users/khoi/.local/bin/mise activate zsh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
