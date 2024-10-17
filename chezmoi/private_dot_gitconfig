@@ -41,4 +41,4 @@
 [gpg "ssh"]
 	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 [alias]
-	find = "!git log --color -p -S "
+	find = "!git log --color -S "
