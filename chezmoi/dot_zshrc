@@ -95,7 +95,7 @@ fi
 export GHQ_ROOT=~/Developer/code
 
 # restic
-export RESTIC_REPOSITORY="rest:http://restic:restic@vault.local:8000"
+export RESTIC_REPOSITORY="rest:http://restic:restic@vault.local:8769"
 export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
 
 # ripgrep
