@@ -226,7 +226,7 @@ return {
       mappings = {
         submit = {
           normal = "<CR>",
-          insert = "<CR>",
+          insert = "<C-j>",
         },
       },
     },
