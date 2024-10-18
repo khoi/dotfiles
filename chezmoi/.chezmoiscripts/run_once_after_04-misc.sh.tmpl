@@ -1,0 +1,7 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env zsh
+
+echo "mise install default tools"
+mise install -y
+
+{{ end -}}
