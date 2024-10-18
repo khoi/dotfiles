@@ -14,10 +14,6 @@ echo "🍺 Install macOS homebrew packages"
 set -eufo pipefail
 
 {{ $taps := list
-  "homebrew/cask-fonts"
-  "FelixKratz/formulae"
-  "nikitabobko/tap"
-  "FelixKratz/formulae"
   "xcodesorg/made"
 -}}
 
@@ -27,7 +23,6 @@ set -eufo pipefail
   "chezmoi"
   "eza"
   "fd"
-  "ffmpeg"
   "fzf"
   "gawk"
   "gh"
@@ -38,11 +33,9 @@ set -eufo pipefail
   "git-extras"
   "git-lfs"
   "glances"
-  "go"
   "htop"
   "ifstat"
   "jq"
-  "lazygit"
   "libyaml"
   "llm"
   "m-cli"
@@ -53,7 +46,6 @@ set -eufo pipefail
   "restic"
   "ripgrep"
   "switchaudio-osx"
-  "swift-format"
   "tldr"
   "tmux"
   "tmux-mem-cpu-load"
@@ -66,26 +58,22 @@ set -eufo pipefail
 -}}
 
 {{ $casks := list
+  "wezterm"
+  "arc"
   "1password"
   "1password-cli"
-  "Alacritty"
   "adguard"
-  "arc"
-  "cleanshot"
-  "dash"
-  "font-jetbrains-mono"
-  "font-jetbrains-mono-nerd-font"
-  "google-chrome"
   "moom"
+  "raycast"
+  "cleanshot"
+  "font-jetbrains-mono-nerd-font"
   "obsidian"
   "orbstack"
   "proxyman"
-  "raycast"
   "sf-symbols"
   "visual-studio-code"
   "vlc"
   "telegram"
-  "zerotier-one"
 -}}
 
 {{ output "/opt/homebrew/bin/brew" "shellenv" | trim }}
@@ -94,11 +82,11 @@ brew bundle --no-lock --file=/dev/stdin <<EOF || :
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end }}
-{{ range ($brews | sortAlpha | uniq) -}}
-brew "{{ . }}"
-{{ end }}
 {{ range ($casks | sortAlpha | uniq) -}}
 cask "{{ . }}"
+{{ end }}
+{{ range ($brews | sortAlpha | uniq) -}}
+brew "{{ . }}"
 {{ end }}
 EOF
 
