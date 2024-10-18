@@ -1,0 +1,15 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env zsh
+set -eo pipefail
+
+echo "mise install default tools"
+mise install -y
+
+echo "Replacing wezterm icon"
+icon_path=/Applications/WezTerm.app/Contents/Resources/terminal.icns
+cp "{{ .chezmoi.workingTree }}/assets/term-icon.icns" "$icon_path" 
+touch /Applications/WezTerm.app
+killall Finder
+killall Dock
+
+{{ end -}}
