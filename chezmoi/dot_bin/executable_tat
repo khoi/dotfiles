@@ -2,8 +2,16 @@
 #
 # Attach or create tmux session named the same as current directory.
 
+if [ -d "$1" ]; then
+  root_dir="$1"
+  path_name="$(basename "$1" | tr . -)"
+else
+  root_dir="$PWD"
+  path_name="$(basename "$PWD" | tr . -)"
+fi
+
+session_name=${2-$path_name}
 path_name="$(basename "$PWD" | tr . -)"
-session_name=${1-$path_name}
 
 not_in_tmux() {
   [ -z "$TMUX" ]
@@ -14,12 +22,12 @@ session_exists() {
 }
 
 create_detached_session() {
-  (TMUX='' tmux new-session -Ad -s "$session_name")
+  (TMUX='' tmux new-session -Ad -s "$session_name" -c "$root_dir")
 }
 
 create_if_needed_and_attach() {
   if not_in_tmux; then
-    tmux new-session -As "$session_name"
+    tmux new-session -As "$session_name" -c "$root_dir"
   else
     if ! session_exists; then
       create_detached_session
