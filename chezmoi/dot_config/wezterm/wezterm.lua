@@ -27,5 +27,6 @@ config.window_padding = {
 	top = 0,
 	bottom = 0,
 }
+config.window_close_confirmation = "NeverPrompt"
 
 return config
