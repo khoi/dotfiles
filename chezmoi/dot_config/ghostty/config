@@ -6,7 +6,6 @@ mouse-hide-while-typing = true
 window-decoration = true
 macos-non-native-fullscreen = true
 macos-titlebar-style = hidden
-theme = GruvboxDarkHard
 
 # Gruvbox Material Dark Hard
 palette = 0=#1d2021
