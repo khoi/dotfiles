@@ -12,4 +12,8 @@ touch /Applications/WezTerm.app
 killall Finder
 killall Dock
 
+echo "Install BerkelyMono Fonts"
+op document get "BerkeleyMonoVariableNerdFontMono" --force -o /tmp/fonts.zip
+unzip -o /tmp/fonts.zip -d ~/Library/Fonts
+
 {{ end -}}
