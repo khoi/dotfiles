@@ -7,3 +7,8 @@ desc = "Enter the child directory, or open the file"
 on   = "!"
 run  = 'shell "$SHELL" --block --confirm'
 desc = "Open shell here"
+
+[[input.prepend_keymap]]
+on   = "<Esc>"
+run  = "close"
+desc = "Cancel input"
