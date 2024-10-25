@@ -46,7 +46,7 @@ spin_pid=$!  # Capture the process ID of the spinning animation
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! commit_msg=$(git diff -W --cached --minimal -B --find-copies-harder | llm -t gitcommit); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm -t gitcommit); then
   # Stop the spinning animation by killing its process
   kill $spin_pid
   wait $spin_pid 2>/dev/null  # Wait for the process to terminate and suppress error messages
@@ -59,6 +59,11 @@ if ! commit_msg=$(git diff -W --cached --minimal -B --find-copies-harder | llm -
   exit 1
 fi
 
+echo "$xml_output"
+# Extract the analysis and commit message from the XML output
+analysis=$(echo "$xml_output" | xq -q 'analysis')
+commit_msg=$(echo "$xml_output" | xq -q 'output')
+
 # Stop the spinning animation by killing its process
 kill $spin_pid
 wait $spin_pid 2>/dev/null  # Wait for the process to terminate and suppress error messages
@@ -67,11 +72,25 @@ wait $spin_pid 2>/dev/null  # Wait for the process to terminate and suppress err
 tput cnorm  # Show the cursor again
 echo  # Move the cursor to the next line
 
+# Display the analysis with color-coded headings
+echo "${BLUE}=== Commit Analysis ===${NC}"
+echo "${YELLOW}$analysis${NC}"
+echo "${BLUE}========================${NC}"
+echo
+
 # Display the generated commit message with color-coded headings
 echo "${BLUE}=== Generated Commit Message ===${NC}"
 echo "${GREEN}$commit_msg${NC}"
 echo "${BLUE}=================================${NC}"
 echo
 
-# Write the generated commit message to the specified file (usually the commit message file in .git)
-echo "$commit_msg" > "$1"
+# Format the analysis with '% ' prefix for each line
+formatted_analysis=$(echo "$analysis" | sed 's/^/% /')
+
+# Output both the formatted analysis and the commit message
+{
+  echo "% ANALYSIS"
+  echo "$formatted_analysis"
+  echo
+  echo "$commit_msg"
+} > "$1"
