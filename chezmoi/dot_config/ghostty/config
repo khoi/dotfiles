@@ -4,7 +4,7 @@ font-size = 12
 fullscreen = true
 mouse-hide-while-typing = true
 window-decoration = true
-macos-non-native-fullscreen = true
+macos-non-native-fullscreen = false
 macos-titlebar-style = hidden
 
 command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux new -s $USER; else zsh; fi"
