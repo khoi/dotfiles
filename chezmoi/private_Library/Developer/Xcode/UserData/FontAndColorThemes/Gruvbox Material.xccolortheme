@@ -178,7 +178,7 @@
 		<key>xcode.syntax.declaration.other</key>
 		<string>BerkeleyMonoNFM-Regular - 12.0</string>
 		<key>xcode.syntax.declaration.type</key>
-		<string>BerkeleyMonoNFM-Regular - 12.0</string>
+		<string>BerkeleyMonoNFM-Bold - 12.0</string>
 		<key>xcode.syntax.identifier.class</key>
 		<string>BerkeleyMonoNFM-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.class.system</key>
@@ -208,7 +208,7 @@
 		<key>xcode.syntax.mark</key>
 		<string>BerkeleyMonoNFM-Regular - 12.0</string>
 		<key>xcode.syntax.markup.code</key>
-		<string>BerkeleyMonoNFM-Regular - 12.0</string>
+		<string>BerkeleyMonoNFM-Bold - 12.0</string>
 		<key>xcode.syntax.number</key>
 		<string>BerkeleyMonoNFM-Regular - 12.0</string>
 		<key>xcode.syntax.plain</key>
