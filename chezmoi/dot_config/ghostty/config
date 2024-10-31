@@ -7,8 +7,6 @@ window-decoration = true
 macos-non-native-fullscreen = false
 macos-titlebar-style = hidden
 
-command = zsh --login -c "if command -v tmux >/dev/null 2>&1; then tmux attach || tmux new -s $USER; else zsh; fi"
-
 # Gruvbox Material Dark Hard
 palette = 0=#1d2021
 palette = 1=#ea6962
