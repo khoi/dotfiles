@@ -77,6 +77,9 @@ return {
         require("telescope").load_extension("fzf")
       end,
     },
+    keys = {
+      { "<leader><space>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
+    },
   },
 
   {
