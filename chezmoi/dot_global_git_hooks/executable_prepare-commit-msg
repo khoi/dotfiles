@@ -7,6 +7,12 @@ YELLOW='\033[0;33m' # Sets text to yellow
 BLUE='\033[0;34m'   # Sets text to blue
 NC='\033[0m'        # Resets the text color to default, no color
 
+# Check if LLM_MODEL environment variable is set
+if [ -z "$COMMIT_HOOK_LLM_MODEL" ]; then
+  echo "${RED}Error: COMMIT_HOOK_LLM_MODEL environment variable is not set. Please set it and try again.${NC}"
+  exit 1
+fi
+
 # Check if the commit is a merge commit based on the presence of a second argument
 if [ -n "$2" ]; then
   exit 0  # Exit script if it's a merge commit, no custom message needed
@@ -21,7 +27,7 @@ fi
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model claude-3-5-sonnet-20241022 -t gitcommit); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model "$COMMIT_HOOK_LLM_MODEL" -t gitcommit); then
   # Finalizing output
   tput cnorm  # Show the cursor again
   printf "\\n"  # Move the cursor to the next line
