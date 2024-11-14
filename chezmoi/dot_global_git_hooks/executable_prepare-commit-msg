@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# Exit if the `SKIP_LLM_GITHOOK` environment variable is set
-if [ ! -z "$SKIP_LLM_GITHOOK" ]; then
-  exit 0
-fi
-
 # ANSI color codes for styling the output
 RED='\033[0;31m'    # Sets text to red
 GREEN='\033[0;32m'  # Sets text to green
@@ -26,7 +21,7 @@ fi
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm -t gitcommit); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model claude-3-5-sonnet-20241022 -t gitcommit); then
   # Finalizing output
   tput cnorm  # Show the cursor again
   printf "\\n"  # Move the cursor to the next line
@@ -61,7 +56,6 @@ formatted_analysis=$(echo "$analysis" | sed 's/^/% /')
 
 # Output both the formatted analysis and the commit message
 {
-  echo "% ANALYSIS"
   echo "$formatted_analysis"
   echo
   echo "$commit_msg"
