@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 # ANSI color codes for styling the output
 RED='\033[0;31m'    # Sets text to red
@@ -9,28 +9,27 @@ NC='\033[0m'        # Resets the text color to default, no color
 
 # Check if LLM_MODEL environment variable is set
 if [ -z "$COMMIT_HOOK_LLM_MODEL" ]; then
-  echo "${RED}Error: COMMIT_HOOK_LLM_MODEL environment variable is not set. Please set it and try again.${NC}"
-  exit 1
+  echo "${RED}Error: COMMIT_HOOK_LLM_MODEL environment variable is not set. Please set it and try again.${NC}" >&2
+  exit 0
 fi
 
 # Check if the commit is a merge commit based on the presence of a second argument
 if [ -n "$2" ]; then
-  exit 0  # Exit script if it's a merge commit, no custom message needed
+  exit 0 # Exit script if it's a merge commit, no custom message needed
 fi
 
 # Check if the `llm` command is installed
-if ! command -v llm &> /dev/null; then
-  echo "${RED}Error: 'llm' command is not installed. Please install it and try again.${NC}"
+if ! command -v llm &>/dev/null; then
+  echo "${RED}Error: 'llm' command is not installed. Please install it and try again.${NC}" >&2
   exit 1
 fi
 
-
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model "$COMMIT_HOOK_LLM_MODEL" -t gitcommit); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model "$COMMIT_HOOK_LLM_MODEL" -t gitcommit | tee /dev/tty); then
   # Finalizing output
-  tput cnorm  # Show the cursor again
-  printf "\\n"  # Move the cursor to the next line
+  tput cnorm   # Show the cursor again
+  printf "\\n" # Move the cursor to the next line
 
   printf "${RED}Error: 'llm' command failed to generate the commit message:\\n${commit_msg}${NC}\\n\\nManually set the commit message"
   exit 1
@@ -42,8 +41,8 @@ analysis=$(echo "$xml_output" | xq -q 'analysis')
 commit_msg=$(echo "$xml_output" | xq -q 'output')
 
 # Finalizing output
-tput cnorm  # Show the cursor again
-echo  # Move the cursor to the next line
+tput cnorm # Show the cursor again
+echo       # Move the cursor to the next line
 
 # Display the analysis with color-coded headings
 echo "${BLUE}=== Commit Analysis ===${NC}"
@@ -65,4 +64,4 @@ formatted_analysis=$(echo "$analysis" | sed 's/^/% /')
   echo "$formatted_analysis"
   echo
   echo "$commit_msg"
-} > "$1"
+} >"$1"
