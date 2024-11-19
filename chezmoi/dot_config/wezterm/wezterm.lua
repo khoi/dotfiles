@@ -19,15 +19,27 @@ end
 
 config.bold_brightens_ansi_colors = true
 config.color_scheme = scheme_for_appearance(get_appearance())
+config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("BerkeleyMono Nerd Font Mono")
 config.initial_cols = 160
-
 config.show_new_tab_button_in_tab_bar = false
 config.show_tab_index_in_tab_bar = false
-config.use_fancy_tab_bar = false
+config.skip_close_confirmation_for_processes_named = {
+	"bash",
+	"sh",
+	"zsh",
+	"fish",
+	"tmux",
+	"nu",
+	"cmd.exe",
+	"pwsh.exe",
+	"powershell.exe",
+}
 config.tab_bar_at_bottom = true
 config.tab_max_width = 24
+config.use_fancy_tab_bar = false
+config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
 config.window_frame = {
 	font_size = 14.0,
@@ -60,7 +72,5 @@ config.keys = {
 	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
 	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
 }
-config.window_close_confirmation = "NeverPrompt"
-config.default_cursor_style = "SteadyBlock"
 
 return config
