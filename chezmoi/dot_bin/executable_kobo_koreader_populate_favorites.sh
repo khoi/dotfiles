@@ -1,6 +1,7 @@
 #!/bin/bash
 
-COLLECTION_FILE="/Volumes/KOBOeReader/.adds/koreader/settings/collection.lua"
+KOBO_MOUNT="/Volumes/KOBOeReader"
+COLLECTION_FILE="$KOBO_MOUNT/.adds/koreader/settings/collection.lua"
 
 # Check if the file already exists
 if [ ! -f "$COLLECTION_FILE" ]; then
@@ -17,12 +18,14 @@ EOF
 # Find all epub files and process them
 counter=1
 echo "Processing files..."
-find /Volumes/KOBOeReader -type f \( -name "*.epub" -o -name "*.pdf" \) | while read -r file; do
-  echo "[$counter] Processing: $file"
+find "$KOBO_MOUNT" -type f \( -name "*.epub" -o -name "*.pdf" \) | while read -r file; do
+  # Convert the path from $KOBO_MOUNT to /mnt/onboard
+  converted_path=${file//$KOBO_MOUNT//mnt/onboard}
+  echo "[$counter] Processing: $converted_path"
   # Write array entry
   cat >>"$COLLECTION_FILE" <<EOF
         [$counter] = {
-            ["file"] = "$file",
+            ["file"] = "$converted_path",
             ["order"] = $counter,
         },
 EOF
