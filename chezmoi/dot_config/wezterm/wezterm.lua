@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local act = wezterm.action
 local config = wezterm.config_builder()
 
 local function get_appearance()
@@ -36,6 +37,28 @@ config.window_padding = {
 	right = 0,
 	top = 0,
 	bottom = 0,
+}
+config.keys = {
+	-- See https://github.com/shantanuraj/dotfiles/blob/main/.wezterm.lua for inspiration
+	{
+		key = "f",
+		mods = "SUPER|SHIFT",
+		action = act.QuickSelect,
+	},
+	{
+		key = "f",
+		mods = "SUPER",
+		action = act.Search("CurrentSelectionOrEmptyString"),
+	},
+	{
+		key = "g",
+		mods = "SUPER",
+		action = act.ActivateCopyMode,
+	},
+	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER|SHIFT", key = "\\", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
+	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
 }
 config.window_close_confirmation = "NeverPrompt"
 config.default_cursor_style = "SteadyBlock"
