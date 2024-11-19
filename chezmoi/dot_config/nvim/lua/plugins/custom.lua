@@ -67,21 +67,6 @@ return {
       },
     },
   },
-
-  {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-telescope/telescope-fzf-native.nvim",
-      build = "make",
-      config = function()
-        require("telescope").load_extension("fzf")
-      end,
-    },
-    keys = {
-      { "<leader><space>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
-    },
-  },
-
   {
     "folke/noice.nvim",
     event = "VeryLazy",
