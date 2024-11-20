@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
+local mux = wezterm.mux
 
 local function get_appearance()
 	if wezterm.gui then
@@ -16,6 +17,41 @@ local function scheme_for_appearance(appearance)
 		return "GruvboxLight"
 	end
 end
+
+wezterm.on("gui-startup", function()
+	-- PERSONAL
+	local personal_cmd_tab, dotfiles_pane, dev_window = mux.spawn_window({
+		workspace = "khoi",
+		cwd = wezterm.home_dir,
+	})
+
+	local config_tab, config_pane, _ = dev_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/.config",
+	})
+	config_pane:send_text("nvim\n")
+
+	local chezmoi_tab, _, _ = dev_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/.local/share/chezmoi",
+	})
+
+	personal_cmd_tab:activate()
+	-- WORK
+	local work_cmd_tab, app_pane, work_window = mux.spawn_window({
+		workspace = "Goodnotes",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
+	})
+
+	local _, lazygit_pane, _ = work_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
+	})
+	lazygit_pane:send_text("lazygit\n")
+
+	local _, gnllm_pane, _ = work_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm",
+	})
+
+	work_cmd_tab:activate()
+end)
 
 config.bold_brightens_ansi_colors = true
 config.color_scheme = scheme_for_appearance(get_appearance())
@@ -52,6 +88,13 @@ config.window_padding = {
 }
 config.keys = {
 	-- See https://github.com/shantanuraj/dotfiles/blob/main/.wezterm.lua for inspiration
+	{
+		key = "j",
+		mods = "SUPER|SHIFT",
+		action = act.ShowLauncherArgs({
+			flags = "FUZZY|WORKSPACES",
+		}),
+	},
 	{
 		key = "f",
 		mods = "SUPER|SHIFT",
