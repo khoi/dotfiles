@@ -107,6 +107,9 @@ bar.apply_to_config(config, {
 		spotify = {
 			enabled = false,
 		},
+		pane = {
+			enabled = false,
+		},
 	},
 })
 
