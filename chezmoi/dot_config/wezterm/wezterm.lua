@@ -2,6 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 local mux = wezterm.mux
+local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
 
 local function get_appearance()
 	if wezterm.gui then
@@ -100,5 +101,13 @@ config.keys = {
 	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
 	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
 }
+
+bar.apply_to_config(config, {
+	modules = {
+		spotify = {
+			enabled = false,
+		},
+	},
+})
 
 return config
