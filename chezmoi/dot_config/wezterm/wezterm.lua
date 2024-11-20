@@ -73,10 +73,11 @@ config.skip_close_confirmation_for_processes_named = {
 	"powershell.exe",
 }
 config.tab_bar_at_bottom = true
-config.tab_max_width = 24
 config.use_fancy_tab_bar = false
 config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
+config.window_background_opacity = 0.75
+config.macos_window_background_blur = 10
 config.window_frame = {
 	font_size = 14.0,
 }
@@ -86,30 +87,14 @@ config.window_padding = {
 	top = 0,
 	bottom = 0,
 }
+
 config.keys = {
 	-- See https://github.com/shantanuraj/dotfiles/blob/main/.wezterm.lua for inspiration
-	{
-		key = "j",
-		mods = "SUPER|SHIFT",
-		action = act.ShowLauncherArgs({
-			flags = "FUZZY|WORKSPACES",
-		}),
-	},
-	{
-		key = "f",
-		mods = "SUPER|SHIFT",
-		action = act.QuickSelect,
-	},
-	{
-		key = "f",
-		mods = "SUPER",
-		action = act.Search("CurrentSelectionOrEmptyString"),
-	},
-	{
-		key = "g",
-		mods = "SUPER",
-		action = act.ActivateCopyMode,
-	},
+	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
+	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
+	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
+	{ mods = "SUPER", key = "g", action = act.ActivateCopyMode },
 	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER|SHIFT", key = "\\", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
