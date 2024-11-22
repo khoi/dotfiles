@@ -91,12 +91,14 @@ config.window_padding = {
 }
 
 config.keys = {
-	-- See https://github.com/shantanuraj/dotfiles/blob/main/.wezterm.lua for inspiration
+	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
 	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
 	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
+	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
 	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
 	{ mods = "SUPER", key = "g", action = act.ActivateCopyMode },
+	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "SUPER|SHIFT", key = "\\", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
