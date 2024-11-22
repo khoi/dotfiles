@@ -4,21 +4,6 @@ local config = wezterm.config_builder()
 local mux = wezterm.mux
 local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
 
-local function get_appearance()
-	if wezterm.gui then
-		return wezterm.gui.get_appearance()
-	end
-	return "Dark"
-end
-
-local function scheme_for_appearance(appearance)
-	if appearance:find("Dark") then
-		return "GruvboxDark"
-	else
-		return "GruvboxLight"
-	end
-end
-
 wezterm.on("gui-startup", function()
 	-- PERSONAL
 	local personal_cmd_tab, dotfiles_pane, dev_window = mux.spawn_window({
@@ -55,7 +40,7 @@ wezterm.on("gui-startup", function()
 end)
 
 config.bold_brightens_ansi_colors = true
-config.color_scheme = scheme_for_appearance(get_appearance())
+config.color_scheme = "GruvboxDark"
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("BerkeleyMono Nerd Font Mono")
