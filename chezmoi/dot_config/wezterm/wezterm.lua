@@ -41,6 +41,16 @@ end)
 
 config.bold_brightens_ansi_colors = true
 config.color_scheme = "GruvboxDark"
+bar.apply_to_config(config, {
+	modules = {
+		spotify = {
+			enabled = false,
+		},
+		pane = {
+			enabled = false,
+		},
+	},
+})
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("BerkeleyMono Nerd Font Mono")
@@ -90,15 +100,45 @@ config.keys = {
 	{ mods = "SUPER|SHIFT", key = "l", action = act.SwitchWorkspaceRelative(1) },
 }
 
-bar.apply_to_config(config, {
-	modules = {
-		spotify = {
-			enabled = false,
-		},
-		pane = {
-			enabled = false,
+--- @generic T
+--- @param dst T[]
+--- @param ... T[]
+--- @return T[]
+local function list_extend(dst, ...)
+	for _, list in ipairs({ ... }) do
+		for _, v in ipairs(list) do
+			table.insert(dst, v)
+		end
+	end
+	return dst
+end
+
+local key_tables = wezterm.gui.default_key_tables()
+
+local accept_pattern = {
+	Multiple = {
+		{ CopyMode = "ClearSelectionMode" },
+		{ CopyMode = "AcceptPattern" },
+	},
+}
+
+list_extend(key_tables.copy_mode, {
+	{ key = "/", action = { Search = { CaseInSensitiveString = "" } } },
+	{ key = "n", action = { CopyMode = "NextMatch" } },
+	{ key = "n", mods = "SHIFT", action = { CopyMode = "PriorMatch" } },
+	{
+		key = "y",
+		action = {
+			Multiple = {
+				{ CopyTo = "PrimarySelection" },
+				{ CopyMode = "Close" },
+			},
 		},
 	},
 })
 
+list_extend(key_tables.search_mode, {
+	{ key = "Enter", action = accept_pattern },
+})
+config.key_tables = key_tables
 return config
