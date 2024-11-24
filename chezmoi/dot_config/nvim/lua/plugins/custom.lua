@@ -202,24 +202,6 @@ return {
       { "<S-u>", "<cmd>UndotreeToggle<cr>", desc = "Toggle undotree" },
     },
   },
-  -- avante
-  {
-    "yetone/avante.nvim",
-    init = function()
-      require("avante_lib").load()
-    end,
-    event = "VeryLazy",
-    opts = {
-      hints = { enabled = false },
-      mappings = {
-        submit = {
-          normal = "<C-s>",
-          insert = "<C-s>",
-        },
-      },
-    },
-    build = LazyVim.is_win() and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" or "make",
-  },
   {
     "MeanderingProgrammer/render-markdown.nvim",
     optional = true,
