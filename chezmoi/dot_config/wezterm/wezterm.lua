@@ -85,16 +85,23 @@ config.window_padding = {
 	bottom = 0,
 }
 
+config.leader = { key = "s", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
+	-- Pane
+	{ mods = "LEADER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "LEADER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "LEADER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
+	{ mods = "LEADER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
+	{ mods = "LEADER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
+	{ mods = "LEADER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
+
 	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
-	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
 	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER", key = "g", action = act.ActivateCopyMode },
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
-	{ mods = "SUPER|SHIFT", key = "\\", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER|SHIFT", key = "l", action = act.SwitchWorkspaceRelative(1) },
