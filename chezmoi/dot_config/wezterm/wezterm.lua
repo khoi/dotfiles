@@ -94,9 +94,15 @@ config.keys = {
 	{ mods = "LEADER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
 	{ mods = "LEADER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
 	{ mods = "LEADER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
+	{ mods = "CTRL", key = "h", action = act.ActivatePaneDirection("Left") },
+	{ mods = "CTRL", key = "j", action = act.ActivatePaneDirection("Down") },
+	{ mods = "CTRL", key = "k", action = act.ActivatePaneDirection("Up") },
+	{ mods = "CTRL", key = "l", action = act.ActivatePaneDirection("Right") },
 
-	{ mods = "SUPER", key = "[", action = act.ActivatePaneDirection("Prev") },
-	{ mods = "SUPER", key = "]", action = act.ActivatePaneDirection("Next") },
+	{ mods = "SUPER", key = "[", action = act.ActivateTabRelative(-1) },
+	{ mods = "SUPER", key = "]", action = act.ActivateTabRelative(1) },
+	{ mods = "SUPER|SHIFT", key = "[", action = act.SwitchWorkspaceRelative(-1) },
+	{ mods = "SUPER|SHIFT", key = "]", action = act.SwitchWorkspaceRelative(1) },
 	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER", key = "g", action = act.ActivateCopyMode },
@@ -104,7 +110,6 @@ config.keys = {
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "SUPER|SHIFT", key = "l", action = act.SwitchWorkspaceRelative(1) },
 }
 
 --- @generic T
