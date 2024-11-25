@@ -87,7 +87,6 @@ config.window_padding = {
 
 config.leader = { key = "s", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
-	-- Pane
 	{ mods = "LEADER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ mods = "LEADER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "LEADER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
@@ -98,11 +97,11 @@ config.keys = {
 	{ mods = "CTRL", key = "j", action = act.ActivatePaneDirection("Down") },
 	{ mods = "CTRL", key = "k", action = act.ActivatePaneDirection("Up") },
 	{ mods = "CTRL", key = "l", action = act.ActivatePaneDirection("Right") },
+	{ mods = "CTRL", key = "[", action = act.ActivateTabRelative(-1) },
+	{ mods = "CTRL", key = "]", action = act.ActivateTabRelative(1) },
 
-	{ mods = "SUPER", key = "[", action = act.ActivateTabRelative(-1) },
-	{ mods = "SUPER", key = "]", action = act.ActivateTabRelative(1) },
-	{ mods = "SUPER|SHIFT", key = "[", action = act.SwitchWorkspaceRelative(-1) },
-	{ mods = "SUPER|SHIFT", key = "]", action = act.SwitchWorkspaceRelative(1) },
+	{ mods = "SUPER", key = "[", action = act.SwitchWorkspaceRelative(-1) },
+	{ mods = "SUPER", key = "]", action = act.SwitchWorkspaceRelative(1) },
 	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER", key = "g", action = act.ActivateCopyMode },
