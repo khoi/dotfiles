@@ -77,7 +77,7 @@ config.macos_window_background_blur = 10
 config.window_frame = {
 	font_size = 14.0,
 }
-config.inactive_pane_hsb = { brightness = 0.9 }
+config.inactive_pane_hsb = { brightness = 0.8, saturation = 0.9 }
 config.window_padding = {
 	left = "1cell",
 	right = "1cell",
