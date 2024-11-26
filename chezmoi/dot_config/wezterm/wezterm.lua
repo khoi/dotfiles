@@ -40,7 +40,7 @@ wezterm.on("gui-startup", function()
 end)
 
 config.bold_brightens_ansi_colors = true
-config.color_scheme = "GruvboxDark"
+config.color_scheme = "Gruvbox dark, hard (base16)"
 bar.apply_to_config(config, {
 	modules = {
 		spotify = {
