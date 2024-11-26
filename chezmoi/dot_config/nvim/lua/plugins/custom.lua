@@ -213,8 +213,8 @@ return {
       hints = { enabled = false },
       mappings = {
         submit = {
-          normal = "<C-s>",
-          insert = "<C-s>",
+          normal = "<C-CR>",
+          insert = "<C-CR>",
         },
       },
     },
