@@ -31,10 +31,10 @@ return {
     lazy = true,
     event = "VeryLazy",
     keys = {
-      { "<c-h>", "<cmd>NvimTmuxNavigateLeft<cr>", { silent = true, desc = "navigate left" } },
-      { "<c-j>", "<cmd>NvimTmuxNavigateDown<cr>", { silent = true, desc = "navigate down" } },
-      { "<c-k>", "<cmd>NvimTmuxNavigateUp<cr>", { silent = true, desc = "navigate up" } },
-      { "<c-l>", "<cmd>NvimTmuxNavigateRight<cr>", { silent = true, desc = "navigate right" } },
+      { "<M-h>", "<cmd>NvimTmuxNavigateLeft<cr>", { silent = true, desc = "navigate left" } },
+      { "<M-j>", "<cmd>NvimTmuxNavigateDown<cr>", { silent = true, desc = "navigate down" } },
+      { "<M-k>", "<cmd>NvimTmuxNavigateUp<cr>", { silent = true, desc = "navigate up" } },
+      { "<M-l>", "<cmd>NvimTmuxNavigateRight<cr>", { silent = true, desc = "navigate right" } },
     },
     config = function()
       local nvim_tmux_nav = require("nvim-tmux-navigation")
