@@ -44,6 +44,7 @@ wezterm.on("gui-startup", function()
 		workspace = "llm-copilot",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
 	})
+	llm_window:gui_window():toggle_fullscreen()
 
 	local _, llm_nvim_pane, _ = llm_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
