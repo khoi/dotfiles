@@ -110,6 +110,7 @@ config.skip_close_confirmation_for_processes_named = {
 	"pwsh.exe",
 	"powershell.exe",
 }
+config.status_update_interval = 1000
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 config.window_close_confirmation = "NeverPrompt"
