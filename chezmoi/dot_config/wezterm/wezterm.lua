@@ -151,7 +151,6 @@ config.keys = {
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
-	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 }
 
 --- @generic T
