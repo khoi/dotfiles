@@ -96,6 +96,7 @@ bar.apply_to_config(config, {
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("BerkeleyMono Nerd Font Mono")
+config.font_size = 18
 config.initial_cols = 160
 config.show_new_tab_button_in_tab_bar = false
 config.show_tab_index_in_tab_bar = false
