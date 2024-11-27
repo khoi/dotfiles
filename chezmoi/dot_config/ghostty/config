@@ -1,7 +1,7 @@
 confirm-close-surface = false
 font-family = BerkeleyMono Nerd Font Mono
 font-size = 12
-fullscreen = false
+fullscreen = true
 mouse-hide-while-typing = true
 window-decoration = true
 macos-non-native-fullscreen = false
