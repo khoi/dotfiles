@@ -5,22 +5,17 @@ local mux = wezterm.mux
 local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
 
 wezterm.on("gui-startup", function()
-	-- PERSONAL
-	local personal_cmd_tab, dotfiles_pane, dev_window = mux.spawn_window({
-		workspace = "khoi",
-		cwd = wezterm.home_dir,
+	-- llm-copilot
+	local llm_cmd_tab, llm_pane, llm_window = mux.spawn_window({
+		workspace = "llm-copilot",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
 	})
 
-	local config_tab, config_pane, _ = dev_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/.config",
+	local _, llm_nvim_pane, _ = llm_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
 	})
-	config_pane:send_text("nvim\n")
+	llm_nvim_pane:send_text("nvim\n")
 
-	local chezmoi_tab, _, _ = dev_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/.local/share/chezmoi",
-	})
-
-	personal_cmd_tab:activate()
 	-- WORK
 	local work_cmd_tab, app_pane, work_window = mux.spawn_window({
 		workspace = "Goodnotes",
@@ -36,7 +31,20 @@ wezterm.on("gui-startup", function()
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm",
 	})
 
-	work_cmd_tab:activate()
+	-- PERSONAL
+	local personal_cmd_tab, dotfiles_pane, dev_window = mux.spawn_window({
+		workspace = "khoi",
+		cwd = wezterm.home_dir,
+	})
+
+	local config_tab, config_pane, _ = dev_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/.config",
+	})
+	config_pane:send_text("nvim\n")
+
+	local chezmoi_tab, _, _ = dev_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/.local/share/chezmoi",
+	})
 end)
 
 config.bold_brightens_ansi_colors = true
