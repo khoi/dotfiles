@@ -27,21 +27,17 @@ return {
     },
   },
   {
-    "alexghergh/nvim-tmux-navigation",
+    "numToStr/Navigator.nvim",
     lazy = true,
     event = "VeryLazy",
     keys = {
-      { "<M-h>", "<cmd>NvimTmuxNavigateLeft<cr>", { silent = true, desc = "navigate left" } },
-      { "<M-j>", "<cmd>NvimTmuxNavigateDown<cr>", { silent = true, desc = "navigate down" } },
-      { "<M-k>", "<cmd>NvimTmuxNavigateUp<cr>", { silent = true, desc = "navigate up" } },
-      { "<M-l>", "<cmd>NvimTmuxNavigateRight<cr>", { silent = true, desc = "navigate right" } },
+      { "<C-h>", "<cmd>NavigatorLeft<cr>", { silent = true, desc = "navigate left" } },
+      { "<C-j>", "<cmd>NavigatorDown<cr>", { silent = true, desc = "navigate down" } },
+      { "<C-k>", "<cmd>NavigatorUp<cr>", { silent = true, desc = "navigate up" } },
+      { "<C-l>", "<cmd>NavigatorRight<cr>", { silent = true, desc = "navigate right" } },
     },
     config = function()
-      local nvim_tmux_nav = require("nvim-tmux-navigation")
-
-      nvim_tmux_nav.setup({
-        disable_when_zoomed = true, -- defaults to false
-      })
+      require("Navigator").setup()
     end,
   },
 

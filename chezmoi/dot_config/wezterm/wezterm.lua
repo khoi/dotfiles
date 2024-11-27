@@ -4,9 +4,43 @@ local config = wezterm.config_builder()
 local mux = wezterm.mux
 local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
 
+local function is_inside_vim(pane)
+	local tty = pane:get_tty_name()
+	if tty == nil then
+		return false
+	end
+
+	local success, _, _ = wezterm.run_child_process({
+		"sh",
+		"-c",
+		"ps -o state= -o comm= -t"
+			.. wezterm.shell_quote_arg(tty)
+			.. " | "
+			.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
+	})
+
+	return success
+end
+
+local function is_outside_vim(pane)
+	return not is_inside_vim(pane)
+end
+
+local function bind_if(cond, key, mods, action)
+	local function callback(win, pane)
+		if cond(pane) then
+			win:perform_action(action, pane)
+		else
+			win:perform_action(act.SendKey({ key = key, mods = mods }), pane)
+		end
+	end
+
+	return { key = key, mods = mods, action = wezterm.action_callback(callback) }
+end
+
 wezterm.on("gui-startup", function()
 	-- llm-copilot
-	local llm_cmd_tab, llm_pane, llm_window = mux.spawn_window({
+	local _, _, llm_window = mux.spawn_window({
 		workspace = "llm-copilot",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
 	})
@@ -17,7 +51,7 @@ wezterm.on("gui-startup", function()
 	llm_nvim_pane:send_text("nvim\n")
 
 	-- WORK
-	local work_cmd_tab, app_pane, work_window = mux.spawn_window({
+	local _, _, work_window = mux.spawn_window({
 		workspace = "Goodnotes",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
 	})
@@ -27,22 +61,22 @@ wezterm.on("gui-startup", function()
 	})
 	lazygit_pane:send_text("lazygit\n")
 
-	local _, gnllm_pane, _ = work_window:spawn_tab({
+	local _, _, _ = work_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm",
 	})
 
 	-- PERSONAL
-	local personal_cmd_tab, dotfiles_pane, dev_window = mux.spawn_window({
+	local _, _, dev_window = mux.spawn_window({
 		workspace = "khoi",
 		cwd = wezterm.home_dir,
 	})
 
-	local config_tab, config_pane, _ = dev_window:spawn_tab({
+	local _, config_pane, _ = dev_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/.config",
 	})
 	config_pane:send_text("nvim\n")
 
-	local chezmoi_tab, _, _ = dev_window:spawn_tab({
+	local _, _, _ = dev_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/.local/share/chezmoi",
 	})
 end)
@@ -101,10 +135,10 @@ config.keys = {
 	{ mods = "LEADER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
 	{ mods = "LEADER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
 	{ mods = "LEADER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
-	{ mods = "CTRL", key = "h", action = act.ActivatePaneDirection("Left") },
-	{ mods = "CTRL", key = "j", action = act.ActivatePaneDirection("Down") },
-	{ mods = "CTRL", key = "k", action = act.ActivatePaneDirection("Up") },
-	{ mods = "CTRL", key = "l", action = act.ActivatePaneDirection("Right") },
+	bind_if(is_outside_vim, "h", "CTRL", act.ActivatePaneDirection("Left")),
+	bind_if(is_outside_vim, "j", "CTRL", act.ActivatePaneDirection("Down")),
+	bind_if(is_outside_vim, "k", "CTRL", act.ActivatePaneDirection("Up")),
+	bind_if(is_outside_vim, "l", "CTRL", act.ActivatePaneDirection("Right")),
 	{ mods = "CTRL", key = "[", action = act.ActivateTabRelative(-1) },
 	{ mods = "CTRL", key = "]", action = act.ActivateTabRelative(1) },
 
