@@ -139,6 +139,13 @@ config.keys = {
 	{ mods = "LEADER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
 	{ mods = "LEADER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
 	{ mods = "LEADER", key = "[", action = act.ActivateCopyMode },
+	{
+		mods = "LEADER | SHIFT",
+		key = "!",
+		action = wezterm.action_callback(function(win, pane)
+			local tab, window = pane:move_to_new_tab()
+		end),
+	},
 	bind_if(is_outside_vim, "h", "CTRL", act.ActivatePaneDirection("Left")),
 	bind_if(is_outside_vim, "j", "CTRL", act.ActivatePaneDirection("Down")),
 	bind_if(is_outside_vim, "k", "CTRL", act.ActivatePaneDirection("Up")),
