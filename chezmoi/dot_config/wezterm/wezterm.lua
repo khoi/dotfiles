@@ -39,16 +39,16 @@ local function bind_if(cond, key, mods, action)
 end
 
 wezterm.on("gui-startup", function()
-	-- llm-copilot
-	local _, _, llm_window = mux.spawn_window({
-		workspace = "llm-copilot",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
+	-- aoc2024
+	local _, _, aoc_2024_window = mux.spawn_window({
+		workspace = "aoc2024",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
 	})
 
-	local _, llm_nvim_pane, _ = llm_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/llm-copilot",
+	local _, aoc_2024_pane, _ = aoc_2024_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
 	})
-	llm_nvim_pane:send_text("nvim\n")
+	aoc_2024_pane:send_text("nvim\n")
 
 	-- WORK
 	local _, _, work_window = mux.spawn_window({
