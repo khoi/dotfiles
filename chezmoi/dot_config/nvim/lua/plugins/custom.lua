@@ -214,6 +214,9 @@ return {
         },
       },
     },
+    keys = {
+      { "<C-a>", "<cmd>AvanteToggle<cr>", desc = "Toggle Avante" },
+    },
     build = LazyVim.is_win() and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" or "make",
   },
   {
