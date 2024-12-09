@@ -37,7 +37,7 @@ return {
       { "<C-l>", "<cmd>NavigatorRight<cr>", { silent = true, desc = "navigate right" } },
     },
     config = function()
-      require("Navigator").setup()
+      require("Navigator").setup({})
     end,
   },
 
@@ -236,15 +236,10 @@ return {
     },
   },
   {
-    "nvim-neo-tree/neo-tree.nvim",
+    "echasnovski/mini.files",
     opts = {
-      filesystem = {
-        bind_to_cwd = false,
-        follow_current_file = { enabled = true },
-        use_libuv_file_watcher = true,
-        filtered_items = {
-          visible = true,
-        },
+      options = {
+        use_as_default_explorer = true,
       },
     },
   },
