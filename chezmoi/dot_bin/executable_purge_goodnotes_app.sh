@@ -30,6 +30,8 @@ echo "🔒 Enter your password to continue (we need this to remove file under /A
 
 sudo -v
 
+pkill -9 "Goodnotes"
+
 FILES=(/Applications/Goodnotes.app/
   ~/Library/Containers/com.goodnotesapp.x
 )
