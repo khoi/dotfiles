@@ -6,3 +6,5 @@ local opt = vim.opt
 
 opt.background = "dark"
 opt.swapfile = false
+
+vim.g.ai_cmp = false -- copilot to work with blink,
