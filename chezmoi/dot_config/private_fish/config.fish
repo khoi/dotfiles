@@ -8,9 +8,6 @@ set -g async_prompt_functions _pure_prompt_git
 
 source ~/.config/fish/private_variables.fish
 
-# Key bindings
-fzf_configure_bindings --directory=\cs
-
 # Global
 set -gx EDITOR nvim
 set -gx HOMEBREW_NO_ANALYTICS 1
