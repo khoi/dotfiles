@@ -85,12 +85,23 @@ end)
 config.bold_brightens_ansi_colors = true
 config.color_scheme = "Gruvbox dark, hard (base16)"
 bar.apply_to_config(config, {
+	separator = {
+		space = 1,
+		left_icon = wezterm.nerdfonts.fa_long_arrow_right,
+		right_icon = wezterm.nerdfonts.fa_long_arrow_left,
+		field_icon = wezterm.nerdfonts.indent_line,
+	},
 	modules = {
 		spotify = {
 			enabled = false,
 		},
 		pane = {
 			enabled = false,
+		},
+		workspace = {
+			enabled = true,
+			icon = wezterm.nerdfonts.md_duck,
+			color = 8,
 		},
 	},
 })
