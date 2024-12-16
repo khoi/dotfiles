@@ -40,15 +40,16 @@ end
 
 wezterm.on("gui-startup", function()
 	-- aoc2024
-	local _, _, aoc_2024_window = mux.spawn_window({
+	local _, aoc_2024_pane, aoc_2024_window = mux.spawn_window({
 		workspace = "aoc2024",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
 	})
 
-	local _, aoc_2024_pane, _ = aoc_2024_window:spawn_tab({
+	aoc_2024_pane:send_text("nvim\n")
+
+	local _, _, _ = aoc_2024_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
 	})
-	aoc_2024_pane:send_text("nvim\n")
 
 	-- WORK
 	local _, _, work_window = mux.spawn_window({
