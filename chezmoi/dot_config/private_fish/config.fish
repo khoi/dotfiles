@@ -4,14 +4,12 @@ end
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-fzf_configure_bindings --directory=\cf
-
 set -g async_prompt_functions _pure_prompt_git
 
 source ~/.config/fish/private_variables.fish
 
 # Key bindings
-bind \ct _fzf_search_directory
+fzf_configure_bindings --directory=\cs
 
 # Global
 set -gx EDITOR nvim
