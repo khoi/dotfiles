@@ -24,3 +24,6 @@ alias o open
 alias v nvim
 alias vim nvim
 alias cat bat
+
+# PATH
+fish_add_path ~/.bin
