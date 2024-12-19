@@ -24,6 +24,7 @@ alias o open
 alias v nvim
 alias vim nvim
 alias cat bat
+alias nproc "sysctl -n hw.logicalcpu"
 
 # PATH
 fish_add_path ~/.bin
