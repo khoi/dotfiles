@@ -57,11 +57,6 @@ wezterm.on("gui-startup", function()
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
 	})
 
-	local _, lazygit_pane, _ = work_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
-	})
-	lazygit_pane:send_text("lazygit\n")
-
 	local _, _, _ = work_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm",
 	})
