@@ -5,4 +5,3 @@ git: true
 gitignore: false
 auto-commits: false
 yes-always: true
-multiline: true
