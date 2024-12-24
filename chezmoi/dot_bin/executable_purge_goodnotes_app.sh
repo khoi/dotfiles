@@ -41,4 +41,6 @@ for f in "${FILES[@]}"; do
   sudo rm -rf "$f"
 done
 
+defaults delete com.goodnotesapp.x
+
 echo "✅ Done"
