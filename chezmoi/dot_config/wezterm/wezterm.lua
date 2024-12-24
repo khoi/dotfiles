@@ -118,6 +118,7 @@ config.skip_close_confirmation_for_processes_named = {
 	"pwsh.exe",
 	"powershell.exe",
 }
+config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 config.status_update_interval = 1000
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
