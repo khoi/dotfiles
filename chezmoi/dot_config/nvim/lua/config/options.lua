@@ -8,3 +8,4 @@ opt.background = "dark"
 opt.swapfile = false
 
 vim.g.ai_cmp = false -- copilot to work with blink,
+vim.g.snacks_animate = false
