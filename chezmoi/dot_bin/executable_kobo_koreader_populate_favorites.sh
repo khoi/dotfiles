@@ -18,7 +18,7 @@ EOF
 # Find all epub files and process them
 counter=1
 echo "Processing files..."
-fd -e epub -e pdf -E '.*' . "$KOBO_MOUNT" | while read -r file; do
+fd -e epub -e pdf -e cbz -e mobi -E '.*' . "$KOBO_MOUNT" | while read -r file; do
   # Convert the path from $KOBO_MOUNT to /mnt/onboard
   converted_path=${file//$KOBO_MOUNT//mnt/onboard}
   echo "[$counter] Processing: $converted_path"
