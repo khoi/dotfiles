@@ -40,16 +40,18 @@ end
 
 wezterm.on("gui-startup", function()
 	-- aoc2024
-	local _, aoc_2024_pane, aoc_2024_window = mux.spawn_window({
-		workspace = "aoc2024",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
+	local _, side_project_pane, side_project_window = mux.spawn_window({
+		workspace = "hot",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/hot",
 	})
 
-	aoc_2024_pane:send_text("nvim\n")
+	side_project_pane:send_text("nvim\n")
 
-	local _, _, _ = aoc_2024_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/pytudes/aoc2024",
+	local _, pane, _ = side_project_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/hot",
 	})
+
+	pane:send_text("watchexec -r cargo run -- --json\n")
 
 	-- WORK
 	local _, _, work_window = mux.spawn_window({
@@ -95,7 +97,7 @@ bar.apply_to_config(config, {
 		},
 		workspace = {
 			enabled = true,
-			icon = wezterm.nerdfonts.md_duck,
+			icon = wezterm.nerdfonts.md_fire,
 			color = 8,
 		},
 	},
