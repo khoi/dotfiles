@@ -12,8 +12,8 @@ touch /Applications/WezTerm.app
 killall Finder
 killall Dock
 
-echo "Install BerkelyMono Fonts"
-op document get "BerkeleyFonts" --force -o /tmp/fonts.zip
-unzip -o /tmp/fonts.zip -d ~/Library/Fonts
+echo "Install TX-02 Fonts"
+op document get "TX-02 Fonts" --force -o /tmp/tx02.tar
+tar xf /tmp/tx02.tar -C ~/Library/Fonts/
 
 {{ end -}}
