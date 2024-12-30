@@ -28,6 +28,7 @@ alias nproc "sysctl -n hw.logicalcpu"
 
 # PATH
 fish_add_path ~/.bin
+fish_add_path ~/.local/bin
 
 # Load stuff
 zoxide init fish | source
