@@ -4,6 +4,21 @@ local config = wezterm.config_builder()
 local mux = wezterm.mux
 local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
 
+local function get_appearance()
+	if wezterm.gui then
+		return wezterm.gui.get_appearance()
+	end
+	return "Dark"
+end
+
+function scheme_for_appearance(appearance)
+	if appearance:find("Dark") then
+		return "Gruvbox dark, hard (base16)"
+	else
+		return "Gruvbox light, hard (base16)"
+	end
+end
+
 local function is_inside_vim(pane)
 	local tty = pane:get_tty_name()
 	if tty == nil then
@@ -80,7 +95,7 @@ wezterm.on("gui-startup", function()
 end)
 
 config.bold_brightens_ansi_colors = true
-config.color_scheme = "Gruvbox dark, hard (base16)"
+config.color_scheme = scheme_for_appearance(get_appearance())
 bar.apply_to_config(config, {
 	separator = {
 		space = 1,
