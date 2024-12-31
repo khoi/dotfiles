@@ -179,7 +179,21 @@ config.keys = {
 
 	{ mods = "SUPER", key = "[", action = act.SwitchWorkspaceRelative(-1) },
 	{ mods = "SUPER", key = "]", action = act.SwitchWorkspaceRelative(1) },
-	{ mods = "SUPER", key = "f", action = act.Search("CurrentSelectionOrEmptyString") },
+	{
+		mods = "SUPER",
+		key = "f",
+		action = wezterm.action_callback(function(window, pane)
+			window:perform_action(act.Search("CurrentSelectionOrEmptyString"), pane)
+			window:perform_action(
+				act.Multiple({
+					act.CopyMode("ClearPattern"),
+					act.CopyMode("ClearSelectionMode"),
+					act.CopyMode("MoveToScrollbackBottom"),
+				}),
+				pane
+			)
+		end),
+	},
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
