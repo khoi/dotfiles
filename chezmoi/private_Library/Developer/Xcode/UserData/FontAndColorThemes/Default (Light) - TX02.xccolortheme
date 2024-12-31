@@ -164,69 +164,69 @@
 	<key>DVTSourceTextSyntaxFonts</key>
 	<dict>
 		<key>xcode.syntax.attribute</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.character</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.comment</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.comment.doc</key>
 		<string>HelveticaNeue - 12.0</string>
 		<key>xcode.syntax.comment.doc.keyword</key>
-		<string>TX02NFM-Bold - 12.0</string>
+		<string>TX-02-Bold - 12.0</string>
 		<key>xcode.syntax.declaration.other</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.declaration.type</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.class</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.class.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.constant</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.constant.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.function</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.function.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.macro</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.macro.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.type</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.type.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.variable</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.identifier.variable.system</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.keyword</key>
-		<string>TX02NFM-SemiBold - 12.0</string>
+		<string>TX-02-SemiBold - 12.0</string>
 		<key>xcode.syntax.mark</key>
-		<string>TX02NFM-Bold - 12.0</string>
+		<string>TX-02-Bold - 12.0</string>
 		<key>xcode.syntax.markup.code</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.number</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.plain</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.preprocessor</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.regex</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.regex.capturename</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.regex.charname</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.regex.number</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.regex.other</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.string</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 		<key>xcode.syntax.url</key>
-		<string>TX02NFM-Regular - 12.0</string>
+		<string>TX-02-Regular - 12.0</string>
 	</dict>
 </dict>
 </plist>
