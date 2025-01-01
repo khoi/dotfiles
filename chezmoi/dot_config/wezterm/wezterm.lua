@@ -11,7 +11,7 @@ local function get_appearance()
 	return "Dark"
 end
 
-function scheme_for_appearance(appearance)
+local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
 		return "Gruvbox dark, hard (base16)"
 	else
