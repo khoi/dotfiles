@@ -154,7 +154,7 @@ config.window_padding = {
 	bottom = 0,
 }
 
-config.leader = { key = "s", mods = "CTRL", timeout_milliseconds = 1000 }
+config.leader = { key = "j", mods = "CTRL", timeout_milliseconds = 1001 }
 config.keys = {
 	{ mods = "LEADER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
 	{ mods = "LEADER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
