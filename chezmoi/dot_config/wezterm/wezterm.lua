@@ -120,7 +120,7 @@ bar.apply_to_config(config, {
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("TX-02")
-config.font_size = 18
+config.font_size = 16
 config.initial_cols = 160
 config.show_new_tab_button_in_tab_bar = false
 config.show_tab_index_in_tab_bar = false
@@ -135,7 +135,7 @@ config.skip_close_confirmation_for_processes_named = {
 	"pwsh.exe",
 	"powershell.exe",
 }
-config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
+-- config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 config.status_update_interval = 1000
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
@@ -144,7 +144,7 @@ config.window_decorations = "RESIZE"
 config.window_background_opacity = 1
 config.macos_window_background_blur = 10
 config.window_frame = {
-	font_size = 14.0,
+	font_size = 16.0,
 }
 config.inactive_pane_hsb = { brightness = 0.8, saturation = 0.9 }
 config.window_padding = {
