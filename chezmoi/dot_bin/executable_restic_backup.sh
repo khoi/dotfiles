@@ -13,6 +13,7 @@ restic backup "$HOME" \
   --compression "max" \
   --exclude-caches \
   --one-file-system \
+  --exclude "$HOME/.cache" \
   --exclude "$HOME/Downloads" \
   --exclude "$HOME/Library" \
   --exclude "$HOME/Parallels" \
