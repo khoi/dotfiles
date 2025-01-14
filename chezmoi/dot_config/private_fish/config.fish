@@ -16,7 +16,7 @@ set -gx HOMEBREW_VERBOSE 1
 set -gx GHQ_ROOT ~/Developer/code
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 
-set -gx RESTIC_REPOSITORY "rest:http://restic:restic@vault.local:8769"
+set -gx RESTIC_REPOSITORY "rest:http://restic:restic@192.168.0.45:8769"
 set -gx RESTIC_PASSWORD_COMMAND "op read 'op://Personal/vault/restic encryption'"
 
 # Aliases
