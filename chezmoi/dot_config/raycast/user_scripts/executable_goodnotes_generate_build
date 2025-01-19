@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env zsh
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Goodnotes - Generate Build from @bot
@@ -14,21 +13,8 @@
 # @raycast.author khoiracle
 # @raycast.authorURL https://raycast.com/khoiracle
 
+set -Eeuo pipefail
+REPONAME="Goodnotes/GoodNotes-5"
 # Get branch name from git if $1 is not set
 BRANCH_NAME=${1:-$(cd /Users/khoi/Developer/code/github.com/GoodNotes/GoodNotes-5/ && git rev-parse --abbrev-ref HEAD)}
-
-MESSAGE1="bot circle qa Goodnotes/Goodnotes-5 $BRANCH_NAME 6.0602.0"
-MESSAGE2="bot circle qa-catalyst Goodnotes/Goodnotes-5 $BRANCH_NAME 6.0602.0"
-
-echo "Building $BRANCH_NAME"
-
-osascript <<EOD
-tell script "Slack"
-    send message "$MESSAGE1" in channel "@bot"
-end tell
-EOD
-osascript <<EOD
-tell script "Slack"
-    send message "$MESSAGE2" in channel "@bot"
-end tell
-EOD
+gh pr comment "$BRANCH_NAME" -R "$REPONAME" -b "/builds -v 6.0602.0"
