@@ -1,11 +1,9 @@
 confirm-close-surface = false
 font-family = TX-02
 font-size = 12
-fullscreen = true
+fullscreen = false
 mouse-hide-while-typing = true
 window-decoration = true
-macos-non-native-fullscreen = false
-macos-titlebar-style = hidden
 
 # Gruvbox Material Dark Hard
 palette = 0=#1d2021
