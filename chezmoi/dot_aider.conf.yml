@@ -1,6 +1,7 @@
 # https://github.com/Aider-AI/aider/blob/main/aider/website/assets/sample.aider.conf.yml
 dark-mode: true
 detect-urls: false
+git: true
+gitignore: false
 auto-commits: false
 yes-always: true
-analytics-disable: true
