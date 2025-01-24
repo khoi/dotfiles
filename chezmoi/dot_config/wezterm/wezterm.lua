@@ -54,19 +54,17 @@ local function bind_if(cond, key, mods, action)
 end
 
 wezterm.on("gui-startup", function()
-	-- aoc2024
-	local _, side_project_pane, side_project_window = mux.spawn_window({
-		workspace = "hot",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/hot",
+	-- side project
+	local _, _, side_project_window = mux.spawn_window({
+		workspace = "chat",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chat",
 	})
-
-	side_project_pane:send_text("nvim\n")
 
 	local _, pane, _ = side_project_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/hot",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chat",
 	})
 
-	pane:send_text("watchexec -r cargo run -- --json\n")
+	pane:send_text("aider --watch-files\n")
 
 	-- WORK
 	local _, _, work_window = mux.spawn_window({
