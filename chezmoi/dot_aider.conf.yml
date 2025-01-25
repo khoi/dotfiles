@@ -2,6 +2,11 @@
 dark-mode: true
 detect-urls: false
 git: true
+attribute-author: false
+attribute-committer: false
+
 gitignore: false
-auto-commits: false
+auto-commits: true
+analytics-disable: true
+
 yes-always: true
