@@ -92,6 +92,44 @@ wezterm.on("gui-startup", function()
 	})
 end)
 
+wezterm.on("trigger-vim-with-scrollback", function(window, pane)
+	-- Retrieve the text from the pane
+	local text = pane:get_lines_as_text(pane:get_dimensions().scrollback_rows)
+
+	-- Create a temporary file to pass to vim
+	local name = os.tmpname()
+	local f = io.open(name, "w+")
+
+	if f == nil then
+		return
+	end
+
+	f:write(text)
+	f:flush()
+	f:close()
+
+	-- Open a new window running vim and tell it to open the file
+	window:perform_action(
+		act.SplitHorizontal({
+			args = {
+				os.getenv("SHELL"),
+				"-c",
+				"nvim " .. wezterm.shell_quote_arg(name),
+			},
+		}),
+		pane
+	)
+
+	-- Wait "enough" time for vim to read the file before we remove it.
+	-- The window creation and process spawn are asynchronous wrt. running
+	-- this script and are not awaitable, so we just pick a number.
+	--
+	-- Note: We don't strictly need to remove this file, but it is nice
+	-- to avoid cluttering up the temporary directory.
+	wezterm.sleep_ms(1000)
+	os.remove(name)
+end)
+
 config.bold_brightens_ansi_colors = true
 config.color_scheme = scheme_for_appearance(get_appearance())
 bar.apply_to_config(config, {
@@ -167,6 +205,11 @@ config.keys = {
 		action = wezterm.action_callback(function(win, pane)
 			local tab, window = pane:move_to_new_tab()
 		end),
+	},
+	{
+		mods = "LEADER",
+		key = "e",
+		action = act.EmitEvent("trigger-vim-with-scrollback"),
 	},
 	bind_if(is_outside_vim, "h", "CTRL", act.ActivatePaneDirection("Left")),
 	bind_if(is_outside_vim, "j", "CTRL", act.ActivatePaneDirection("Down")),
