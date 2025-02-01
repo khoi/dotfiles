@@ -1,9 +1,0 @@
-[tools]
-ruby = "3.3.0"
-nodejs = "lts"
-rust = "1.81.0"
-go = "1.23.2"
-python = "3.12.3"
-pnpm = "latest"
-zig = "latest"
-xcbeautify = "latest"
