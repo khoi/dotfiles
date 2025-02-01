@@ -74,6 +74,10 @@
   "vim.leader": "<space>",
   "vim.normalModeKeyBindingsNonRecursive": [
     {
+      "before": ["K"],
+      "commands": ["editor.action.showDefinitionPreviewHover"]
+    },
+    {
       "before": ["<leader>", "<leader>"],
       "commands": ["workbench.action.quickOpen"]
     },
