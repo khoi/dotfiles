@@ -29,7 +29,7 @@ prompt: >
   3. Present your final commit message wrapped in <output> tags.
 
 
-  Before writing the final commit message, wrap your analysis in <analysis> tags. In this analysis:
+  Before writing the final commit message, do your analysis by
   a. List all modified files
   b. Categorize changes (e.g., feature addition, bug fix, refactoring)
   c. Identify the most significant changes
@@ -40,10 +40,6 @@ prompt: >
   Here's an example of the desired output format (note that this is a generic example and your commit message should be specific to the provided git diff):
 
   ```
-  <analysis>
-  Your analysis
-  </analysis>
-
   <output>
   Implement user authentication system
 
