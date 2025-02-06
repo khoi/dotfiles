@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "Gruvbox dark, hard (base16)"
+		return "zenbones_dark"
 	else
-		return "Gruvbox light, hard (base16)"
+		return "zenbones"
 	end
 end
 
@@ -150,6 +150,10 @@ bar.apply_to_config(config, {
 			enabled = true,
 			icon = wezterm.nerdfonts.md_fire,
 			color = 8,
+		},
+		tabs = {
+			active_tab_fg = 7,
+			inactive_tab_fg = 8,
 		},
 	},
 })

@@ -31,7 +31,7 @@
   "console-ninja.featureSet": "Community",
   "editor.accessibilitySupport": "off",
   "editor.autoClosingBrackets": "always",
-  "editor.fontFamily": "TX-02, Monaco, 'Courier New', monospace",
+  "editor.fontFamily": "TX-02",
   "editor.fontSize": 13,
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
@@ -148,8 +148,8 @@
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
   },
-  "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
-  "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
+  "workbench.preferredDarkColorTheme": "Zenbones Dark",
+  "workbench.preferredLightColorTheme": "Zenbones Light",
   "zenMode.fullScreen": false,
 
   "makefile.configureOnOpen": true,
