@@ -194,36 +194,30 @@ config.window_padding = {
 	bottom = 0,
 }
 
-config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 1001 }
 config.keys = {
-	{ mods = "LEADER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ mods = "LEADER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-	{ mods = "LEADER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
-	{ mods = "LEADER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
-	{ mods = "LEADER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
-	{ mods = "LEADER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
-	{ mods = "LEADER", key = "[", action = act.ActivateCopyMode },
+	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
+	{ mods = "SUPER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
+	{ mods = "SUPER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
+	{ mods = "SUPER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
+	{ mods = "SUPER", key = "[", action = act.ActivateCopyMode },
 	{
-		mods = "LEADER | SHIFT",
+		mods = "SUPER | SHIFT",
 		key = "!",
 		action = wezterm.action_callback(function(win, pane)
 			local tab, window = pane:move_to_new_tab()
 		end),
 	},
-	{
-		mods = "LEADER",
-		key = "e",
-		action = act.EmitEvent("trigger-vim-with-scrollback"),
-	},
 	bind_if(is_outside_vim, "h", "CTRL", act.ActivatePaneDirection("Left")),
 	bind_if(is_outside_vim, "j", "CTRL", act.ActivatePaneDirection("Down")),
 	bind_if(is_outside_vim, "k", "CTRL", act.ActivatePaneDirection("Up")),
 	bind_if(is_outside_vim, "l", "CTRL", act.ActivatePaneDirection("Right")),
-	{ mods = "CTRL", key = "[", action = act.ActivateTabRelative(-1) },
-	{ mods = "CTRL", key = "]", action = act.ActivateTabRelative(1) },
 
-	{ mods = "SUPER", key = "[", action = act.SwitchWorkspaceRelative(-1) },
-	{ mods = "SUPER", key = "]", action = act.SwitchWorkspaceRelative(1) },
+	{ mods = "SUPER", key = "[", action = act.ActivateTabRelative(-1) },
+	{ mods = "SUPER", key = "]", action = act.ActivateTabRelative(1) },
+	{ mods = "SUPER|SHIFT", key = "[", action = act.SwitchWorkspaceRelative(-1) },
+	{ mods = "SUPER|SHIFT", key = "]", action = act.SwitchWorkspaceRelative(1) },
 	{
 		mods = "SUPER",
 		key = "f",
