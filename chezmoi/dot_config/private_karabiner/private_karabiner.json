@@ -230,7 +230,7 @@
                 "description": "Open -a 'WezTerm.app'",
                 "type": "basic",
                 "from": {
-                  "key_code": "grave_accent_and_tilde",
+                  "key_code": "t",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -302,7 +302,7 @@
                 "description": "Open Telegram",
                 "type": "basic",
                 "from": {
-                  "key_code": "t",
+                  "key_code": "e",
                   "modifiers": {
                     "optional": [
                       "any"
