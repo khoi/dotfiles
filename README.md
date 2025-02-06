@@ -10,7 +10,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply khoi
 
 ## Manual setups
 
-- Remap caplocks to controls
+- Setup Karabiner Elements
 - Setup GUI app
   - 1Password
     - Turn on SSH Agent
