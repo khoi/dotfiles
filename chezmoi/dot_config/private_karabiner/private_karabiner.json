@@ -762,6 +762,30 @@
               {
                 "to": [
                   {
+                    "shell_command": "open raycast://ai-commands/fix-spelling-and-grammar"
+                  }
+                ],
+                "description": "Open raycast://ai-commands/fix-spelling-and-grammar",
+                "type": "basic",
+                "from": {
+                  "key_code": "g",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "hyper_sublayer_r",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "to": [
+                  {
                     "shell_command": "open raycast://extensions/raycast/navigation/search-menu-items"
                   }
                 ],
