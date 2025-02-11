@@ -167,8 +167,8 @@ config.keys = {
 	{
 		mods = "SUPER | SHIFT",
 		key = "!",
-		action = wezterm.action_callback(function(win, pane)
-			local tab, window = pane:move_to_new_tab()
+		action = wezterm.action_callback(function(_, pane)
+			local _, _ = pane:move_to_new_tab()
 		end),
 	},
 	bind_if(is_outside_vim, "h", "CTRL", act.ActivatePaneDirection("Left")),
