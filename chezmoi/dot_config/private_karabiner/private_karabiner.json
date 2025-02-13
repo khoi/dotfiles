@@ -299,10 +299,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open WhatsApp"
+                    "shell_command": "open -a 'WhatsApp.app'"
                   }
                 ],
-                "description": "Open WhatsApp",
+                "description": "Open -a 'WhatsApp.app'",
                 "type": "basic",
                 "from": {
                   "key_code": "w",
@@ -323,10 +323,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open Telegram"
+                    "shell_command": "open -a 'Telegram.app'"
                   }
                 ],
-                "description": "Open Telegram",
+                "description": "Open -a 'Telegram.app'",
                 "type": "basic",
                 "from": {
                   "key_code": "e",
@@ -635,12 +635,35 @@
               {
                 "to": [
                   {
+                    "key_code": "mute"
+                  }
+                ],
+                "type": "basic",
+                "from": {
+                  "key_code": "0",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "hyper_sublayer_s",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "to": [
+                  {
                     "key_code": "volume_increment"
                   }
                 ],
                 "type": "basic",
                 "from": {
-                  "key_code": "u",
+                  "key_code": "equal_sign",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -663,7 +686,7 @@
                 ],
                 "type": "basic",
                 "from": {
-                  "key_code": "j",
+                  "key_code": "hyphen",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -686,7 +709,7 @@
                 ],
                 "type": "basic",
                 "from": {
-                  "key_code": "p",
+                  "key_code": "close_bracket",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -709,7 +732,7 @@
                 ],
                 "type": "basic",
                 "from": {
-                  "key_code": "o",
+                  "key_code": "open_bracket",
                   "modifiers": {
                     "optional": [
                       "any"
@@ -1008,10 +1031,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/thomas/color-picker/pick-color"
+                    "shell_command": "open -g raycast://extensions/raycast/raycast/confetti"
                   }
                 ],
-                "description": "Open raycast://extensions/thomas/color-picker/pick-color",
+                "description": "Open raycast://extensions/raycast/raycast/confetti in background",
                 "type": "basic",
                 "from": {
                   "key_code": "c",
@@ -1032,10 +1055,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://ai-commands/fix-spelling-and-grammar"
+                    "shell_command": "open -g raycast://ai-commands/fix-spelling-and-grammar"
                   }
                 ],
-                "description": "Open raycast://ai-commands/fix-spelling-and-grammar",
+                "description": "Open raycast://ai-commands/fix-spelling-and-grammar in background",
                 "type": "basic",
                 "from": {
                   "key_code": "g",
@@ -1056,10 +1079,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/navigation/search-menu-items"
+                    "shell_command": "open -g raycast://extensions/raycast/navigation/search-menu-items"
                   }
                 ],
-                "description": "Open raycast://extensions/raycast/navigation/search-menu-items",
+                "description": "Open raycast://extensions/raycast/navigation/search-menu-items in background",
                 "type": "basic",
                 "from": {
                   "key_code": "p",
@@ -1080,10 +1103,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open raycast://extensions/raycast/clipboard-history/clipboard-history"
+                    "shell_command": "open -g raycast://extensions/raycast/clipboard-history/clipboard-history"
                   }
                 ],
-                "description": "Open raycast://extensions/raycast/clipboard-history/clipboard-history",
+                "description": "Open raycast://extensions/raycast/clipboard-history/clipboard-history in background",
                 "type": "basic",
                 "from": {
                   "key_code": "h",
