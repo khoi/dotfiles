@@ -1,4 +1,3 @@
-{{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env zsh
 set -eo pipefail
 
@@ -15,5 +14,3 @@ killall Dock
 echo "Install TX-02 Fonts"
 op document get "TX-02 Fonts" --force -o /tmp/tx02.tar
 tar xf /tmp/tx02.tar -C ~/Library/Fonts/
-
-{{ end -}}
