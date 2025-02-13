@@ -1031,6 +1031,30 @@
               {
                 "to": [
                   {
+                    "shell_command": "open -g raycast://extensions/rolandleth/kill-process/index"
+                  }
+                ],
+                "description": "Open raycast://extensions/rolandleth/kill-process/index in background",
+                "type": "basic",
+                "from": {
+                  "key_code": "k",
+                  "modifiers": {
+                    "optional": [
+                      "any"
+                    ]
+                  }
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "hyper_sublayer_r",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "to": [
+                  {
                     "shell_command": "open -g raycast://extensions/raycast/raycast/confetti"
                   }
                 ],

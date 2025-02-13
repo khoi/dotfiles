@@ -167,6 +167,7 @@ const rules: KarabinerRules[] = [
 
     // r = "Raycast"
     r: {
+      k: openInBackground("raycast://extensions/rolandleth/kill-process/index"),
       c: openInBackground("raycast://extensions/raycast/raycast/confetti"),
       g: openInBackground("raycast://ai-commands/fix-spelling-and-grammar"),
       p: openInBackground(
