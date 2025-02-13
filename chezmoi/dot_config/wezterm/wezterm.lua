@@ -114,7 +114,7 @@ bar.apply_to_config(config, {
 			color = 8,
 		},
 		tabs = {
-			active_tab_fg = 7,
+			active_tab_fg = 4,
 			inactive_tab_fg = 8,
 		},
 	},
