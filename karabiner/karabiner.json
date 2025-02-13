@@ -16,7 +16,7 @@
               {
                 "description": "Hyper Key",
                 "from": {
-                  "key_code": "right_command",
+                  "key_code": "right_option",
                   "modifiers": {
                     "optional": [
                       "any"

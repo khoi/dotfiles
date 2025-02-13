@@ -1,6 +1,6 @@
 import fs from "fs";
 import { KarabinerRules } from "./types";
-import { createHyperSubLayers, app, open, openInBackground } from "./utils";
+import { createHyperSubLayers, app, openInBackground } from "./utils";
 
 const rules: KarabinerRules[] = [
   {
@@ -9,7 +9,7 @@ const rules: KarabinerRules[] = [
       {
         description: "Hyper Key",
         from: {
-          key_code: "right_command",
+          key_code: "right_option",
           modifiers: {
             optional: ["any"],
           },
