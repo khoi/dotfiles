@@ -280,7 +280,7 @@ const rules: KarabinerRules[] = [
 ];
 
 fs.writeFileSync(
-  "karabiner.json",
+  `${process.env.HOME}/.config/karabiner/karabiner.json`,
   JSON.stringify(
     {
       global: {
