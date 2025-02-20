@@ -158,7 +158,7 @@ config.window_padding = {
 
 config.keys = {
 	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ mods = "SUPER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER | SHIFT", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
 	{ mods = "SUPER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
 	{ mods = "SUPER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
