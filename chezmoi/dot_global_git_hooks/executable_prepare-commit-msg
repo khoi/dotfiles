@@ -26,7 +26,7 @@ fi
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm --model "$COMMIT_HOOK_LLM_MODEL" -t gitcommit | tee /dev/tty); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | llm -t gitcommit | tee /dev/tty); then
   # Finalizing output
   tput cnorm   # Show the cursor again
   printf "\\n" # Move the cursor to the next line
