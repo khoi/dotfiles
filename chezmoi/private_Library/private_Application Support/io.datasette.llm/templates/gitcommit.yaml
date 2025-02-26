@@ -1,4 +1,4 @@
-model: gpt-4o
+model: claude-3.7-sonnet
 prompt: >
   You are a senior software engineer tasked with writing git commit messages based on git diffs. Your goal is to analyze the provided git diff and create a concise, informative commit message that accurately represents the changes made.
 
