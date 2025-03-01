@@ -1,57 +1,44 @@
 model: claude-3.7-sonnet
 prompt: >
-  You are a senior software engineer tasked with writing git commit messages based on git diffs. Your goal is to analyze the provided git diff and create a concise, informative commit message that accurately represents the changes made.
+  You are an AI assistant tasked with analyzing a git diff and writing an appropriate commit message. The git diff will be provided to you, and your job is to summarize the changes in a clear, concise, and informative manner.
 
-  Here is the git diff you need to analyze:
+  Here is the git diff to analyze:
 
   <git_diff>
   $input
   </git_diff>
 
-  Please follow these steps to create an appropriate git commit message:
+  To analyze the diff and create an appropriate commit message, follow these steps:
 
-  1. Analyze the git diff:
-    - Identify the files that have been modified, added, or deleted.
-    - Determine the nature of the changes (e.g., bug fixes, new features, refactoring).
-    - Look for patterns or themes in the changes.
-    - Focus on the most important changes.
+  1. Carefully review the git diff, paying attention to:
+    - Files that have been modified, added, or deleted
+    - The nature of the changes (e.g., bug fixes, new features, refactoring)
+    - Any patterns or themes in the changes
 
-  2. Write a commit message adhering to these guidelines:
-    - Start with a brief, descriptive summary line (subject line) that is:
-      * 100 characters or less
-      * Written in the imperative mood (e.g., "Add feature" not "Added feature")
-      * Capitalized
-      * Not ended with a period
-    - If needed, add a blank line followed by a more detailed body that:
-      * Explains what and why, not how
-      * Uses bullet points (starting with hyphens) for multiple points
-    - Omit the body if the change is simple and the subject line sufficiently describes it
+  2. Summarize the main purpose of the changes in a short, descriptive sentence. This will be your commit message subject line. Follow these guidelines:
+    - Use the imperative mood (e.g., "Add", "Fix", "Update", not "Added", "Fixed", "Updated")
+    - Limit the subject line to 50 characters if possible, but no more than 72
+    - Capitalize the first letter
+    - Do not end the subject line with a period
 
-  3. Present your final commit message wrapped in <output> tags.
+  3. If the changes are complex or require additional explanation, prepare a commit body. The commit body should:
+    - Provide more detailed information about the changes
+    - Explain the reasoning behind the changes, if necessary
+    - Be wrapped at 72 characters
+    - Use bullet points for multiple items, if applicable
 
+  4. Determine if a commit body is necessary. Include a body if:
+    - The changes are complex or affect multiple parts of the codebase
+    - There's important context or reasoning that needs to be explained
+    - The subject line alone doesn't sufficiently describe the changes
 
-  Before writing the final commit message, wrap your analysis in <analysis> tag. In this analysis:
-  a. List all modified files
-  b. Categorize changes (e.g., feature addition, bug fix, refactoring)
-  c. Identify the most significant changes
-  d. Note any patterns or themes
-  e. Draft 2-3 potential subject lines and evaluate them based on the guidelines
-  f. Decide whether a body is necessary and explain why
+  Your final output should be formatted as follows:
 
-  Here's an example of the desired output format (note that this is a generic example and your commit message should be specific to the provided git diff):
-
-  ```
-  <analysis>
-  Your analysis
-  </analysis>
   <output>
-  Implement user authentication system
+  Subject line
 
-  - Add login and registration endpoints
-  - Create user model and database schema
-  - Integrate JWT for secure token management
-  - Set up password hashing and salting
+  [Empty line if body is included]
+  [Commit body, if necessary]
   </output>
-  ```
 
-  Now, please analyze the provided git diff and create an appropriate commit message following the guidelines above.
+  Remember, your commit message should be clear, concise, and informative. Focus on explaining what was changed and why, rather than how it was changed. Avoid redundant information or unnecessary details.
