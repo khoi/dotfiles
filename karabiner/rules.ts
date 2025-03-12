@@ -176,6 +176,9 @@ const rules: KarabinerRules[] = [
       h: openInBackground(
         "raycast://extensions/raycast/clipboard-history/clipboard-history"
       ),
+      d: openInBackground(
+        "raycast://extensions/raycast/system/toggle-system-appearance"
+      ),
     },
   }),
   {
