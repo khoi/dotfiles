@@ -67,18 +67,21 @@ wezterm.on("gui-startup", function()
 	pane:send_text("aider --watch-files\n")
 
 	-- WORK
-	local _, _, work_window = mux.spawn_window({
+	local tab, _, work_window = mux.spawn_window({
 		workspace = "Goodnotes",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
 	})
+	tab:set_title("GoodNotes")
 
-	local _, _, _ = work_window:spawn_tab({
+	local tab, _, _ = work_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5/Packages/GNNLI",
 	})
+	tab:set_title("GNNLI")
 
-	local _, _, _ = work_window:spawn_tab({
+	local tab, _, _ = work_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm/ffa",
 	})
+	tab:set_title("FFA")
 
 	-- PERSONAL
 	local _, _, dev_window = mux.spawn_window({
