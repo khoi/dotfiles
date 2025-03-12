@@ -29,9 +29,9 @@ local function is_inside_vim(pane)
 		"sh",
 		"-c",
 		"ps -o state= -o comm= -t"
-			.. wezterm.shell_quote_arg(tty)
-			.. " | "
-			.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
+		.. wezterm.shell_quote_arg(tty)
+		.. " | "
+		.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
 	})
 
 	return success
@@ -73,7 +73,11 @@ wezterm.on("gui-startup", function()
 	})
 
 	local _, _, _ = work_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5/Packages/GNNLI",
+	})
+
+	local _, _, _ = work_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm/ffa",
 	})
 
 	-- PERSONAL
@@ -157,13 +161,13 @@ config.window_padding = {
 }
 
 config.keys = {
-	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ mods = "SUPER | SHIFT", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-	{ mods = "SUPER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
-	{ mods = "SUPER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
-	{ mods = "SUPER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
-	{ mods = "SUPER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
-	{ mods = "SUPER", key = "s", action = act.ActivateCopyMode },
+	{ mods = "SUPER",         key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER | SHIFT", key = "-",  action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER",         key = "h",  action = act.AdjustPaneSize({ "Left", 5 }) },
+	{ mods = "SUPER",         key = "l",  action = act.AdjustPaneSize({ "Right", 5 }) },
+	{ mods = "SUPER",         key = "j",  action = act.AdjustPaneSize({ "Down", 5 }) },
+	{ mods = "SUPER",         key = "k",  action = act.AdjustPaneSize({ "Up", 5 }) },
+	{ mods = "SUPER",         key = "s",  action = act.ActivateCopyMode },
 	{
 		mods = "SUPER | SHIFT",
 		key = "!",
@@ -176,8 +180,8 @@ config.keys = {
 	bind_if(is_outside_vim, "k", "CTRL", act.ActivatePaneDirection("Up")),
 	bind_if(is_outside_vim, "l", "CTRL", act.ActivatePaneDirection("Right")),
 
-	{ mods = "SUPER", key = "[", action = act.ActivateTabRelative(-1) },
-	{ mods = "SUPER", key = "]", action = act.ActivateTabRelative(1) },
+	{ mods = "SUPER",       key = "[", action = act.ActivateTabRelative(-1) },
+	{ mods = "SUPER",       key = "]", action = act.ActivateTabRelative(1) },
 	{ mods = "SUPER|SHIFT", key = "[", action = act.SwitchWorkspaceRelative(-1) },
 	{ mods = "SUPER|SHIFT", key = "]", action = act.SwitchWorkspaceRelative(1) },
 	{
@@ -196,8 +200,8 @@ config.keys = {
 		end),
 	},
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
-	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
+	{ mods = "SUPER",       key = "p", action = act.ShowLauncher },
+	{ mods = "SUPER",       key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 }
 
@@ -226,7 +230,7 @@ local accept_pattern = {
 list_extend(key_tables.copy_mode, {
 	{ key = "/", action = { Search = { CaseInSensitiveString = "" } } },
 	{ key = "n", action = { CopyMode = "NextMatch" } },
-	{ key = "n", mods = "SHIFT", action = { CopyMode = "PriorMatch" } },
+	{ key = "n", mods = "SHIFT",                                      action = { CopyMode = "PriorMatch" } },
 	{
 		key = "y",
 		action = {
