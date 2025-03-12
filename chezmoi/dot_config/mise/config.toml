@@ -6,3 +6,7 @@ go = "1.23.2"
 python = "3.13.2"
 zig = "latest"
 uv = "latest"
+
+[settings]
+python.uv_venv_auto = true
+experimental = true
