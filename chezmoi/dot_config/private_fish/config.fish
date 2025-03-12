@@ -26,6 +26,7 @@ alias vim nvim
 alias cat bat
 alias nproc "sysctl -n hw.logicalcpu"
 alias lg lazygit
+alias c cursor
 
 # PATH
 fish_add_path ~/.bin
