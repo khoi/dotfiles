@@ -43,7 +43,7 @@ fi
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | uvx llm -t gitcommit -o thinking 1 | tee /dev/tty); then
+if ! xml_output=$(git diff -W --cached --minimal -B --find-copies-harder | uvx llm -t gitcommit -o thinking 1); then
   # Finalizing output
   tput cnorm   # Show the cursor again
   printf "\\n" # Move the cursor to the next line
