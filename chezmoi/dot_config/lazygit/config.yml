@@ -1,0 +1,8 @@
+customCommands:
+  - key: "<c-s>"
+    context: "global"
+    command: "GIT_EDITOR=: git commit && git push -u origin HEAD"
+    loadingText: "Generating commit message and push"
+
+gui:
+  screenMode: half
