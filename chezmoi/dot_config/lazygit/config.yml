@@ -3,3 +3,17 @@ customCommands:
     context: "global"
     command: "GIT_EDITOR=: git commit && git push -u origin HEAD"
     loadingText: "Generating commit message and push"
+
+gui:
+  spinner:
+    frames:
+      - "⠋"
+      - "⠙"
+      - "⠹"
+      - "⠸"
+      - "⠼"
+      - "⠴"
+      - "⠦"
+      - "⠧"
+      - "⠇"
+      - "⠏"
