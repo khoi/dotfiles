@@ -16,6 +16,7 @@ Script description here.
 Available options:
 
 -h, --help      Print this help and exit
+-w, --web       Open the web to create the PR
 -v, --verbose   Print script debug info
 EOF
     exit
@@ -56,10 +57,12 @@ parse_params() {
     # default values of variables set from params
     verbose=0
     param=''
+    web=0
 
     while :; do
         case "${1-}" in
         -h | --help) usage ;;
+        -w | --web) web=1 ;;
         -v | --verbose) verbose=1 ;;
         --no-color) NO_COLOR=1 ;;
         -?*) die "Unknown option: $1" ;;
@@ -182,4 +185,10 @@ fi
 pr_title=$(echo "$llm_output" | xq -q 'pr_title')
 pr_body=$(echo "$llm_output" | xq -q 'pr_body')
 
-gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
+# Set web flag for uvx if -w option was provided
+web_flag=""
+if [ "$web" -eq 1 ]; then
+    web_flag="--web"
+fi
+
+gh pr create $web_flag --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
