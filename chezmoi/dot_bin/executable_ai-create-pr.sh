@@ -130,12 +130,11 @@ if [ -z "$DEFAULT_BRANCH" ]; then
 fi
 
 # Print the current branch name
-msg "${GREEN}Current branch: ${NOFORMAT}$BRANCH_NAME"
-msg "${GREEN}Default branch: ${NOFORMAT}$DEFAULT_BRANCH"
-msg "${GREEN}Using PR template: ${NOFORMAT}$PR_TEMPLATE_PATH"
+msg "🐙 Creating PR for branch: $BRANCH_NAME on top of $DEFAULT_BRANCH"
+msg "🗒️ Using PR template: $PR_TEMPLATE_PATH"
 
 # Fetch the latest commit messages
-msg "${GREEN}Fetching latest commit messages from ${NOFORMAT}origin/$DEFAULT_BRANCH"
+msg "⬇️ Fetching latest commit messages from ${NOFORMAT}origin/$DEFAULT_BRANCH"
 git fetch origin $DEFAULT_BRANCH
 
 # Read the commit messages
@@ -194,5 +193,7 @@ web_flag=""
 if [ "$web" -eq 1 ]; then
     web_flag="--web"
 fi
+
+msg "🚀 Creating PR with title: $pr_title"
 
 gh pr create $web_flag --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
