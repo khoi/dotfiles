@@ -37,8 +37,8 @@ fi
 
 echo "$xml_output"
 # Extract the analysis and commit message from the XML output
-analysis=$(echo "$xml_output" | xq -q 'analysis')
-commit_msg=$(echo "$xml_output" | xq -q 'output')
+analysis=$(echo "$xml_output" | uvx strip-tags 'analysis')
+commit_msg=$(echo "$xml_output" | uvx strip-tags 'output')
 
 # Finalizing output
 tput cnorm # Show the cursor again
