@@ -182,8 +182,8 @@ if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonn
     exit 1
 fi
 
-pr_title=$(echo "$llm_output" | xq -q 'pr_title')
-pr_body=$(echo "$llm_output" | xq -q 'pr_body')
+pr_title=$(echo "$llm_output" | uvx strip-tags 'pr_title')
+pr_body=$(echo "$llm_output" | uvx strip-tags 'pr_body')
 
 # Set web flag for uvx if -w option was provided
 web_flag=""
