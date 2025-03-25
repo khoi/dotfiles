@@ -165,10 +165,7 @@ Now, follow these instructions:
 3. Fill out the PR body:
    - Use the provided PR template as a guide
    - Fill in each section of the template with relevant information from the commit messages
-   - For the summary, provide a brief overview of the changes
-   - List the main changes or features implemented
-   - If applicable, mention any breaking changes or deprecations
-   - Include any necessary additional information, such as testing instructions or documentation updates
+   - When the information is not available, leave the section empty
 
 4. Format your output:
    - Present the PR title within <pr_title> tags
@@ -188,4 +185,4 @@ pr_body=$(echo "$llm_output" | xq -q 'pr_body')
 echo "$pr_title"
 echo "$pr_body"
 
-gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME" -w
+gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
