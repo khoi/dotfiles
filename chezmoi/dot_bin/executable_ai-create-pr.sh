@@ -182,7 +182,4 @@ fi
 pr_title=$(echo "$llm_output" | xq -q 'pr_title')
 pr_body=$(echo "$llm_output" | xq -q 'pr_body')
 
-echo "$pr_title"
-echo "$pr_body"
-
 gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
