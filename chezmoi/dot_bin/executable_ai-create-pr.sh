@@ -27,6 +27,12 @@ cleanup() {
     # script cleanup here
 }
 
+cd_to_git_root() {
+    local git_root=$(git rev-parse --show-toplevel)
+    cd "$git_root" || die "Failed to change to git root directory"
+    msg "🫚 Git root directory: ${NOFORMAT}$(pwd)"
+}
+
 setup_colors() {
     if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
         NOFORMAT='\033[0m' RED='\033[0
@@ -84,6 +90,9 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     msg "${RED}Error: Not inside a git repository${NOFORMAT}"
     exit 1
 fi
+
+# Change to the git root directory
+cd_to_git_root
 
 # Check if gh (GitHub CLI) is installed
 if ! command -v gh &>/dev/null; then
