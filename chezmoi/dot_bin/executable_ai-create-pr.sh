@@ -134,8 +134,12 @@ msg "${GREEN}Current branch: ${NOFORMAT}$BRANCH_NAME"
 msg "${GREEN}Default branch: ${NOFORMAT}$DEFAULT_BRANCH"
 msg "${GREEN}Using PR template: ${NOFORMAT}$PR_TEMPLATE_PATH"
 
+# Fetch the latest commit messages
+msg "${GREEN}Fetching latest commit messages from ${NOFORMAT}origin/$DEFAULT_BRANCH"
+git fetch origin $DEFAULT_BRANCH
+
 # Read the commit messages
-COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%n%b" ${DEFAULT_BRANCH}..${BRANCH_NAME} --no-merges)
+COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%n%b" origin/"${DEFAULT_BRANCH}".."${BRANCH_NAME}" --no-merges)
 
 # Read the PR template
 PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
