@@ -177,4 +177,15 @@ Now, follow these instructions:
 
 Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags."
 
-uvx --with llm-anthropic llm "$PROMPT" -p commit_messages "$COMMIT_MESSAGES" -p pr_template "$PR_TEMPLATE"
+if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1 -p commit_messages "$COMMIT_MESSAGES" -p pr_template "$PR_TEMPLATE" | tee /dev/tty); then
+    msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
+    exit 1
+fi
+
+pr_title=$(echo "$llm_output" | xq -q 'pr_title')
+pr_body=$(echo "$llm_output" | xq -q 'pr_body')
+
+echo "$pr_title"
+echo "$pr_body"
+
+gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME" -w
