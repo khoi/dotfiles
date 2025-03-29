@@ -83,7 +83,7 @@ set -eufo pipefail
 
 {{ output "/opt/homebrew/bin/brew" "shellenv" | trim }}
 
-brew bundle --no-lock --file=/dev/stdin <<EOF || :
+brew bundle --file=/dev/stdin <<EOF || :
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end }}
