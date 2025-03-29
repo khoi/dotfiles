@@ -4,6 +4,10 @@ customCommands:
     command: "GIT_EDITOR=: git commit && git push -u origin HEAD"
     loadingText: "Generating commit message and push"
 
+git:
+  autoFetch: false
+  autoRefresh: false
+
 gui:
   spinner:
     frames:
