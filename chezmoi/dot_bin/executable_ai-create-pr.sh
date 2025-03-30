@@ -189,7 +189,7 @@ Now, follow these instructions:
 
 Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags."
 
-if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1 -p commit_messages <(echo "$COMMIT_MESSAGES") -p pr_template <(echo "$PR_TEMPLATE") | tee /dev/tty); then
+if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1 | tee /dev/tty); then
     msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
     exit 1
 fi
