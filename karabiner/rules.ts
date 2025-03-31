@@ -59,6 +59,176 @@ const rules: KarabinerRules[] = [
       },
     ],
   },
+  {
+    description: "HHKB Layout (Right Shift + Key)",
+    manipulators: [
+      {
+        description: "Right Shift + Open Bracket -> Up Arrow",
+        from: {
+          key_code: "open_bracket",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "up_arrow" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + Slash -> Down Arrow",
+        from: {
+          key_code: "slash",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "down_arrow" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + Quote -> Right Arrow",
+        from: {
+          key_code: "quote",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "right_arrow" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + Semicolon -> Left Arrow",
+        from: {
+          key_code: "semicolon",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "left_arrow" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + P -> Pause",
+        from: {
+          key_code: "p",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "pause" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + O -> Scroll Lock",
+        from: {
+          key_code: "o",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "scroll_lock" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + I -> Print Screen",
+        from: {
+          key_code: "i",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "print_screen" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + Period -> Page Down",
+        from: {
+          key_code: "period",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "page_down" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + L -> Page Up",
+        from: {
+          key_code: "l",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "page_up" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + Comma -> End",
+        from: {
+          key_code: "comma",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "end" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + 0 -> Delete Forward",
+        from: {
+          key_code: "0",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "delete_forward" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + A -> Volume Decrement",
+        from: {
+          key_code: "a",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "volume_decrement" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + S -> Volume Increment",
+        from: {
+          key_code: "s",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "volume_increment" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + D -> Mute",
+        from: {
+          key_code: "d",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "mute" }],
+        type: "basic",
+      },
+      {
+        description: "Right Shift + F -> Eject",
+        from: {
+          key_code: "f",
+          modifiers: {
+            mandatory: ["right_shift"],
+          },
+        },
+        to: [{ key_code: "eject" }],
+        type: "basic",
+      },
+    ],
+  },
   ...createHyperSubLayers({
     // o = "Open" applications
     o: {
@@ -143,28 +313,6 @@ const rules: KarabinerRules[] = [
         ],
       },
     },
-
-    v: {
-      h: {
-        to: [{ key_code: "left_arrow" }],
-      },
-      j: {
-        to: [{ key_code: "down_arrow" }],
-      },
-      k: {
-        to: [{ key_code: "up_arrow" }],
-      },
-      l: {
-        to: [{ key_code: "right_arrow" }],
-      },
-      u: {
-        to: [{ key_code: "page_up" }],
-      },
-      d: {
-        to: [{ key_code: "page_down" }],
-      },
-    },
-
     // r = "Raycast"
     r: {
       k: openInBackground("raycast://extensions/rolandleth/kill-process/index"),

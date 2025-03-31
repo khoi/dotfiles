@@ -1,4 +1,4 @@
 default: build
 
 build:
-	yarn build
+	yarn build -e ts
