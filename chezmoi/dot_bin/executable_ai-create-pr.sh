@@ -6,10 +6,10 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
-    cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
+  cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(
-        basename "${BASH_SOURCE[0]}"
-    ) [-h] [-v] [-f] -p param_value arg1 [arg2...]
+    basename "${BASH_SOURCE[0]}"
+  ) [-h] [-v] [-f] -p param_value arg1 [arg2...]
 
 Script description here.
 
@@ -19,23 +19,23 @@ Available options:
 -w, --web       Open the web to create the PR
 -v, --verbose   Print script debug info
 EOF
-    exit
+  exit
 }
 
 cleanup() {
-    trap - SIGINT SIGTERM ERR EXIT
-    # script cleanup here
+  trap - SIGINT SIGTERM ERR EXIT
+  # script cleanup here
 }
 
 cd_to_git_root() {
-    local git_root=$(git rev-parse --show-toplevel)
-    cd "$git_root" || die "Failed to change to git root directory"
-    msg "🫚 Git root directory: ${NOFORMAT}$(pwd)"
+  local git_root=$(git rev-parse --show-toplevel)
+  cd "$git_root" || die "Failed to change to git root directory"
+  msg "🫚 Git root directory: ${NOFORMAT}$(pwd)"
 }
 
 setup_colors() {
-    if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-        NOFORMAT='\033[0m' RED='\033[0
+  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+    NOFORMAT='\033[0m' RED='\033[0
 31m' GREEN='\033[0
 32m' ORANGE='\033[0
 33m' BLUE='\033[0
@@ -43,43 +43,43 @@ setup_colors() {
 35m' CYAN='\033[0
 36m' YELLOW='\033[1
 33m'
-    else
-        NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
-    fi
+  else
+    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
+  fi
 }
 
 msg() {
-    echo >&2 -e "${1-}"
+  echo >&2 -e "${1-}"
 }
 
 die() {
-    local msg=$1
-    local code=${2-1} # default exit status 1
-    msg "$msg"
-    exit "$code"
+  local msg=$1
+  local code=${2-1} # default exit status 1
+  msg "$msg"
+  exit "$code"
 }
 
 parse_params() {
-    # default values of variables set from params
-    verbose=0
-    param=''
-    web=0
+  # default values of variables set from params
+  verbose=0
+  param=''
+  web=0
 
-    while :; do
-        case "${1-}" in
-        -h | --help) usage ;;
-        -w | --web) web=1 ;;
-        -v | --verbose) verbose=1 ;;
-        --no-color) NO_COLOR=1 ;;
-        -?*) die "Unknown option: $1" ;;
-        *) break ;;
-        esac
-        shift
-    done
+  while :; do
+    case "${1-}" in
+    -h | --help) usage ;;
+    -w | --web) web=1 ;;
+    -v | --verbose) verbose=1 ;;
+    --no-color) NO_COLOR=1 ;;
+    -?*) die "Unknown option: $1" ;;
+    *) break ;;
+    esac
+    shift
+  done
 
-    args=("$@")
+  args=("$@")
 
-    return 0
+  return 0
 }
 
 parse_params "$@"
@@ -87,8 +87,8 @@ setup_colors
 
 # Check if we're inside a git directory
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    msg "${RED}Error: Not inside a git repository${NOFORMAT}"
-    exit 1
+  msg "${RED}Error: Not inside a git repository${NOFORMAT}"
+  exit 1
 fi
 
 # Change to the git root directory
@@ -96,46 +96,46 @@ cd_to_git_root
 
 # Check if gh (GitHub CLI) is installed
 if ! command -v gh &>/dev/null; then
-    msg "${RED}Error: GitHub CLI (gh) is not installed or not in PATH${NOFORMAT}"
-    msg "Please install it from https://cli.github.com/"
-    exit 1
+  msg "${RED}Error: GitHub CLI (gh) is not installed or not in PATH${NOFORMAT}"
+  msg "Please install it from https://cli.github.com/"
+  exit 1
 fi
 
 if ! command -v uv &>/dev/null; then
-    echo "${RED}Error: 'uv' command is not installed. Please install it and try again.${NC}" >&2
-    exit 1
+  echo "${RED}Error: 'uv' command is not installed. Please install it and try again.${NC}" >&2
+  exit 1
 fi
 
 # Get the current branch name
 BRANCH_NAME=$(git branch --show-current)
 if [ -z "$BRANCH_NAME" ]; then
-    msg "${RED}Error: No branch name found${NOFORMAT}"
-    exit 1
+  msg "${RED}Error: No branch name found${NOFORMAT}"
+  exit 1
 fi
 
 # Check if there's a PR template in the repository
 PR_TEMPLATE_PATHS=(
-    ".github/PULL_REQUEST_TEMPLATE.md"
-    ".github/pull_request_template.md"
-    "docs/PULL_REQUEST_TEMPLATE.md"
-    "docs/pull_request_template.md"
-    "PULL_REQUEST_TEMPLATE.md"
-    "pull_request_template.md"
+  ".github/PULL_REQUEST_TEMPLATE.md"
+  ".github/pull_request_template.md"
+  "docs/PULL_REQUEST_TEMPLATE.md"
+  "docs/pull_request_template.md"
+  "PULL_REQUEST_TEMPLATE.md"
+  "pull_request_template.md"
 )
 
 PR_TEMPLATE_PATH=""
 for template_path in "${PR_TEMPLATE_PATHS[@]}"; do
-    if [ -f "$template_path" ]; then
-        PR_TEMPLATE_PATH="$template_path"
-        break
-    fi
+  if [ -f "$template_path" ]; then
+    PR_TEMPLATE_PATH="$template_path"
+    break
+  fi
 done
 
 # Get the default branch name from the remote
 DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's#^origin/##')
 if [ -z "$DEFAULT_BRANCH" ]; then
-    msg "${RED}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
-    exit 1
+  msg "${RED}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
+  exit 1
 fi
 
 # Print the current branch name
@@ -189,9 +189,9 @@ Now, follow these instructions:
 
 Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags."
 
-if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1 | tee /dev/tty); then
-    msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
-    exit 1
+if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1); then
+  msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
+  exit 1
 fi
 
 pr_title=$(echo "$llm_output" | uvx strip-tags 'pr_title')
@@ -200,7 +200,7 @@ pr_body=$(echo "$llm_output" | uvx strip-tags 'pr_body')
 # Set web flag for uvx if -w option was provided
 web_flag=""
 if [ "$web" -eq 1 ]; then
-    web_flag="--web"
+  web_flag="--web"
 fi
 
 msg "🚀 Creating PR with title: $pr_title"
