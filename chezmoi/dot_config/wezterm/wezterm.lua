@@ -56,15 +56,13 @@ end
 wezterm.on("gui-startup", function()
 	-- side project
 	local _, _, side_project_window = mux.spawn_window({
-		workspace = "chat",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chat",
+		workspace = "compress",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/compress",
 	})
 
 	local _, pane, _ = side_project_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chat",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/compress",
 	})
-
-	pane:send_text("aider --watch-files\n")
 
 	-- WORK
 	local tab, _, work_window = mux.spawn_window({
