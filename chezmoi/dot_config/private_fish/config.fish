@@ -33,10 +33,11 @@ alias c cursor
 fish_add_path ~/.bin
 fish_add_path ~/.local/bin
 
+# fzf.fish bindings
+fzf_configure_bindings --directory=\cp
+
 # Load stuff
 zoxide init fish | source
-
-bind \ci zi
 
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
