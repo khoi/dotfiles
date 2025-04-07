@@ -18,6 +18,7 @@ Available options:
 -h, --help      Print this help and exit
 -w, --web       Open the web to create the PR
 -v, --verbose   Print script debug info
+-b, --base      Specify base branch (defaults to repository's default branch)
 EOF
   exit
 }
@@ -64,12 +65,17 @@ parse_params() {
   verbose=0
   param=''
   web=0
+  base_branch=""
 
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
     -w | --web) web=1 ;;
     -v | --verbose) verbose=1 ;;
+    -b | --base) 
+      base_branch="$2" 
+      shift
+      ;;
     --no-color) NO_COLOR=1 ;;
     -?*) die "Unknown option: $1" ;;
     *) break ;;
@@ -134,8 +140,14 @@ done
 # Get the default branch name from the remote
 DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's#^origin/##')
 if [ -z "$DEFAULT_BRANCH" ]; then
-  msg "${RED}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
-  exit 1
+  msg "${ORANGE}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
+  DEFAULT_BRANCH="main"
+fi
+
+# Use custom base branch if provided
+if [ -n "$base_branch" ]; then
+  DEFAULT_BRANCH="$base_branch"
+  msg "🔀 Using custom base branch: $DEFAULT_BRANCH"
 fi
 
 # Print the current branch name
