@@ -9,23 +9,22 @@ usage() {
   cat <<EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(
     basename "${BASH_SOURCE[0]}"
-  ) [-h] [-v] [-f] -p param_value arg1 [arg2...]
+  ) 
 
-Script description here.
+Create a PR based on the commit messages and a PR template.
 
 Available options:
 
 -h, --help      Print this help and exit
--w, --web       Open the web to create the PR
 -v, --verbose   Print script debug info
--b, --base      Specify base branch (defaults to repository's default branch)
+
+All other params are passed to "gh pr create".
 EOF
   exit
 }
 
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
-  # script cleanup here
 }
 
 cd_to_git_root() {
@@ -61,16 +60,13 @@ die() {
 }
 
 parse_params() {
-  # default values of variables set from params
   verbose=0
   param=''
-  web=0
   base_branch=""
 
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
-    -w | --web) web=1 ;;
     -v | --verbose) verbose=1 ;;
     -b | --base) 
       base_branch="$2" 
@@ -201,20 +197,18 @@ Now, follow these instructions:
 
 Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags."
 
+[ "$verbose" -eq 1 ] && msg "${CYAN}Prompt for LLM:${NOFORMAT}\n$PROMPT"
+
 if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1); then
   msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
   exit 1
 fi
 
+[ "$verbose" -eq 1 ] && msg "${CYAN}LLM output:${NOFORMAT}\n$llm_output"
+
 pr_title=$(echo "$llm_output" | uvx strip-tags 'pr_title')
 pr_body=$(echo "$llm_output" | uvx strip-tags 'pr_body')
 
-# Set web flag for uvx if -w option was provided
-web_flag=""
-if [ "$web" -eq 1 ]; then
-  web_flag="--web"
-fi
-
 msg "🚀 Creating PR with title: $pr_title"
 
-gh pr create $web_flag --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
+gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
