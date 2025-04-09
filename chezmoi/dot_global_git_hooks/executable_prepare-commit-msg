@@ -7,12 +7,6 @@ YELLOW='\033[0;33m' # Sets text to yellow
 BLUE='\033[0;34m'   # Sets text to blue
 NC='\033[0m'        # Resets the text color to default, no color
 
-# Check if LLM_MODEL environment variable is set
-if [ -z "$COMMIT_HOOK_LLM_MODEL" ]; then
-  echo "${RED}Error: COMMIT_HOOK_LLM_MODEL environment variable is not set. Please set it and try again.${NC}" >&2
-  exit 0
-fi
-
 # Check if the commit is a merge commit based on the presence of a second argument
 if [ -n "$2" ]; then
   exit 0 # Exit script if it's a merge commit, no custom message needed
