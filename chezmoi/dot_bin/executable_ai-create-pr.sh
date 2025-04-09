@@ -63,6 +63,7 @@ parse_params() {
   verbose=0
   param=''
   base_branch=""
+  args=()
 
   while :; do
     case "${1-}" in
@@ -73,13 +74,20 @@ parse_params() {
       shift
       ;;
     --no-color) NO_COLOR=1 ;;
-    -?*) die "Unknown option: $1" ;;
-    *) break ;;
+    -?*) 
+      # Instead of dying on unknown options, add them to args array
+      args+=("$1") 
+      ;;
+    *) 
+      # Add non-flag arguments to args array
+      [[ -n "${1-}" ]] && args+=("$1")
+      ;;
     esac
+    if [ -z "${1-}" ]; then
+      break
+    fi
     shift
   done
-
-  args=("$@")
 
   return 0
 }
@@ -211,4 +219,6 @@ pr_body=$(echo "$llm_output" | uvx strip-tags 'pr_body')
 
 msg "🚀 Creating PR with title: $pr_title"
 
-gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME"
+[ "$verbose" -eq 1 ] && [ "${#args[@]}" -gt 0 ] && msg "👉 Passing additional arguments: ${args[*]}"
+
+gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME" "${args[@]}"
