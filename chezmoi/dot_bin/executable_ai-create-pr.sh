@@ -214,8 +214,8 @@ fi
 
 [ "$verbose" -eq 1 ] && msg "${CYAN}LLM output:${NOFORMAT}\n$llm_output"
 
-pr_title=$(echo "$llm_output" | uvx strip-tags 'pr_title')
-pr_body=$(echo "$llm_output" | uvx strip-tags 'pr_body')
+pr_title=$(echo "$llm_output" | awk '/<pr_title>/ {f=1;next} /<\/pr_title>/ {f=0} f')
+pr_body=$(echo "$llm_output" | awk '/<pr_body>/ {f=1;next} /<\/pr_body>/ {f=0} f')
 
 msg "🚀 Creating PR with title: $pr_title"
 
