@@ -17,7 +17,7 @@ set -gx GHQ_ROOT ~/Developer/code
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 set -gx XDG_CONFIG_HOME ~/.config
 
-set -gx RESTIC_REPOSITORY "rest:http://restic:restic@192.168.0.45:8769"
+set -gx RESTIC_REPOSITORY "rest:http://restic:restic@vault.local:8769"
 set -gx RESTIC_PASSWORD_COMMAND "op read 'op://Personal/vault/restic encryption'"
 
 # Aliases
@@ -42,3 +42,6 @@ zoxide init fish | source
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
+
+# Added by Windsurf
+fish_add_path /Users/khoi/.codeium/windsurf/bin
