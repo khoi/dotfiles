@@ -9,6 +9,7 @@ git:
   autoRefresh: false
 
 gui:
+  screenMode: half
   spinner:
     frames:
       - "⢿"
