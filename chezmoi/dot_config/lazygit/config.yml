@@ -3,6 +3,10 @@ customCommands:
     context: "global"
     command: "GIT_EDITOR=: git commit && git push -u origin HEAD"
     loadingText: "Generating commit message and push"
+  - key: "<c-q>"
+    context: "global"
+    command: 'rm -f "$(git rev-parse --git-dir)/index.lock"'
+    loadingText: "Removing git index lock"
 
 git:
   autoFetch: false
