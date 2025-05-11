@@ -199,11 +199,21 @@ Now, follow these instructions:
    - When the information is not available, leave the section empty
 
 4. Format your output:
-   - Present the PR title within <pr_title> tags
-   - Present the PR body within <pr_body> tags
+   - Present the PR title within <pr_title> tags, the open and closing tags should be on their own lines
+   - Present the PR body within <pr_body> tags, the open and closing tags should be on their own lines
    - Ensure that the PR body follows the structure of the provided template
 
-Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags."
+Your final output should only include the PR title and body, formatted as specified. Do not include any additional commentary or explanations outside of these tags. Here is an example of the output:
+
+<example>
+<pr_title>
+Add a new feature
+</pr_title>
+<pr_body>
+The PR description output.
+</pr_body>
+</example>
+"
 
 [ "$verbose" -eq 1 ] && msg "${CYAN}Prompt for LLM:${NOFORMAT}\n$PROMPT"
 
