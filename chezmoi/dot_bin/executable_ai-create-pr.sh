@@ -69,16 +69,16 @@ parse_params() {
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) verbose=1 ;;
-    -b | --base) 
-      base_branch="$2" 
+    -b | --base)
+      base_branch="$2"
       shift
       ;;
     --no-color) NO_COLOR=1 ;;
-    -?*) 
+    -?*)
       # Instead of dying on unknown options, add them to args array
-      args+=("$1") 
+      args+=("$1")
       ;;
-    *) 
+    *)
       # Add non-flag arguments to args array
       [[ -n "${1-}" ]] && args+=("$1")
       ;;
@@ -160,7 +160,7 @@ msg "🗒️ Using PR template: $PR_TEMPLATE_PATH"
 
 # Fetch the latest commit messages
 msg "⬇️ Fetching latest commit messages from ${NOFORMAT}origin/$DEFAULT_BRANCH"
-git fetch origin $DEFAULT_BRANCH
+git fetch origin "$DEFAULT_BRANCH"
 
 # Read the commit messages
 COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%n%b" origin/"${DEFAULT_BRANCH}".."${BRANCH_NAME}" --no-merges)
@@ -221,4 +221,4 @@ msg "🚀 Creating PR with title: $pr_title"
 
 [ "$verbose" -eq 1 ] && [ "${#args[@]}" -gt 0 ] && msg "👉 Passing additional arguments: ${args[*]}"
 
-gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME" "${args[@]}"
+gh pr create --title "$pr_title" --body "$pr_body" --base "$DEFAULT_BRANCH" --head "$BRANCH_NAME" ${args+"${args[@]}"}
