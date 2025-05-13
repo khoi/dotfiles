@@ -17,9 +17,6 @@ set -gx GHQ_ROOT ~/Developer/code
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 set -gx XDG_CONFIG_HOME ~/.config
 
-set -gx RESTIC_REPOSITORY "rest:http://restic:restic@vault.local:8769"
-set -gx RESTIC_PASSWORD_COMMAND "op read 'op://Personal/vault/restic encryption'"
-
 # Aliases
 alias o open
 alias v nvim
