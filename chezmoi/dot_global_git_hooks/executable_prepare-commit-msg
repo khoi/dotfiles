@@ -22,7 +22,7 @@ if ! command -v uv &>/dev/null; then
 fi
 
 GIT_DIFF=$(git diff -W --cached --minimal -B --find-copies-harder)
-RECENT_GIT_COMMITS=$(git log --pretty=format:"%s" HEAD~3..HEAD --no-merges)
+RECENT_GIT_COMMITS=$(git log --pretty=format:"%s" -n3 --no-merges)
 
 PROMPT="You are a senior software engineer tasked with writing git commit messages based on git diffs. Your goal is to analyze the provided git diff and the last 5 commit messages and create a concise, informative commit message that accurately represents the changes made.
 
