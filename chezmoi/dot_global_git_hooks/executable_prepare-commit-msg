@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# CONFIGURATIONS
+LLM_CMD() { uvx --with llm-anthropic llm --model claude-3.7-sonnet-latest -o thinking 1 "$@"; }
+
 # ANSI color codes for styling the output
 RED='\033[0;31m'    # Sets text to red
 GREEN='\033[0;32m'  # Sets text to green
@@ -90,7 +93,7 @@ Now, please analyze the provided git diff and create an appropriate commit messa
 
 # Generate the commit message using `git diff` piped into `llm` command
 # The LLM command takes a system prompt from a file as input
-if ! xml_output=$(uvx --with llm-anthropic llm --model claude-3.7-sonnet-latest "$PROMPT" -o thinking 1); then
+if ! xml_output=$(LLM_CMD "$PROMPT"); then
   # Finalizing output
   tput cnorm   # Show the cursor again
   printf "\\n" # Move the cursor to the next line
