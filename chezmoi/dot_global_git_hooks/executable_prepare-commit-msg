@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 # CONFIGURATIONS
-LLM_CMD() { uvx --with llm-ollama llm --model qwen3:30b "$@"; }
+LLM_CMD() { uvx --with llm-ollama llm --model devstral "$@"; }
 
 # ANSI color codes for styling the output
 RED='\033[0;31m'    # Sets text to red
