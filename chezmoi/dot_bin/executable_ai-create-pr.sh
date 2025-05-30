@@ -142,16 +142,17 @@ for template_path in "${PR_TEMPLATE_PATHS[@]}"; do
 done
 
 # Get the default branch name from the remote
-DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's#^origin/##')
-if [ -z "$DEFAULT_BRANCH" ]; then
-  msg "${ORANGE}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
-  DEFAULT_BRANCH="main"
-fi
 
 # Use custom base branch if provided
 if [ -n "$base_branch" ]; then
   DEFAULT_BRANCH="$base_branch"
   msg "🔀 Using custom base branch: $DEFAULT_BRANCH"
+else
+  DEFAULT_BRANCH=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's#^origin/##')
+  if [ -z "$DEFAULT_BRANCH" ]; then
+    msg "${ORANGE}Warning: Could not determine default branch, using 'main' as fallback${NOFORMAT}"
+    DEFAULT_BRANCH="main"
+  fi
 fi
 
 # Print the current branch name
@@ -166,7 +167,11 @@ git fetch origin "$DEFAULT_BRANCH"
 COMMIT_MESSAGES=$(git log --pretty=format:"%h %s%n%n%b" origin/"${DEFAULT_BRANCH}".."${BRANCH_NAME}" --no-merges)
 
 # Read the PR template
-PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
+if [ -n "$PR_TEMPLATE_PATH" ]; then
+  PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
+else
+  PR_TEMPLATE=""
+fi
 
 PROMPT="You are tasked with writing a Pull Request (PR) title and body based on commit messages and a PR template. Follow these steps carefully:
 
