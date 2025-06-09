@@ -1,0 +1,32 @@
+#!/bin/sh
+
+path_name="$(basename "$PWD" | tr . -)"
+session_name=${1-$path_name}
+
+ZJ_SESSIONS=$(zellij list-sessions -n -s)
+NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
+
+not_in_zellij() {
+  [ -z "$ZELLIJ" ]
+}
+
+session_exists() {
+  zellij list-sessions -ns | sed -E 's/:.*$//' | grep -q "^$session_name$"
+}
+
+create_detached_session() {
+  zellij attach -cb "$session_name"
+}
+
+create_if_needed_and_attach() {
+  if not_in_zellij; then
+    zellij attach -c "$session_name"
+  else
+    if ! session_exists; then
+      create_detached_session
+    fi
+    zellij attach "$session_name"
+  fi
+}
+
+create_if_needed_and_attach
