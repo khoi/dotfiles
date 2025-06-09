@@ -216,6 +216,8 @@ keybinds clear-defaults=true {
     }
 }
 
+// Plugin aliases - can be used to change the implementation of Zellij
+// changing these requires a restart to take effect
 plugins {
     about location="zellij:about"
     compact-bar location="zellij:compact-bar"
@@ -268,7 +270,7 @@ default_mode "locked"
 // The name of the default layout to load on startup
 // Default: "default"
 // 
-default_layout "compact"
+// default_layout "compact"
  
 // The folder in which Zellij will look for layouts
 // (Requires restart)
@@ -330,7 +332,7 @@ scroll_buffer_size 100000
 //
 // copy_command "xclip -selection clipboard" // x11
 // copy_command "wl-copy"                    // wayland
-// copy_command "pbcopy"                     // osx
+copy_command "pbcopy"                     // osx
 // 
 // copy_command "pbcopy"
  
@@ -424,7 +426,7 @@ scroll_buffer_size 100000
 // Whether to show tips on startup
 // Default: true
 // 
-// show_startup_tips false
+show_startup_tips true
  
 // Whether to show release notes on first version run
 // Default: true

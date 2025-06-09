@@ -20,3 +20,4 @@ window-inherit-working-directory = true
 window-theme = system
 keybind = shift+enter=text:\n
 auto-update-channel = stable
+macos-option-as-alt = left
