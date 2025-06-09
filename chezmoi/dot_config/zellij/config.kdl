@@ -1,2 +1,2 @@
-theme "onedark"
 scroll_buffer_size 100000
+theme "ansi"
