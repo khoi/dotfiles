@@ -237,7 +237,7 @@ const rules: KarabinerRules[] = [
       x: app("Xcode"),
       c: app("Cursor"),
       s: app("Slack"),
-      t: app("Ghostty"),
+      t: app("WezTerm"),
       f: app("Finder"),
       w: app("WhatsApp"),
       e: app("Telegram"),
