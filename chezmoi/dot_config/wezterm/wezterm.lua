@@ -29,9 +29,9 @@ local function is_inside_vim(pane)
 		"sh",
 		"-c",
 		"ps -o state= -o comm= -t"
-			.. wezterm.shell_quote_arg(tty)
-			.. " | "
-			.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
+		.. wezterm.shell_quote_arg(tty)
+		.. " | "
+		.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
 	})
 
 	return success
@@ -162,13 +162,12 @@ config.window_padding = {
 }
 
 config.keys = {
-	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ mods = "SUPER | SHIFT", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "d", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "s", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
 	{ mods = "SUPER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
 	{ mods = "SUPER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
 	{ mods = "SUPER", key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
-	{ mods = "SUPER", key = "s", action = act.ActivateCopyMode },
 	{
 		mods = "SUPER | SHIFT",
 		key = "!",
@@ -199,8 +198,8 @@ config.keys = {
 		end),
 	},
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
-	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
+	{ mods = "SUPER",       key = "p", action = act.ShowLauncher },
+	{ mods = "SUPER",       key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 }
 
@@ -229,7 +228,7 @@ local accept_pattern = {
 list_extend(key_tables.copy_mode, {
 	{ key = "/", action = { Search = { CaseInSensitiveString = "" } } },
 	{ key = "n", action = { CopyMode = "NextMatch" } },
-	{ key = "n", mods = "SHIFT", action = { CopyMode = "PriorMatch" } },
+	{ key = "n", mods = "SHIFT",                                      action = { CopyMode = "PriorMatch" } },
 	{
 		key = "y",
 		action = {
