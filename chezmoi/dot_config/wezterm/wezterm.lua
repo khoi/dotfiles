@@ -65,7 +65,8 @@ wezterm.on("gui-startup", function()
 	left_pane:send_text("claude --dangerously-skip-permissions\n")
 	
 	local right_pane = left_pane:split({ direction = "Right" })
-	-- right pane just has shell (no command needed)
+	right_pane:send_text("PORT=4444 node ./node_modules/y-webrtc/bin/server.js\n")
+	-- right pane runs y-webrtc signaling server
 	
 	-- Second tab: run pnpm tauri dev
 	local tauri_tab, _, _ = side_project_window:spawn_tab({
