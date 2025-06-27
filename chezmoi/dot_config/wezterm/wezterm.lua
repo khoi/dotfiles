@@ -54,27 +54,21 @@ local function bind_if(cond, key, mods, action)
 end
 
 wezterm.on("gui-startup", function()
-	-- side project
 	local tab, _, side_project_window = mux.spawn_window({
 		workspace = "floating-notes",
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
 	})
-
-	-- First tab: left pane with claude, right pane with shell
 	local left_pane = tab:active_pane()
 	left_pane:send_text("claude --dangerously-skip-permissions\n")
-	
 	local right_pane = left_pane:split({ direction = "Right" })
-	right_pane:send_text("PORT=4444 node ./node_modules/y-webrtc/bin/server.js\n")
-	-- right pane runs y-webrtc signaling server
-	
-	-- Second tab: run pnpm tauri dev
+	local webrtc_tab, _, _ = side_project_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
+	})
+	webrtc_tab:active_pane():send_text("PORT=4444 node ./node_modules/y-webrtc/bin/server.js\n")
 	local tauri_tab, _, _ = side_project_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
 	})
 	tauri_tab:active_pane():send_text("pnpm tauri dev\n")
-	
-	-- Switch back to first tab to make it active
 	tab:activate()
 
 	-- WORK
