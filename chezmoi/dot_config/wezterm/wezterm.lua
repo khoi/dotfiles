@@ -29,9 +29,9 @@ local function is_inside_vim(pane)
 		"sh",
 		"-c",
 		"ps -o state= -o comm= -t"
-		.. wezterm.shell_quote_arg(tty)
-		.. " | "
-		.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
+			.. wezterm.shell_quote_arg(tty)
+			.. " | "
+			.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
 	})
 
 	return success
@@ -55,14 +55,26 @@ end
 
 wezterm.on("gui-startup", function()
 	-- side project
-	local _, _, side_project_window = mux.spawn_window({
-		workspace = "cleaner",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/cleaner",
+	local tab, _, side_project_window = mux.spawn_window({
+		workspace = "floating-notes",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
 	})
 
-	local _, pane, _ = side_project_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/clean",
+	-- First tab: left pane with claude, right pane with shell
+	local left_pane = tab:active_pane()
+	left_pane:send_text("claude --dangerously-skip-permissions\n")
+	
+	local right_pane = left_pane:split({ direction = "Right" })
+	-- right pane just has shell (no command needed)
+	
+	-- Second tab: run pnpm tauri dev
+	local tauri_tab, _, _ = side_project_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
 	})
+	tauri_tab:active_pane():send_text("pnpm tauri dev\n")
+	
+	-- Switch back to first tab to make it active
+	tab:activate()
 
 	-- WORK
 	local tab, _, work_window = mux.spawn_window({
@@ -198,8 +210,8 @@ config.keys = {
 		end),
 	},
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "SUPER",       key = "p", action = act.ShowLauncher },
-	{ mods = "SUPER",       key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
+	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
+	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 }
 
@@ -228,7 +240,7 @@ local accept_pattern = {
 list_extend(key_tables.copy_mode, {
 	{ key = "/", action = { Search = { CaseInSensitiveString = "" } } },
 	{ key = "n", action = { CopyMode = "NextMatch" } },
-	{ key = "n", mods = "SHIFT",                                      action = { CopyMode = "PriorMatch" } },
+	{ key = "n", mods = "SHIFT", action = { CopyMode = "PriorMatch" } },
 	{
 		key = "y",
 		action = {
