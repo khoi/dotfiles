@@ -15,8 +15,10 @@ Create a PR based on the commit messages and a PR template.
 
 Available options:
 
--h, --help      Print this help and exit
--v, --verbose   Print script debug info
+-h, --help                        Print this help and exit
+-v, --verbose                     Print script debug info
+-b, --base <branch>               Use custom base branch instead of the default
+-i, --instructions <text>         Extra instructions appended to the LLM prompt
 
 All other params are passed to "gh pr create".
 EOF
@@ -63,6 +65,7 @@ parse_params() {
   verbose=0
   param=''
   base_branch=""
+  extra_instructions=""
   args=()
 
   while :; do
@@ -71,6 +74,10 @@ parse_params() {
     -v | --verbose) verbose=1 ;;
     -b | --base)
       base_branch="$2"
+      shift
+      ;;
+    -i | --instructions)
+      extra_instructions="$2"
       shift
       ;;
     --no-color) NO_COLOR=1 ;;
@@ -219,6 +226,14 @@ The PR description output.
 </pr_body>
 </example>
 "
+
+# Append any extra user-supplied instructions to the prompt
+if [ -n "$extra_instructions" ]; then
+  PROMPT="$PROMPT
+# Extra instructions from user:
+$extra_instructions
+"
+fi
 
 [ "$verbose" -eq 1 ] && msg "${CYAN}Prompt for LLM:${NOFORMAT}\n$PROMPT"
 
