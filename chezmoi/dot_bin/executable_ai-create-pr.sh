@@ -237,7 +237,7 @@ fi
 
 [ "$verbose" -eq 1 ] && msg "${CYAN}Prompt for LLM:${NOFORMAT}\n$PROMPT"
 
-if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-3.7-sonnet-latest -o thinking 1); then
+if ! llm_output=$(uvx --with llm-anthropic llm "$PROMPT" --model claude-4-sonnet -o thinking 1); then
   msg "${RED}Error: Failed to generate PR title and body${NOFORMAT}"
   exit 1
 fi
