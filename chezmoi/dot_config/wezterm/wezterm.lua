@@ -208,6 +208,7 @@ config.keys = {
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
+	{ mods = "SUPER|SHIFT", key = "s", action = act.ActivateCopyMode },
 }
 
 --- @generic T
