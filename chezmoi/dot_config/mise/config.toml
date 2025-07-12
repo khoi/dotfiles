@@ -1,11 +1,13 @@
 [tools]
-ruby = "3.3.0"
+ruby = "latest"
 nodejs = "lts"
-rust = "1.81.0"
-go = "1.23.2"
-python = "3.13.2"
+rust = "latest"
+go = "latest"
+python = "latest"
 zig = "latest"
 uv = "latest"
+pnpm = "latest"
 
 [settings]
 experimental = true
+idiomatic_version_file_enable_tools = ["java"]
