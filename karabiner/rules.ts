@@ -316,7 +316,7 @@ const rules: KarabinerRules[] = [
     r: {
       k: openInBackground("raycast://extensions/rolandleth/kill-process/index"),
       c: openInBackground("raycast://extensions/raycast/raycast/confetti"),
-      g: openInBackground("raycast://ai-commands/fix-spelling-and-grammar"),
+      g: openInBackground("raycast://ai-commands/fix-spelling-and-grammar-custom"),
       p: openInBackground(
         "raycast://extensions/raycast/navigation/search-menu-items"
       ),

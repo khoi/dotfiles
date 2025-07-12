@@ -1097,10 +1097,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open -g raycast://ai-commands/fix-spelling-and-grammar"
+                    "shell_command": "open -g raycast://ai-commands/fix-spelling-and-grammar-custom"
                   }
                 ],
-                "description": "Open raycast://ai-commands/fix-spelling-and-grammar in background",
+                "description": "Open raycast://ai-commands/fix-spelling-and-grammar-custom in background",
                 "type": "basic",
                 "from": {
                   "key_code": "g",
