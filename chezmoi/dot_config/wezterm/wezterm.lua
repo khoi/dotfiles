@@ -79,9 +79,10 @@ wezterm.on("gui-startup", function()
 	tab:set_title("GoodNotes")
 
 	local tab, _, _ = work_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5/CommonSwift/CommonNLI",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/GoodNotes-5",
 	})
-	tab:set_title("CommonNLI")
+	tab:set_title("lazygit")
+	tab:active_pane():send_text("lazygit\n")
 
 	local tab, _, _ = work_window:spawn_tab({
 		cwd = wezterm.home_dir .. "/Developer/code/github.com/GoodNotes/gnllm/ffa",
