@@ -29,9 +29,9 @@ local function is_inside_vim(pane)
 		"sh",
 		"-c",
 		"ps -o state= -o comm= -t"
-			.. wezterm.shell_quote_arg(tty)
-			.. " | "
-			.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
+		.. wezterm.shell_quote_arg(tty)
+		.. " | "
+		.. "grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'",
 	})
 
 	return success
@@ -54,21 +54,18 @@ local function bind_if(cond, key, mods, action)
 end
 
 wezterm.on("gui-startup", function()
-	local tab, _, side_project_window = mux.spawn_window({
-		workspace = "floating-notes",
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
+	local tab, _, chatbot_window = mux.spawn_window({
+		workspace = "chatbot",
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chatbot",
 	})
 	local left_pane = tab:active_pane()
-	left_pane:send_text("claude --dangerously-skip-permissions\n")
+	left_pane:send_text("pnpm dev\n")
 	local right_pane = left_pane:split({ direction = "Right" })
-	local webrtc_tab, _, _ = side_project_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
+	right_pane:send_text("claude --dangerously-skip-permissions\n")
+	local lazygit_tab, _, _ = chatbot_window:spawn_tab({
+		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/chatbot",
 	})
-	webrtc_tab:active_pane():send_text("PORT=4444 node ./node_modules/y-webrtc/bin/server.js\n")
-	local tauri_tab, _, _ = side_project_window:spawn_tab({
-		cwd = wezterm.home_dir .. "/Developer/code/github.com/khoi/floating-notes",
-	})
-	tauri_tab:active_pane():send_text("pnpm tauri dev\n")
+	lazygit_tab:active_pane():send_text("lazygit\n")
 	tab:activate()
 
 	-- WORK
@@ -206,8 +203,8 @@ config.keys = {
 		end),
 	},
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
-	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
+	{ mods = "SUPER",       key = "p", action = act.ShowLauncher },
+	{ mods = "SUPER",       key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
 	{ mods = "SUPER|SHIFT", key = "s", action = act.ActivateCopyMode },
 }
@@ -237,7 +234,7 @@ local accept_pattern = {
 list_extend(key_tables.copy_mode, {
 	{ key = "/", action = { Search = { CaseInSensitiveString = "" } } },
 	{ key = "n", action = { CopyMode = "NextMatch" } },
-	{ key = "n", mods = "SHIFT", action = { CopyMode = "PriorMatch" } },
+	{ key = "n", mods = "SHIFT",                                      action = { CopyMode = "PriorMatch" } },
 	{
 		key = "y",
 		action = {
