@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "zenbones_dark"
+		return "iceberg-dark"
 	else
-		return "zenbones"
+		return "iceberg-light"
 	end
 end
 
@@ -153,7 +153,7 @@ config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
-config.window_background_opacity = 1
+config.window_background_opacity = 0.9
 config.macos_window_background_blur = 10
 config.window_frame = {
 	font_size = 16.0,

@@ -1,16 +1,22 @@
+local function set_transparent_bg()
+  local groups = {
+    "Normal", "NormalFloat", "SignColumn", "NormalNC",
+    "MsgArea", "TelescopeBorder", "NvimTreeNormal"
+  }
+  for _, group in ipairs(groups) do
+    vim.api.nvim_set_hl(0, group, { bg = "none" })
+  end
+end
+
 return {
+
   {
-    "zenbones-theme/zenbones.nvim",
-    -- Optionally install Lush. Allows for more configuration or extending the colorscheme
-    -- If you don't want to install lush, make sure to set g:zenbones_compat = 1
-    -- In Vim, compat mode is turned on as Lush only works in Neovim.
-    dependencies = "rktjmp/lush.nvim",
+    "cocopon/iceberg.vim",
     lazy = false,
     priority = 1000,
-    -- you can set set configuration options here
     config = function()
-      vim.g.zenbones_darken_comments = 45
-      vim.cmd.colorscheme("zenbones")
+      vim.cmd.colorscheme("iceberg")
+      set_transparent_bg()
     end,
   },
   {
@@ -19,16 +25,20 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
+        vim.cmd.colorscheme("iceberg")
+        set_transparent_bg()
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
+        vim.cmd.colorscheme("iceberg")
+        set_transparent_bg()
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "zenbones",
+      colorscheme = "iceberg",
     },
   },
   {
@@ -67,7 +77,7 @@ return {
     opts = {
       options = {
         icons_enabled = true,
-        theme = "zenbones",
+        theme = "auto",
       },
     },
   },
