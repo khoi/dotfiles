@@ -11,6 +11,10 @@ customCommands:
     context: "global"
     command: 'rm -f "$(git rev-parse --git-dir)/index.lock"'
     loadingText: "Removing git index lock"
+  - key: "<c-u>"
+    context: "global"
+    command: "git submodule update --force"
+    loadingText: "Updating git submodules with force"
 
 git:
   autoFetch: false
