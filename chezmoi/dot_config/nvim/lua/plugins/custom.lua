@@ -11,12 +11,15 @@ end
 return {
 
   {
-    "cocopon/iceberg.vim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("iceberg")
-      set_transparent_bg()
+      require("catppuccin").setup({
+        transparent_background = true,
+      })
+      vim.cmd.colorscheme("catppuccin")
     end,
   },
   {
@@ -25,20 +28,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("iceberg")
-        set_transparent_bg()
+        vim.cmd.colorscheme("catppuccin-mocha")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
-        vim.cmd.colorscheme("iceberg")
-        set_transparent_bg()
+        vim.cmd.colorscheme("catppuccin-latte")
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "iceberg",
+      colorscheme = "catppuccin",
     },
   },
   {

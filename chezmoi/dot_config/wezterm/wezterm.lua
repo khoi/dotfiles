@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "iceberg-dark"
+		return "Catppuccin Mocha"
 	else
-		return "iceberg-light"
+		return "Catppuccin Latte"
 	end
 end
 
@@ -107,7 +107,7 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = scheme_for_appearance(get_appearance()),
+		theme = 'Catppuccin Mocha',
 		tabs_enabled = true,
 		section_separators = {
 			left = wezterm.nerdfonts.pl_left_hard_divider,
