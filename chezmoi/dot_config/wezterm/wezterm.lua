@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 local mux = wezterm.mux
-local bar = wezterm.plugin.require("https://github.com/khoi/bar.wezterm")
+local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
 
 local function get_appearance()
 	if wezterm.gui then
@@ -104,31 +104,41 @@ end)
 
 config.bold_brightens_ansi_colors = true
 config.color_scheme = scheme_for_appearance(get_appearance())
-bar.apply_to_config(config, {
-	separator = {
-		space = 1,
-		left_icon = wezterm.nerdfonts.fa_long_arrow_right,
-		right_icon = wezterm.nerdfonts.fa_long_arrow_left,
-		field_icon = wezterm.nerdfonts.indent_line,
+tabline.setup({
+	options = {
+		icons_enabled = true,
+		theme = scheme_for_appearance(get_appearance()),
+		tabs_enabled = true,
+		section_separators = {
+			left = wezterm.nerdfonts.pl_left_hard_divider,
+			right = wezterm.nerdfonts.pl_right_hard_divider,
+		},
+		component_separators = {
+			left = wezterm.nerdfonts.pl_left_soft_divider,
+			right = wezterm.nerdfonts.pl_right_soft_divider,
+		},
 	},
-	modules = {
-		spotify = {
-			enabled = false,
+	sections = {
+		tabline_a = { 'mode' },
+		tabline_b = { 'workspace' },
+		tabline_c = {},
+		tab_active = {
+			'index',
+			{ 'parent', padding = 0 },
+			'/',
+			{ 'cwd', padding = { left = 0, right = 1 } },
+			{ 'zoomed', padding = 0 },
 		},
-		pane = {
-			enabled = false,
+		tab_inactive = {
+			'index',
+			{ 'process', padding = { left = 1, right = 1 } },
 		},
-		workspace = {
-			enabled = true,
-			icon = wezterm.nerdfonts.md_fire,
-			color = 8,
-		},
-		tabs = {
-			active_tab_fg = 4,
-			inactive_tab_fg = 8,
-		},
+		tabline_x = {},
+		tabline_y = { 'datetime', 'battery' },
+		tabline_z = { 'hostname' },
 	},
 })
+tabline.apply_to_config(config)
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
 config.font = wezterm.font("TX-02")
