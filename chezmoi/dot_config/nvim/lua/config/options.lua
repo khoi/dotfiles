@@ -5,7 +5,6 @@
 local opt = vim.opt
 
 opt.swapfile = false
-opt.spell = false
 
 vim.g.ai_cmp = false -- copilot to work with blink,
 vim.g.snacks_animate = false
