@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "Catppuccin Mocha"
+		return "tokyonight_night"
 	else
-		return "Catppuccin Latte"
+		return "tokyonight_day"
 	end
 end
 
@@ -107,7 +107,7 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = "Catppuccin Mocha",
+		theme = get_appearance():find("Dark") and "tokyonight_night" or "tokyonight_day",
 		tabs_enabled = true,
 		section_separators = {
 			left = wezterm.nerdfonts.ple_right_half_circle_thick,
@@ -201,8 +201,10 @@ config.keys = {
 	bind_if(is_outside_vim, "k", "CTRL", act.ActivatePaneDirection("Up")),
 	bind_if(is_outside_vim, "l", "CTRL", act.ActivatePaneDirection("Right")),
 
-	{ mods = "SUPER", key = "[", action = act.SwitchWorkspaceRelative(-1) },
-	{ mods = "SUPER", key = "]", action = act.SwitchWorkspaceRelative(1) },
+	{ mods = "SUPER", key = "[", action = act.ActivateTabRelative(-1) },
+	{ mods = "SUPER", key = "]", action = act.ActivateTabRelative(1) },
+	{ mods = "SUPER|SHIFT", key = "[", action = act.SwitchWorkspaceRelative(-1) },
+	{ mods = "SUPER|SHIFT", key = "]", action = act.SwitchWorkspaceRelative(1) },
 	{
 		mods = "SUPER",
 		key = "f",
