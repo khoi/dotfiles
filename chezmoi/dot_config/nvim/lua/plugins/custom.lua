@@ -11,29 +11,12 @@ end
 return {
 
   {
-    "folke/tokyonight.nvim",
+    "cocopon/iceberg.vim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        style = "night",
-        transparent = true,
-        terminal_colors = true,
-        styles = {
-          comments = { italic = true },
-          keywords = { italic = true },
-          functions = {},
-          variables = {},
-          sidebars = "dark",
-          floats = "dark",
-        },
-        sidebars = { "qf", "help" },
-        day_brightness = 0.3,
-        hide_inactive_statusline = false,
-        dim_inactive = false,
-        lualine_bold = false,
-      })
-      vim.cmd.colorscheme("tokyonight-night")
+      vim.g.iceberg_transparent = 1
+      vim.cmd.colorscheme("iceberg")
     end,
   },
   {
@@ -42,18 +25,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("tokyonight-night")
+        vim.cmd.colorscheme("iceberg")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
-        vim.cmd.colorscheme("tokyonight-day")
+        vim.cmd.colorscheme("iceberg")
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "tokyonight-night",
+      colorscheme = "iceberg",
     },
   },
   {

@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "tokyonight_night"
+		return "iceberg-dark"
 	else
-		return "tokyonight_day"
+		return "iceberg-light"
 	end
 end
 
@@ -107,7 +107,7 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = get_appearance():find("Dark") and "tokyonight_night" or "tokyonight_day",
+		theme = get_appearance():find("Dark") and "iceberg-dark" or "iceberg-light",
 		tabs_enabled = true,
 		section_separators = {
 			left = wezterm.nerdfonts.ple_right_half_circle_thick,
@@ -183,8 +183,8 @@ config.quick_select_patterns = {
 }
 
 config.keys = {
-	{ mods = "SUPER", key = "d", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ mods = "SUPER", key = "s", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "\\", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ mods = "SUPER", key = "-", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ mods = "SUPER", key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
 	{ mods = "SUPER", key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
 	{ mods = "SUPER", key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
@@ -224,7 +224,7 @@ config.keys = {
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
-	{ mods = "SUPER|SHIFT", key = "s", action = act.ActivateCopyMode },
+	{ mods = "SUPER", key = "c", action = act.ActivateCopyMode },
 }
 
 --- @generic T
