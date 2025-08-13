@@ -258,6 +258,7 @@ list_extend(key_tables.copy_mode, {
 		action = {
 			Multiple = {
 				{ CopyTo = "PrimarySelection" },
+				{ CopyMode = "ClearSelectionMode" },
 				{ CopyMode = "Close" },
 			},
 		},
