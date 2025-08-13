@@ -223,8 +223,8 @@ config.keys = {
 	{ mods = "SUPER|SHIFT", key = "j", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 	{ mods = "SUPER", key = "p", action = act.ShowLauncher },
 	{ mods = "SUPER", key = "w", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
-	{ mods = "SUPER|SHIFT", key = "f", action = act.QuickSelect },
-	{ mods = "SUPER", key = "c", action = act.ActivateCopyMode },
+	{ mods = "SUPER", key = "c", action = act.QuickSelect },
+	{ mods = "SUPER|SHIFT", key = "f", action = act.ActivateCopyMode },
 }
 
 --- @generic T
