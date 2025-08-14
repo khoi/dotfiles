@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "Tokyo Night"
+		return "Catppuccin Mocha"
 	else
-		return "Tokyo Night"
+		return "Catppuccin Mocha"
 	end
 end
 
@@ -107,8 +107,30 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = get_appearance():find("Dark") and "Tokyo Night" or "Tokyo Night",
+		theme = "Catppuccin Mocha",
 		tabs_enabled = true,
+		theme_overrides = {
+			normal_mode = {
+				a = { fg = '#181825', bg = '#89b4fa' },
+				b = { fg = '#89b4fa', bg = '#313244' },
+				c = { fg = '#cdd6f4', bg = '#181825' },
+			},
+			copy_mode = {
+				a = { fg = '#181825', bg = '#f9e2af' },
+				b = { fg = '#f9e2af', bg = '#313244' },
+				c = { fg = '#cdd6f4', bg = '#181825' },
+			},
+			search_mode = {
+				a = { fg = '#181825', bg = '#a6e3a1' },
+				b = { fg = '#a6e3a1', bg = '#313244' },
+				c = { fg = '#cdd6f4', bg = '#181825' },
+			},
+			tab = {
+				active = { fg = '#89b4fa', bg = '#313244' },
+				inactive = { fg = '#cdd6f4', bg = '#181825' },
+				inactive_hover = { fg = '#f5c2e7', bg = '#313244' },
+			}
+		},
 		section_separators = {
 			left = wezterm.nerdfonts.ple_right_half_circle_thick,
 			right = wezterm.nerdfonts.ple_left_half_circle_thick,
