@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "iceberg-dark"
+		return "Tokyo Night"
 	else
-		return "iceberg-light"
+		return "Tokyo Night"
 	end
 end
 
@@ -107,7 +107,7 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = get_appearance():find("Dark") and "iceberg-dark" or "iceberg-light",
+		theme = get_appearance():find("Dark") and "Tokyo Night" or "Tokyo Night",
 		tabs_enabled = true,
 		section_separators = {
 			left = wezterm.nerdfonts.ple_right_half_circle_thick,

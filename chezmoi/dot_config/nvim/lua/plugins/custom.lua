@@ -1,7 +1,12 @@
 local function set_transparent_bg()
   local groups = {
-    "Normal", "NormalFloat", "SignColumn", "NormalNC",
-    "MsgArea", "TelescopeBorder", "NvimTreeNormal"
+    "Normal",
+    "NormalFloat",
+    "SignColumn",
+    "NormalNC",
+    "MsgArea",
+    "TelescopeBorder",
+    "NvimTreeNormal",
   }
   for _, group in ipairs(groups) do
     vim.api.nvim_set_hl(0, group, { bg = "none" })
@@ -11,12 +16,29 @@ end
 return {
 
   {
-    "cocopon/iceberg.vim",
+    "folke/tokyonight.nvim",
+    name = "tokyonight",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.g.iceberg_transparent = 1
-      vim.cmd.colorscheme("iceberg")
+      require("tokyonight").setup({
+        style = "night",
+        transparent = true,
+        terminal_colors = true,
+        styles = {
+          comments = { italic = true },
+          keywords = { italic = true },
+          functions = {},
+          variables = {},
+          sidebars = "transparent",
+          floats = "transparent",
+        },
+        sidebars = { "qf", "help" },
+        day_brightness = 0.3,
+        hide_inactive_statusline = false,
+        dim_inactive = false,
+        lualine_bold = false,
+      })
     end,
   },
   {
@@ -25,18 +47,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("iceberg")
+        vim.cmd.colorscheme("tokyonight-night")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
-        vim.cmd.colorscheme("iceberg")
+        vim.cmd.colorscheme("tokyonight-night")
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "iceberg",
+      colorscheme = "tokyonight-night",
     },
   },
   {
