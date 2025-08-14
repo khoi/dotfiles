@@ -16,28 +16,55 @@ end
 return {
 
   {
-    "folke/tokyonight.nvim",
-    name = "tokyonight",
+    "catppuccin/nvim",
+    name = "catppuccin",
     lazy = false,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        style = "night",
-        transparent = true,
-        terminal_colors = true,
-        styles = {
-          comments = { italic = true },
-          keywords = { italic = true },
-          functions = {},
-          variables = {},
-          sidebars = "transparent",
-          floats = "transparent",
+      require("catppuccin").setup({
+        flavour = "mocha", -- latte, frappe, macchiato, mocha
+        background = {
+          light = "latte",
+          dark = "mocha",
         },
-        sidebars = { "qf", "help" },
-        day_brightness = 0.3,
-        hide_inactive_statusline = false,
-        dim_inactive = false,
-        lualine_bold = false,
+        transparent_background = true,
+        show_end_of_buffer = false,
+        term_colors = true,
+        dim_inactive = {
+          enabled = false,
+          shade = "dark",
+          percentage = 0.15,
+        },
+        no_italic = false,
+        no_bold = false,
+        no_underline = false,
+        styles = {
+          comments = { "italic" },
+          conditionals = { "italic" },
+          loops = {},
+          functions = {},
+          keywords = {},
+          strings = {},
+          variables = {},
+          numbers = {},
+          booleans = {},
+          properties = {},
+          types = {},
+          operators = {},
+        },
+        color_overrides = {},
+        custom_highlights = {},
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          treesitter = true,
+          notify = false,
+          mini = {
+            enabled = true,
+            indentscope_color = "",
+          },
+        },
       })
     end,
   },
@@ -47,18 +74,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("tokyonight-night")
+        vim.cmd.colorscheme("catppuccin-mocha")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
-        vim.cmd.colorscheme("tokyonight-night")
+        vim.cmd.colorscheme("catppuccin-mocha")
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "tokyonight-night",
+      colorscheme = "catppuccin-mocha",
     },
   },
   {
