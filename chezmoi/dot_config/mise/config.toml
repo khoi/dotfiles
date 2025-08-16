@@ -7,6 +7,7 @@ python = "latest"
 zig = "latest"
 uv = "latest"
 pnpm = "latest"
+bun = "latest"
 
 [settings]
 experimental = true
