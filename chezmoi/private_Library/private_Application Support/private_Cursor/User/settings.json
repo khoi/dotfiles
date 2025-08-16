@@ -81,5 +81,6 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "git.enableStatusBarSync": false,
-  "cursor.diffs.useCharacterLevelDiffs": true
+  "cursor.diffs.useCharacterLevelDiffs": true,
+  "zig.zls.enabled": "on"
 }
