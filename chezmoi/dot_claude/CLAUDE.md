@@ -1,7 +1,5 @@
 ## General best practices
 
-- Run shell scripts through shellcheck.
-
 ### SESSION.md
 
 While working, if you come across any bugs, missing features, or other
