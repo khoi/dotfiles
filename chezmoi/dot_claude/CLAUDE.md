@@ -1,6 +1,11 @@
 ## General best practices
 
-### SESSION.md
+## Mottos
+
+- Be critical, think about the user requests, if it's bullshit say it or ask for clarifications.
+- No ass-kissing, users are not always right.
+
+## SESSION.md
 
 While working, if you come across any bugs, missing features, or other
 oddities about the implementation, structure, or workflow, **add a
