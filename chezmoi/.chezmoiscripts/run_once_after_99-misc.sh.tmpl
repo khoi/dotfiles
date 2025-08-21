@@ -14,3 +14,17 @@ killall Dock
 echo "Install TX-02 Fonts"
 op document get "TX-02 Fonts" --force -o /tmp/tx02.tar
 tar xf /tmp/tx02.tar -C ~/Library/Fonts/
+
+echo "Change the Git remote from HTTP to SSH"
+cd {{ .chezmoi.sourceDir }} || exit 1
+
+# Change the Git remote from HTTP to SSH
+git remote set-url origin git@github.com:$(git remote get-url origin | sed -e 's/https:\/\/github.com\///')
+
+# Check if the command was successful
+if [ $? -eq 0 ]; then
+    echo "Successfully changed Git remote to SSH."
+else
+    echo "Failed to change Git remote to SSH."
+    exit 1
+fi
