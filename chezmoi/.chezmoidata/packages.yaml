@@ -1,0 +1,66 @@
+packages:
+  darwin:
+    taps:
+      - xcodesorg/made
+
+    brews:
+      - age
+      - aria2
+      - bat
+      - chezmoi
+      - eza
+      - fd
+      - fish
+      - fzf
+      - gawk
+      - gh
+      - ghq
+      - git
+      - git-absorb
+      - git-crypt
+      - git-extras
+      - git-lfs
+      - glances
+      - htop
+      - ifstat
+      - jq
+      - libyaml
+      - m-cli
+      - mosh
+      - nvim
+      - parallel
+      - reattach-to-user-namespace
+      - restic
+      - ripgrep
+      - switchaudio-osx
+      - tldr
+      - tmux
+      - tmux-mem-cpu-load
+      - watchexec
+      - xcbeautify
+      - xcode-build-server
+      - xcodes
+      - xq
+      - yazi
+      - yt-dlp
+      - z
+      - zellij
+      - zoxide
+
+    casks:
+      - 1password
+      - 1password-cli
+      - adguard
+      - arc
+      - cleanshot
+      - karabiner-elements
+      - obsidian
+      - orbstack
+      - proxyman
+      - raycast
+      - sf-symbols
+      - telegram
+      - cursor
+      - vlc
+      - wezterm
+
