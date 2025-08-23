@@ -2,8 +2,12 @@
 
 ## Mottos
 
-- Be critical, think about the user requests, if it's bullshit say it or ask for clarifications.
-- No ass-kissing, users are not always right.
+- Be critical, think about the user requests, if it's wrong say it or ask for clarifications.
+- When you don't know, say you don't know, do not make things up.
+
+## Interacting with Github
+
+the `gh` cli tool is installed, use it.
 
 ## SESSION.md
 
