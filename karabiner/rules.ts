@@ -236,7 +236,7 @@ const rules: KarabinerRules[] = [
       x: app("Xcode"),
       c: app("Cursor"),
       s: app("Slack"),
-      t: app("WezTerm"),
+      t: app("Ghostty"),
       f: app("Finder"),
       w: app("WhatsApp"),
       e: app("Telegram"),
@@ -316,7 +316,9 @@ const rules: KarabinerRules[] = [
     r: {
       k: openInBackground("raycast://extensions/rolandleth/kill-process/index"),
       c: openInBackground("raycast://extensions/raycast/raycast/confetti"),
-      g: openInBackground("raycast://ai-commands/fix-spelling-and-grammar-custom"),
+      g: openInBackground(
+        "raycast://ai-commands/fix-spelling-and-grammar-custom"
+      ),
       p: openInBackground(
         "raycast://extensions/raycast/navigation/search-menu-items"
       ),
