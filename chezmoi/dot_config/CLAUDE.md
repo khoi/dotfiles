@@ -38,3 +38,11 @@ When modifying configuration files:
 3. For Neovim configs, follow LazyVim conventions
 4. For theme files, maintain consistency with existing theme structures
 
+## chezmoi
+
+This repository is managed with [chezmoi](https://www.chezmoi.io/). Use chezmoi commands after modifications to the folder as follow:
+
+- `chezmoi add <file>` to add new files
+- `chezmoi destroy` to remove files that no longer need to be managed
+
+Do not add files that are not supposed to be in dotfiles (secrets, large files, etc.)
