@@ -37,3 +37,6 @@ tmp/
 
 # aider
 .aider*
+
+# Local markdown files
+*.local.md
