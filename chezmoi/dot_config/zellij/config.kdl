@@ -146,6 +146,12 @@ keybinds clear-defaults=true{
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         
+        bind "Super [" { GoToPreviousTab; }
+        bind "Super ]" { GoToNextTab; }
+        
+        // Super (Cmd) + W to close pane
+        bind "Super w" { CloseFocus; }
+        
         // Vim-like navigation with Ctrl
         bind "Ctrl h" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {

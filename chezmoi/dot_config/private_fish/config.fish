@@ -1,3 +1,5 @@
+set fish_greeting
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 set -g async_prompt_functions _pure_prompt_git
@@ -36,9 +38,18 @@ alias c cursor
 fish_add_path ~/.bin
 fish_add_path ~/.local/bin
 
-# Load stuff
 zoxide init fish | source
 
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
+
+if status is-interactive
+    export ZELLIJ_CONFIG_DIR=$HOME/.config/zellij
+    if [ "$TERM" = xterm-ghostty ]
+        if not set -q ZELLIJ
+            zellij attach -c "$USER"
+            if test "$ZELLIJ_AUTO_EXIT" = true
+                kill $fish_pid
+            end
+        end
+    end
+end
