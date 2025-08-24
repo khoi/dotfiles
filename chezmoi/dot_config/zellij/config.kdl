@@ -155,6 +155,9 @@ keybinds clear-defaults=true{
         // Super (Cmd) + W to close pane
         bind "Super w" { CloseFocus; }
         
+        // Super (Cmd) + E to edit buffer in editor
+        bind "Super e" { EditScrollback; }
+        
         // Vim-like navigation with Ctrl
         bind "Ctrl h" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
