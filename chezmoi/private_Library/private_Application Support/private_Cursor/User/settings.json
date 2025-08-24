@@ -18,6 +18,8 @@
   "editor.inlineSuggest.enabled": true,
   "editor.minimap.enabled": false,
   "git.autoRepositoryDetection": false,
+     "terminal.integrated.autoReplies": {},
+
   "editor.quickSuggestions": {
     "strings": true
   },
