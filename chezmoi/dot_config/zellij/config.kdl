@@ -151,6 +151,13 @@ keybinds clear-defaults=true{
         bind "Super t" { NewTab; }
         bind "Super s" { NewPane "down"; }
         bind "Super d" { NewPane "right"; }
+        bind "Super p" { 
+          LaunchOrFocusPlugin "session-manager" {
+            floating true
+            move_to_focused_tab true
+          }
+          SwitchToMode "locked"
+        }
         
         // Super (Cmd) + W to close pane
         bind "Super w" { CloseFocus; }
