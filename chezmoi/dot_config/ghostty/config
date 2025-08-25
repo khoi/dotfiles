@@ -1,32 +1,13 @@
 auto-update-channel = stable
 clipboard-trim-trailing-spaces = true
 confirm-close-surface = false
-cursor-style-blink = false
+cursor-style = block
+cursor-style-blink = true
+shell-integration-features = no-cursor
 font-family = TX-02
 font-size = 16
 font-thicken = true
 fullscreen = false
-
-# Unbind CMD+... keys so they will be forwarded to Zellij
-keybind = cmd+1=unbind
-keybind = cmd+2=unbind
-keybind = cmd+3=unbind
-keybind = cmd+4=unbind
-keybind = cmd+5=unbind
-keybind = cmd+6=unbind
-keybind = cmd+7=unbind
-keybind = cmd+8=unbind
-keybind = cmd+c=unbind
-keybind = cmd+d=unbind
-keybind = cmd+n=unbind
-keybind = cmd+opt+left=unbind
-keybind = cmd+opt+right=unbind
-keybind = cmd+t=unbind
-keybind = cmd+w=unbind
-keybind = cmd+[=unbind
-keybind = cmd+]=unbind
-keybind = shift+enter=text:\n
-
 link-url = true
 macos-icon = custom-style
 macos-icon-frame = plastic
@@ -35,9 +16,37 @@ macos-icon-screen-color = 000000
 macos-option-as-alt = left
 macos-titlebar-proxy-icon = hidden
 mouse-hide-while-typing = true
-mouse-hide-while-typing = true
+shell-integration-features = no-cursor
 theme = catppuccin-mocha
 window-decoration = false
 window-inherit-font-size = true
 window-inherit-working-directory = true
 window-theme = system
+
+custom-shader = ./shaders/cursor_blaze.glsl
+# Some fun effects
+# custom-shader = ./shaders/inside-the-matrix.glsl
+# custom-shader = ./shaders/matrix-hallway.glsl
+
+# Key bindings
+keybind = cmd+1=unbind
+keybind = cmd+2=unbind
+keybind = cmd+3=unbind
+keybind = cmd+4=unbind
+keybind = cmd+5=unbind
+keybind = cmd+6=unbind
+keybind = cmd+7=unbind
+keybind = cmd+8=unbind
+keybind = cmd+[=unbind
+keybind = cmd+]=unbind
+keybind = cmd+c=unbind
+keybind = cmd+d=unbind
+keybind = cmd+n=unbind
+keybind = cmd+opt+left=unbind
+keybind = cmd+opt+right=unbind
+keybind = cmd+t=unbind
+keybind = cmd+w=unbind
+keybind = shift+enter=text:\n
+keybind = super+r=reload_config
+
+
