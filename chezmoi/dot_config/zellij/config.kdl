@@ -150,7 +150,7 @@ keybinds clear-defaults=true{
         bind "Super ]" { GoToNextTab; }
         bind "Super t" { NewTab; }
         bind "Super s" { NewPane "down"; }
-        bind "Super \\" { NewPane "right"; }
+        bind "Super d" { NewPane "right"; }
         
         // Super (Cmd) + W to close pane
         bind "Super w" { CloseFocus; }
