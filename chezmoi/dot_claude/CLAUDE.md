@@ -9,6 +9,10 @@
 
 the `gh` cli tool is installed, use it.
 
+## CLAUDE.local.md
+
+While working, if you find anything that's worth remembering. Save it to CLAUDE.local.md.
+
 ## SESSION.md
 
 While working, if you come across any bugs, missing features, or other
