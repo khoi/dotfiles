@@ -42,3 +42,4 @@
 	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 [alias]
 	find = "!git log --color -S "
+	nuke = "!git reset --hard && git clean -fd"
