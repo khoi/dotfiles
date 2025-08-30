@@ -49,6 +49,10 @@ layout {
       datetime_format "%A, %d %b %Y %H:%M"
       datetime_timezone "Europe/London"
 
+      command_cpu_command    "bash -c ~/.config/zellij/usage.sh"
+      command_cpu_format     "#[fg=blue] ⚡ {stdout}W"
+      command_cpu_interval   "5"
+      command_cpu_rendermode "static"
     }
   }
 }
