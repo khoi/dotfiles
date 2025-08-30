@@ -61,8 +61,9 @@ float ease(float x) {
 }
 
 // Catppuccin Mocha colors
-// Using Mauve (#cba6f7) for the trail
-const vec4 TRAIL_COLOR = vec4(0.796, 0.651, 0.969, 1.0);
+// Match Fish theme cursor color: Rosewater (#F5E0DC)
+// Source reference: fish/themes/Catppuccin Mocha.theme (Catppuccin palette)
+const vec4 TRAIL_COLOR = vec4(0.961, 0.878, 0.863, 1.0);
 const float DURATION = 0.5; //IN SECONDS
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
