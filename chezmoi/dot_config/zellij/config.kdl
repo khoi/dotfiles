@@ -3,7 +3,7 @@ show_startup_tips true
 scroll_buffer_size 100000
 copy_command "pbcopy"
 default_mode "locked"
-// default_layout "compact"
+default_layout "default"
 
 keybinds clear-defaults=true{
     locked {
