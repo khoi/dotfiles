@@ -23,7 +23,7 @@ window-inherit-font-size = true
 window-inherit-working-directory = true
 window-theme = system
 
-custom-shader = ./shaders/cursor_blaze.glsl
+# custom-shader = ./shaders/cursor_blaze.glsl
 # Some fun effects
 # custom-shader = ./shaders/inside-the-matrix.glsl
 # custom-shader = ./shaders/matrix-hallway.glsl
@@ -47,6 +47,5 @@ keybind = cmd+opt+right=unbind
 keybind = cmd+t=unbind
 keybind = cmd+w=unbind
 keybind = shift+enter=text:\n
-keybind = super+r=reload_config
 
 
