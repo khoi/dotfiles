@@ -28,9 +28,9 @@ layout {
       // mode_tmux          "{name}"
 
       // formatting for inactive tabs
-      tab_normal              "#[fg=#6C7086]{name}"
-      tab_normal_fullscreen   "#[fg=#6C7086]{name}"
-      tab_normal_sync         "#[fg=#6C7086]{name}"
+      tab_normal              "#[fg=#6C7086,italic]{name}"
+      tab_normal_fullscreen   "#[fg=#6C7086,italic]{name}"
+      tab_normal_sync         "#[fg=#6C7086,italic]{name}"
 
       // formatting for the current active tab
       tab_active "#[fg=#89b4fa,bold]{name}#[fg=#f9e2af,bold]{floating_indicator}"
