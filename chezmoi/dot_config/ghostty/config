@@ -24,9 +24,10 @@ window-inherit-working-directory = true
 window-theme = system
 
 # custom-shader = ./shaders/cursor_blaze.glsl
-# Some fun effects
 # custom-shader = ./shaders/inside-the-matrix.glsl
-# custom-shader = ./shaders/matrix-hallway.glsl
+# custom-shader = ./shaders/bettercrt.glsl
+# custom-shader = ./shaders/glitchy.glsl
+# custom-shader = ./shaders/retro-terminal.glsl
 
 # Key bindings
 keybind = cmd+1=unbind
