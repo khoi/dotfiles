@@ -1,6 +1,13 @@
 #!/bin/sh
 
-path_name="$(basename "$PWD" | tr . -)"
+# Get basename and normalize using parameter expansion
+path_name="$(basename "$PWD")"
+# Replace all non-alphanumeric characters (except dash and underscore) with underscore
+path_name="${path_name//[^[:alnum:]_-]/_}"
+# If path_name starts with a dash, prefix with underscore to avoid option parsing issues
+if [[ "$path_name" == -* ]]; then
+  path_name="_$path_name"
+fi
 session_name=${1-$path_name}
 
 ZJ_SESSIONS=$(zellij list-sessions -n -s)
@@ -25,7 +32,6 @@ create_if_needed_and_attach() {
     if ! session_exists; then
       create_detached_session
     fi
-    zellij attach "$session_name"
   fi
 }
 
