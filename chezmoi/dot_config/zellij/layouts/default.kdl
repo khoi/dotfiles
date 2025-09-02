@@ -6,7 +6,7 @@ layout {
   pane size=2 borderless=true {
     plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
       format_left   "{mode}  #[fg=#89dceb,bold]{session} #[fg=#cdd6f4]{tabs}"
-      format_center ""
+      format_center "{pipe_zjstatus_hints}"
       format_right  "#[fg=#f38ba8,bold]  {datetime} {command_cpu}#[fg=#89dceb] ↖ "
       format_space  "#[fg=#f9e2af] "
 
@@ -53,6 +53,9 @@ layout {
       command_cpu_format     "#[fg=blue] ⚡{stdout}W"
       command_cpu_interval   "5"
       command_cpu_rendermode "static"
+
+      // zjstatus-hints pipe configuration
+      pipe_zjstatus_hints_format "{output}"
     }
   }
 }
