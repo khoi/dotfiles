@@ -6,6 +6,7 @@ cursor-style-blink = false
 shell-integration-features = no-cursor
 font-family = TX-02
 font-size = 16
+background-opacity = 0.9
 font-thicken = true
 fullscreen = false
 link-url = true
