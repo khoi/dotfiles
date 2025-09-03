@@ -22,6 +22,10 @@ incidental tasks until later. You do not need to fix them all straight
 away unless they block your progress; writing them down is often
 sufficient. **Do not write your accomplishments into this file.**
 
+## Interacting with the shell
+
+When running commands in the shell, prefer to run multiple commands together at once using `&&` to avoid unnecessary back-and-forth.
+
 ## Code style preferences
 
 Document when you have intentionally omitted code that the reader might
