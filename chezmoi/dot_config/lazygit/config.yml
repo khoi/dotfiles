@@ -17,8 +17,8 @@ customCommands:
     loadingText: "Updating git submodules with force"
 
 git:
-  autoFetch: false
-  autoRefresh: false
+  autoFetch: true
+  autoRefresh: true
 
 gui:
   screenMode: half
