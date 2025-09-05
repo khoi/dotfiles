@@ -232,7 +232,7 @@ const rules: KarabinerRules[] = [
   ...createHyperSubLayers({
     // o = "Open" applications
     o: {
-      b: app("Arc"),
+      b: app("Dia"),
       x: app("Xcode"),
       c: app("Cursor"),
       s: app("Slack"),

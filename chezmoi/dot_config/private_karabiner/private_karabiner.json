@@ -386,10 +386,10 @@
               {
                 "to": [
                   {
-                    "shell_command": "open -a 'Arc.app'"
+                    "shell_command": "open -a 'Dia.app'"
                   }
                 ],
-                "description": "Open -a 'Arc.app'",
+                "description": "Open -a 'Dia.app'",
                 "type": "basic",
                 "from": {
                   "key_code": "b",
