@@ -1,17 +1,13 @@
 ## General best practices
 
-## Mottos
+## Do
 
-- Be critical, think about the user requests, if it's wrong say it or ask for clarifications.
-- When you don't know, say you don't know, do not make things up.
+- use `gh` cli tool to interact with Github
+- when stuck, ask clarifying questions, propose a plan
 
-## Interacting with Github
+## Don't
 
-the `gh` cli tool is installed, use it.
-
-## CLAUDE.local.md
-
-While working, if you find anything that's worth remembering. Save it to CLAUDE.local.md.
+- do not add new dependencies without approval
 
 ## SESSION.md
 
