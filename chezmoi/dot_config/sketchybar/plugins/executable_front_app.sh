@@ -63,6 +63,54 @@ case $INFO in
     ICON_PADDING_RIGHT=3
     ICON=󰶘
     ;;
+"Bear")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Cursor")
+    ICON_PADDING_RIGHT=4
+    ICON=
+    ;;
+"Dia")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Ghostty")
+    ICON_PADDING_RIGHT=2
+    ICON=
+    ;;
+"Slack")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Telegram")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Webex")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"WebEx")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Cisco Webex")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"WhatsApp")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Whatsapp")
+    ICON_PADDING_RIGHT=3
+    ICON=
+    ;;
+"Xcode")
+    ICON_PADDING_RIGHT=4
+    ICON=
+    ;;
 *)
     ICON_PADDING_RIGHT=2
     ICON=

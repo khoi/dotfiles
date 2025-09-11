@@ -53,7 +53,7 @@ sketchybar --add item front_app left \
     icon.font="$FONT_FACE:Bold:25.0" \
     icon.padding_left=0 \
     icon.padding_right=0 \
-    icon.y_offset=1 \
+    icon.y_offset=0 \
     label.drawing=no \
     --add item front_app.name left \
     --set front_app.name \
