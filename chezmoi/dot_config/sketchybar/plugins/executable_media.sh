@@ -16,7 +16,7 @@ trim_text() {
   local text="$1"
   local max_len="$2"
   if [[ ${#text} -gt $max_len ]]; then
-    echo "${text:0:$((max_len-3))}..."
+    echo "${text:0:$((max_len - 3))}..."
   else
     echo "$text"
   fi
@@ -26,11 +26,11 @@ if [[ -n "$ARTIST" || -n "$TITLE" ]]; then
   # Trim title and artist if too long
   TITLE=$(trim_text "$TITLE" "$MAX_LENGTH")
   ARTIST=$(trim_text "$ARTIST" "$MAX_LENGTH")
-  
+
   if [[ -n "$ARTIST" && -n "$TITLE" ]]; then
-    LABEL="$ARTIST - $TITLE"
+    LABEL="$TITLE - $ARTIST"
   else
-    LABEL="$ARTIST$TITLE"
+    LABEL="$TITLE - $ARTIST"
   fi
   sketchybar --set "${NAME:-media}" label="$LABEL" label.drawing=on
 else
@@ -39,9 +39,8 @@ else
 fi
 
 case "$SENDER" in
-  mouse.clicked)
-    # Placeholder: could open the player or toggle play/pause via media-control
-    :
-    ;;
+mouse.clicked)
+  # Placeholder: could open the player or toggle play/pause via media-control
+  :
+  ;;
 esac
-
