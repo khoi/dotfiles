@@ -22,7 +22,7 @@ sketchybar --bar \
 sketchybar --default \
     background.height=32 \
     icon.color=$COLOR_TEXT_DARK \
-    icon.font="$FONT_FACE:Medium:20.0" \
+    icon.font="$FONT_FACE:Medium:22.0" \
     icon.padding_left=5 \
     icon.padding_right=5 \
     label.color=$COLOR_TEXT_DARK \
@@ -34,6 +34,7 @@ sketchybar --default \
 sketchybar --add item current_space left \
     --set current_space \
     background.color=$COLOR_CURRENT_SPACE \
+    icon.font="$FONT_FACE:Medium:28.0" \
     label.drawing=off \
     script="$PLUGIN_SHARED_DIR/current_space.sh" \
     --subscribe current_space space_change mouse.clicked
@@ -51,7 +52,7 @@ sketchybar --add item front_app left \
     background.color=$COLOR_TRANSPARENT \
     icon= \
     icon.color=$COLOR_FRONT_APP \
-    icon.font="$FONT_FACE:Bold:23.0" \
+    icon.font="$FONT_FACE:Bold:25.0" \
     icon.padding_left=0 \
     icon.padding_right=0 \
     icon.y_offset=1 \
@@ -69,6 +70,7 @@ sketchybar --add bracket front_app_bracket \
     front_app.separator \
     front_app.name \
     --subscribe front_app front_app_switched
+
 
 sketchybar --add item clock right \
     --set clock \
