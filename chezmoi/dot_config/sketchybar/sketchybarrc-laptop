@@ -8,8 +8,6 @@ FONT_FACE="TX02 Nerd Font Mono"
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-laptop"
 PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
 
-SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
-
 sketchybar --bar \
     height=32 \
     color=$COLOR_TRANSPARENT \
@@ -34,16 +32,17 @@ sketchybar --default \
     label.padding_left=0 \
     label.padding_right=5
 
-sketchybar --add event spotify_change $SPOTIFY_EVENT \
-    --add item spotify e \
-    --set spotify \
-    icon= \
-    icon.y_offset=1 \
+# Media item (media-control)
+sketchybar --add event media_stream_changed \
+    --add item media e \
+    --set media \
+    icon= \
+    icon.y_offset=0 \
     icon.font="$FONT_FACE:Bold:22.0" \
-    label.drawing=off \
+    label.drawing=on \
     label.padding_left=3 \
-    script="$PLUGIN_DIR/spotify.sh" \
-    --subscribe spotify spotify_change mouse.clicked
+    script="$PLUGIN_SHARED_DIR/media.sh" \
+    --subscribe media media_stream_changed mouse.clicked
 
 sketchybar --add item current_space left \
     --set current_space \

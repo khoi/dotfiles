@@ -7,8 +7,6 @@ FONT_FACE="TX02 Nerd Font Mono"
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-desktop"
 PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
 
-SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
-
 sketchybar --bar \
     height=32 \
     color=$COLOR_BAR_BG \
@@ -87,15 +85,16 @@ sketchybar --add item github_prs right \
     script="$PLUGIN_SHARED_DIR/github_prs.sh" \
     --subscribe github_prs mouse.clicked
 
-sketchybar --add event spotify_change $SPOTIFY_EVENT \
-    --add item spotify right \
-    --set spotify \
-    icon= \
-    icon.y_offset=1 \
-    label.drawing=off \
+# Media item (media-control)
+sketchybar --add event media_stream_changed \
+    --add item media right \
+    --set media \
+    icon=󰎈 \
+    icon.y_offset=0 \
+    label.drawing=on \
     label.padding_left=3 \
-    script="$PLUGIN_DIR/spotify.sh" \
-    --subscribe spotify spotify_change mouse.clicked
+    script="$PLUGIN_SHARED_DIR/media.sh" \
+    --subscribe media media_stream_changed mouse.clicked
 
 ##### Finalizing Setup #####
 sketchybar --update
