@@ -1,5 +1,11 @@
 #!/usr/bin/env zsh
 
+# Load shared icons if available
+ICON_FILE_PATH="$HOME/.config/sketchybar/icons.sh"
+if [ -f "$ICON_FILE_PATH" ]; then
+  source "$ICON_FILE_PATH"
+fi
+
 IP=$(curl -s https://ipinfo.io/ip)
 LOCATION_JSON=$(curl -s https://ipinfo.io/$IP/json)
 
@@ -15,7 +21,7 @@ WEATHER_JSON=$(curl -s "https://wttr.in/$LOCATION_ESCAPED?format=j1")
 if [ -z $WEATHER_JSON ]; then
 
     sketchybar --set $NAME label=$LOCATION
-    sketchybar --set $NAME.moon icon=
+    sketchybar --set $NAME.moon icon="${ICON_WEATHER:-}"
 
     return
 fi

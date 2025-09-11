@@ -2,6 +2,7 @@
 
 # Load color scheme
 source "$HOME/.config/sketchybar/colors.sh"
+source "$HOME/.config/sketchybar/icons.sh"
 
 FONT_FACE="TX02 Nerd Font Mono"
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-desktop"
@@ -72,14 +73,14 @@ sketchybar --add bracket front_app_bracket \
 
 sketchybar --add item clock right \
     --set clock \
-    icon=󰃰 \
+    icon=$ICON_CLOCK \
     background.color=$COLOR_CLOCK \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
 
 sketchybar --add item github_prs right \
     --set github_prs \
-    icon=󰊤 \
+    icon=$ICON_GIT \
     background.color=$COLOR_BLUE \
     update_freq=300 \
     script="$PLUGIN_SHARED_DIR/github_prs.sh" \
@@ -89,7 +90,7 @@ sketchybar --add item github_prs right \
 sketchybar --add event media_stream_changed \
     --add item media right \
     --set media \
-    icon=󰎈 \
+    icon=$ICON_MUSIC \
     icon.y_offset=0 \
     label.drawing=on \
     label.padding_left=3 \

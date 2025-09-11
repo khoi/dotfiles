@@ -2,6 +2,7 @@
 
 # Load color scheme
 source "$HOME/.config/sketchybar/colors.sh"
+source "$HOME/.config/sketchybar/icons.sh"
 
 FONT_FACE="TX02 Nerd Font Mono"
 
@@ -36,7 +37,7 @@ sketchybar --default \
 sketchybar --add event media_stream_changed \
     --add item media e \
     --set media \
-    icon= \
+    icon=$ICON_MUSIC \
     icon.y_offset=0 \
     icon.font="$FONT_FACE:Bold:22.0" \
     label.drawing=on \
@@ -95,7 +96,7 @@ sketchybar --add item weather.moon q \
 
 sketchybar --add item weather q \
     --set weather \
-    icon= \
+    icon=$ICON_WEATHER \
     icon.color=$COLOR_WEATHER \
     icon.font="$FONT_FACE:Bold:17.0" \
     update_freq=1800 \
@@ -110,14 +111,14 @@ sketchybar --add bracket front_app_bracket \
 
 sketchybar --add item clock right \
     --set clock \
-    icon=󰃰 \
+    icon=$ICON_CLOCK \
     icon.color=$COLOR_CLOCK \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
 
 sketchybar --add item github_prs right \
     --set github_prs \
-    icon=󰊤 \
+    icon=$ICON_GIT \
     icon.color=$COLOR_TEXT_LIGHT \
     label.font="$FONT_FACE:Bold:14.0" \
     update_freq=300 \
