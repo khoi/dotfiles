@@ -25,7 +25,7 @@ sketchybar --default \
     icon.font="$FONT_FACE:Medium:15.0" \
     icon.padding_left=5 \
     icon.padding_right=5 \
-    label.font="$FONT_FACE:Medium:12.0" \
+    label.font="$FONT_FACE:Medium:14.0" \
     label.color=0xffcad3f5 \
     label.y_offset=0 \
     label.padding_left=0 \
@@ -75,7 +75,7 @@ sketchybar --add item front_app left \
     background.color=0x00000000 \
     background.padding_right=0 \
     icon.drawing=off \
-    label.font="$FONT_FACE:Bold:12.0" \
+    label.font="$FONT_FACE:Bold:14.0" \
     label.drawing=yes
 
 sketchybar --add item weather.moon q \
