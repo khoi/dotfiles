@@ -77,6 +77,14 @@ sketchybar --add item clock right \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
 
+sketchybar --add item github_prs right \
+    --set github_prs \
+    icon=󰊤 \
+    background.color=$COLOR_BLUE \
+    update_freq=300 \
+    script="$PLUGIN_SHARED_DIR/github_prs.sh" \
+    --subscribe github_prs mouse.clicked
+
 sketchybar --add event spotify_change $SPOTIFY_EVENT \
     --add item spotify right \
     --set spotify \

@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# Load color scheme
+source "$HOME/.config/sketchybar/colors.sh"
+
 FONT_FACE="TX02 Nerd Font Mono"
 
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-laptop"
@@ -9,7 +12,7 @@ SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
 
 sketchybar --bar \
     height=32 \
-    color=0x00000000 \
+    color=$COLOR_TRANSPARENT \
     margin=0 \
     sticky=on \
     padding_left=23 \
@@ -18,7 +21,7 @@ sketchybar --bar \
     display=main
 
 sketchybar --default \
-    background.color=0x66494d64 \
+    background.color=$COLOR_ITEM_BG \
     background.corner_radius=5 \
     background.padding_right=5 \
     background.height=26 \
@@ -26,7 +29,7 @@ sketchybar --default \
     icon.padding_left=5 \
     icon.padding_right=5 \
     label.font="$FONT_FACE:Medium:14.0" \
-    label.color=0xffcad3f5 \
+    label.color=$COLOR_TEXT_LIGHT \
     label.y_offset=0 \
     label.padding_left=0 \
     label.padding_right=5
@@ -44,27 +47,27 @@ sketchybar --add event spotify_change $SPOTIFY_EVENT \
 
 sketchybar --add item current_space left \
     --set current_space \
-    background.color=0xfff5a97f \
-    icon.color=0xff24273a \
+    background.color=$COLOR_CURRENT_SPACE \
+    icon.color=$COLOR_TEXT_DARK \
     label.drawing=off \
     script="$PLUGIN_SHARED_DIR/current_space.sh" \
     --subscribe current_space space_change mouse.clicked
 
 sketchybar --add item front_app left \
     --set front_app \
-    background.color=0xffa6da95 \
+    background.color=$COLOR_FRONT_APP \
     background.padding_left=0 \
     background.padding_right=0 \
     icon.y_offset=1 \
-    icon.color=0xff24273a \
+    icon.color=$COLOR_TEXT_DARK \
     label.drawing=no \
     script="$PLUGIN_SHARED_DIR/front_app.sh" \
     --add item front_app.separator left \
     --set front_app.separator \
-    background.color=0x00000000 \
+    background.color=$COLOR_TRANSPARENT \
     background.padding_left=-3 \
     icon= \
-    icon.color=0xffa6da95 \
+    icon.color=$COLOR_FRONT_APP \
     icon.font="$FONT_FACE:Bold:20.0" \
     icon.padding_left=0 \
     icon.padding_right=0 \
@@ -72,7 +75,7 @@ sketchybar --add item front_app left \
     label.drawing=no \
     --add item front_app.name left \
     --set front_app.name \
-    background.color=0x00000000 \
+    background.color=$COLOR_TRANSPARENT \
     background.padding_right=0 \
     icon.drawing=off \
     label.font="$FONT_FACE:Bold:14.0" \
@@ -80,9 +83,9 @@ sketchybar --add item front_app left \
 
 sketchybar --add item weather.moon q \
     --set weather.moon \
-    background.color=0x667dc4e4 \
+    background.color=$COLOR_MOON_BG \
     background.padding_right=-1 \
-    icon.color=0xff181926 \
+    icon.color=$COLOR_MOON_ICON \
     icon.font="$FONT_FACE:Bold:22.0" \
     icon.padding_left=4 \
     icon.padding_right=3 \
@@ -92,7 +95,7 @@ sketchybar --add item weather.moon q \
 sketchybar --add item weather q \
     --set weather \
     icon= \
-    icon.color=0xfff5bde6 \
+    icon.color=$COLOR_WEATHER \
     icon.font="$FONT_FACE:Bold:15.0" \
     update_freq=1800 \
     script="$PLUGIN_SHARED_DIR/weather.sh" \
@@ -107,9 +110,18 @@ sketchybar --add bracket front_app_bracket \
 sketchybar --add item clock right \
     --set clock \
     icon=󰃰 \
-    icon.color=0xffed8796 \
+    icon.color=$COLOR_CLOCK \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
+
+sketchybar --add item github_prs right \
+    --set github_prs \
+    icon=󰊤 \
+    icon.color=$COLOR_TEXT_LIGHT \
+    label.font="$FONT_FACE:Bold:14.0" \
+    update_freq=300 \
+    script="$PLUGIN_SHARED_DIR/github_prs.sh" \
+    --subscribe github_prs mouse.clicked
 
 sketchybar --add item battery right \
     --set battery \
@@ -118,7 +130,7 @@ sketchybar --add item battery right \
 
 sketchybar --add item volume right \
     --set volume \
-    icon.color=0xff8aadf4 \
+    icon.color=$COLOR_VOLUME \
     label.drawing=true \
     script="$PLUGIN_SHARED_DIR/volume.sh" \
     --subscribe volume volume_change
