@@ -5,9 +5,14 @@
 
 set -euo pipefail
 
-MEDIA_BIN="${MEDIA_BIN:-media-control}"
+MEDIA_BIN="${MEDIA_BIN:-/opt/homebrew/bin/media-control}"
+SKETCHYBAR_BIN="/opt/homebrew/bin/sketchybar"
 
 if ! command -v "$MEDIA_BIN" >/dev/null 2>&1; then
+  exit 0
+fi
+
+if ! command -v "$SKETCHYBAR_BIN" >/dev/null 2>&1; then
   exit 0
 fi
 
@@ -42,6 +47,6 @@ while IFS= read -r line; do
   fi
 
   echo "title: $title, artist: $artist, playing: $playing"
-  sketchybar --trigger media_stream_changed title="$title" artist="$artist" playing="$playing"
+  $SKETCHYBAR_BIN --trigger media_stream_changed title="$title" artist="$artist" playing="$playing"
 done
 
