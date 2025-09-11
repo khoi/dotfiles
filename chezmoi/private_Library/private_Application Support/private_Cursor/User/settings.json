@@ -10,7 +10,7 @@
   "console-ninja.featureSet": "Community",
   "editor.accessibilitySupport": "off",
   "editor.autoClosingBrackets": "always",
-  "editor.fontFamily": "TX-02",
+  "editor.fontFamily": "TX02 Nerd Font Mono",
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
@@ -18,7 +18,7 @@
   "editor.inlineSuggest.enabled": true,
   "editor.minimap.enabled": false,
   "git.autoRepositoryDetection": false,
-     "terminal.integrated.autoReplies": {},
+  "terminal.integrated.autoReplies": {},
 
   "editor.quickSuggestions": {
     "strings": true
@@ -72,7 +72,7 @@
   "editor.fontSize": 13,
   "window.confirmSaveUntitledWorkspace": false,
   "cursor.cpp.enablePartialAccepts": true,
-  "workbench.preferredDarkColorTheme": "Default Dark Modern",
+  "workbench.preferredDarkColorTheme": "Catppuccin Macchiato",
   "[swift]": {
     "editor.defaultFormatter": "swiftlang.swift-vscode"
   },
