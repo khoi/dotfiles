@@ -43,7 +43,7 @@
   },
   "redhat.telemetry.enabled": true,
   "security.workspace.trust.untrustedFiles": "open",
-  "terminal.integrated.defaultProfile.osx": "fish",
+  "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.env.osx": {
     "HISTFILE": "$HOME/.zsh_history"
   },
