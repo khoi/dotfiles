@@ -17,9 +17,6 @@ sketchybar --bar \
     notch_width=230 \
     display=main
 
-# Alternatiive background colors
-# label.color=0xffffffff
-# background.color=0x9924273a
 sketchybar --default \
     background.color=0x66494d64 \
     background.corner_radius=5 \
