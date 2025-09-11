@@ -7,7 +7,7 @@
     "edit_prediction_provider": "zed"
   },
   "base_keymap": "VSCode",
-  "theme": "One Dark",
+  "theme": "Catppuccin Macchiato",
   "ui_font_size": 17,
   "buffer_font_size": 18,
   "file_finder": {
@@ -36,32 +36,15 @@
     "left_padding": 0.15,
     "right_padding": 0.15
   },
-  "assistant": {
+  "agent": {
     "default_model": {
-      "provider": "anthropic",
-      "model": "claude-3-7-sonnet-thinking-latest"
+      "provider": "openai",
+      "model": "gpt-5"
     },
-    "version": "2"
   },
-  // Uncomment below to use local AI with Ollama, refer https://zed.dev/docs/language-model-integration?highlight=ollama#using-ollama-on-macos
-  // "assistant": {
-  //   "default_model": {
-  //     "provider": "ollama",
-  //     "model": "llama3.1:latest"
-  //   },
-  //   "version": "2",
-  //   "provider": null
-  // },
-  "language_models": {
-    "ollama": {
-      "api_url": "http://localhost:11434"
-    }
-  },
-  // Inlay hints preconfigured by Zed: Go, Rust, Typescript and Svelte
   "inlay_hints": {
     "enabled": true
   },
-  // LSP
   "lsp": {
     "tailwindcss-language-server": {
       "settings": {
@@ -70,9 +53,7 @@
     }
   },
   "languages": {
-    // Refer https://zed.dev/docs/languages/javascript and https://zed.dev/docs/languages/typescript for more info
     "TypeScript": {
-      // Refer https://github.com/jellydn/ts-inlay-hints for how to setup for Neovim and VSCode
       "inlay_hints": {
         "enabled": true,
         "show_parameter_hints": false,
@@ -86,7 +67,6 @@
       "language_servers": ["pyright", "ruff"]
     }
   },
-  // Use zed commit editor
   "terminal": {
     "font_family": "TX-02",
     "env": {
@@ -98,7 +78,6 @@
     "Dockerfile": ["Dockerfile", "Dockerfile.*"],
     "JSON": ["json", "jsonc", "*.code-snippets"]
   },
-  // File scan exclusions, hide on the file explorer and search
   "file_scan_exclusions": [
     "**/.git",
     "**/.svn",
@@ -122,15 +101,13 @@
     "**/report",
     "**/node_modules"
   ],
-  // Turn off telemetry
   "telemetry": {
     "diagnostics": false,
     "metrics": false
   },
-  // Move all panel to the right
   "project_panel": {
     "button": true,
-    "dock": "right",
+    "dock": "left",
     "git_status": true
   },
   "outline_panel": {

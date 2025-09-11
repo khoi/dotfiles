@@ -13,9 +13,9 @@ end
 
 local function scheme_for_appearance(appearance)
 	if appearance:find("Dark") then
-		return "Catppuccin Mocha"
+		return "Catppuccin Macchiato"
 	else
-		return "Catppuccin Mocha"
+		return "Catppuccin Macchiato"
 	end
 end
 
@@ -107,7 +107,7 @@ config.color_scheme = scheme_for_appearance(get_appearance())
 tabline.setup({
 	options = {
 		icons_enabled = true,
-		theme = "Catppuccin Mocha",
+		theme = "Catppuccin Macchiato",
 		tabs_enabled = true,
 		theme_overrides = {
 			normal_mode = {

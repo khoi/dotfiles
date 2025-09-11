@@ -4,6 +4,7 @@
 
 - use `gh` cli tool to interact with Github
 - when stuck, ask clarifying questions, propose a plan
+- Prefer to use `ast-grep` to search for code
 
 ## Don't
 
