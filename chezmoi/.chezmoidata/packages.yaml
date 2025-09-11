@@ -2,6 +2,7 @@ packages:
   darwin:
     taps:
       - xcodesorg/made
+      - FelixKratz/formulae
 
     brews:
       - age
@@ -33,6 +34,7 @@ packages:
       - restic
       - ripgrep
       - switchaudio-osx
+      - sketchybar
       - tldr
       - tmux
       - tmux-mem-cpu-load
@@ -63,4 +65,3 @@ packages:
       - cursor
       - vlc
       - wezterm
-
