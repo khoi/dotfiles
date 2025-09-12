@@ -86,24 +86,52 @@ sketchybar --add item github_prs right \
     script="$PLUGIN_SHARED_DIR/github_prs.sh" \
     --subscribe github_prs mouse.clicked
 
+# Add network_update event for network monitoring
+sketchybar --add event network_update
+
 sketchybar --add item network.up right \
     --set network.up \
     icon="󰕒" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:17.0" \
+    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.padding_right=0 \
+    label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \
-    label.font="$FONT_FACE:Medium:12.0" \
-    update_freq=2 \
+    label.font="$FONT_FACE:Bold:11.0" \
+    label.padding_left=2 \
+    label.width=60 \
+    y_offset=5 \
+    width=0 \
     script="$PLUGIN_SHARED_DIR/network.sh" \
+    --subscribe network.up network_update \
     --add item network.down right \
     --set network.down \
     icon="󰇚" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:17.0" \
+    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.padding_right=0 \
+    label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \
-    label.font="$FONT_FACE:Medium:12.0" \
-    update_freq=2 \
-    script="$PLUGIN_SHARED_DIR/network.sh"
+    label.font="$FONT_FACE:Bold:11.0" \
+    label.padding_left=2 \
+    label.width=60 \
+    y_offset=-5 \
+    width=0 \
+    script="$PLUGIN_SHARED_DIR/network.sh" \
+    --subscribe network.down network_update \
+    --add item network.padding right \
+    --set network.padding \
+    label.drawing=off \
+    icon.drawing=off \
+    width=5 \
+    --add bracket network.bracket \
+    network.up \
+    network.down \
+    network.padding \
+    --set network.bracket \
+    background.color=$COLOR_TRANSPARENT \
+    background.corner_radius=5 \
+    background.height=26
 
 # Media item (media-control)
 sketchybar --add event media_stream_changed \

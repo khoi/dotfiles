@@ -130,31 +130,59 @@ sketchybar --add item battery right \
     update_freq=20 \
     script="$PLUGIN_DIR/battery.sh"
 
-sketchybar --add item network.up right \
-    --set network.up \
-    icon="󰕒" \
-    icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:17.0" \
-    label.color=$COLOR_TEXT_LIGHT \
-    label.font="$FONT_FACE:Medium:12.0" \
-    update_freq=2 \
-    script="$PLUGIN_SHARED_DIR/network.sh" \
-    --add item network.down right \
-    --set network.down \
-    icon="󰇚" \
-    icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:17.0" \
-    label.color=$COLOR_TEXT_LIGHT \
-    label.font="$FONT_FACE:Medium:12.0" \
-    update_freq=2 \
-    script="$PLUGIN_SHARED_DIR/network.sh"
-
 sketchybar --add item volume right \
     --set volume \
     icon.color=$COLOR_VOLUME \
     label.drawing=true \
     script="$PLUGIN_SHARED_DIR/volume.sh" \
     --subscribe volume volume_change
+
+# Add network_update event for network monitoring
+sketchybar --add event network_update
+
+sketchybar --add item network.up right \
+    --set network.up \
+    icon="󰕒" \
+    icon.color=$COLOR_TEXT_LIGHT \
+    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.padding_right=0 \
+    label="000 MB/s" \
+    label.color=$COLOR_TEXT_LIGHT \
+    label.font="$FONT_FACE:Bold:11.0" \
+    label.padding_left=2 \
+    label.width=60 \
+    y_offset=5 \
+    width=0 \
+    script="$PLUGIN_SHARED_DIR/network.sh" \
+    --subscribe network.up network_update \
+    --add item network.down right \
+    --set network.down \
+    icon="󰇚" \
+    icon.color=$COLOR_TEXT_LIGHT \
+    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.padding_right=0 \
+    label="000 MB/s" \
+    label.color=$COLOR_TEXT_LIGHT \
+    label.font="$FONT_FACE:Bold:11.0" \
+    label.padding_left=2 \
+    label.width=60 \
+    y_offset=-5 \
+    width=0 \
+    script="$PLUGIN_SHARED_DIR/network.sh" \
+    --subscribe network.down network_update \
+    --add item network.padding right \
+    --set network.padding \
+    label.drawing=off \
+    icon.drawing=off \
+    width=5 \
+    --add bracket network.bracket \
+    network.up \
+    network.down \
+    network.padding \
+    --set network.bracket \
+    background.color=$COLOR_ITEM_BG \
+    background.corner_radius=5 \
+    background.height=26
 
 sketchybar --update
 sketchybar --trigger space_change
