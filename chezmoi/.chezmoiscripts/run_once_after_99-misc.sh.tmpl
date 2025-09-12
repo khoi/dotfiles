@@ -17,13 +17,24 @@ op document get "TX-02-Variable" --force -o ~/Library/Fonts/TX-02-Variable.ttf
 echo "Change the Git remote from HTTP to SSH"
 cd {{ .chezmoi.sourceDir }} || exit 1
 
-# Change the Git remote from HTTP to SSH
-git remote set-url origin git@github.com:$(git remote get-url origin | sed -e 's/https:\/\/github.com\///')
+# Get current remote URL
+current_url=$(git remote get-url origin)
 
-# Check if the command was successful
-if [ $? -eq 0 ]; then
-    echo "Successfully changed Git remote to SSH."
+# Check if remote is already using SSH
+if [[ "$current_url" == git@github.com:* ]]; then
+    echo "Git remote is already using SSH."
+elif [[ "$current_url" == https://github.com/* ]]; then
+    # Change from HTTPS to SSH
+    git remote set-url origin git@github.com:$(echo "$current_url" | sed -e 's/https:\/\/github.com\///')
+    
+    # Check if the command was successful
+    if [ $? -eq 0 ]; then
+        echo "Successfully changed Git remote to SSH."
+    else
+        echo "Failed to change Git remote to SSH."
+        exit 1
+    fi
 else
-    echo "Failed to change Git remote to SSH."
+    echo "Unexpected remote URL format: $current_url"
     exit 1
 fi
