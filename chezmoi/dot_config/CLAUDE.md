@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a user configuration directory (`~/.config`) containing dotfiles and configurations for various development tools and applications on macOS.
 
+## Sketchybar Configuration
+
+Sketchybar automatically reloads when configuration files are changed. You do not need to run `sketchybar --reload` after making changes to the configuration files.
+
 ## Key Configuration Directories
 
 ### Development Environments
