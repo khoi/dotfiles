@@ -6,6 +6,11 @@ if [ -f "$ICON_FILE_PATH" ]; then
   source "$ICON_FILE_PATH"
 fi
 
+# If no INFO provided (e.g., on startup), get current volume
+if [ -z "$INFO" ]; then
+  INFO=$(osascript -e "output volume of (get volume settings)")
+fi
+
 case ${INFO} in
 0)
     ICON="${ICONS_VOLUME[1]:-}"

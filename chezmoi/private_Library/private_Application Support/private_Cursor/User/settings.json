@@ -10,7 +10,7 @@
   "console-ninja.featureSet": "Community",
   "editor.accessibilitySupport": "off",
   "editor.autoClosingBrackets": "always",
-  "editor.fontFamily": "TX02 Nerd Font Mono",
+  "editor.fontFamily": "TX-02",
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
