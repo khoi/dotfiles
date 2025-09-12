@@ -51,7 +51,7 @@ sketchybar --add item current_space left \
     --set current_space \
     background.color=$COLOR_CURRENT_SPACE \
     icon.color=$COLOR_TEXT_DARK \
-    icon.font="$ICON_FONT:Medium:28.0" \
+    icon.font="$ICON_FONT:Medium:17.0" \
     label.drawing=off \
     script="$PLUGIN_SHARED_DIR/current_space.sh" \
     --subscribe current_space space_change mouse.clicked
