@@ -13,6 +13,7 @@ packages:
       - fd
       - fish
       - fzf
+      - font-jetbrains-mono-nerd-font
       - gawk
       - gh
       - ghq
