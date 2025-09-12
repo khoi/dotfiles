@@ -92,8 +92,7 @@ sketchybar --add item weather.moon q \
     icon.font="$ICON_FONT:Bold:24.0" \
     icon.padding_left=4 \
     icon.padding_right=3 \
-    label.drawing=off \
-    --subscribe weather.moon mouse.clicked
+    label.drawing=off
 
 sketchybar --add item weather q \
     --set weather \
