@@ -2,6 +2,7 @@
 
 ## Do
 
+- Be thorough, read more code before making decision, if unsure, read even more code.
 - use `gh` cli tool to interact with Github
 - when stuck, ask clarifying questions, propose a plan
 - Prefer to use `ast-grep` to search for code
