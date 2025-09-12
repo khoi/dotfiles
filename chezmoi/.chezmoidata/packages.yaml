@@ -13,7 +13,6 @@ packages:
       - fd
       - fish
       - fzf
-      - font-jetbrains-mono-nerd-font
       - gawk
       - gh
       - ghq
@@ -58,6 +57,7 @@ packages:
       - arc
       - cleanshot
       - karabiner-elements
+      - font-jetbrains-mono-nerd-font
       - obsidian
       - orbstack
       - proxyman
