@@ -92,7 +92,7 @@ sketchybar --add event network_update
 
 sketchybar --add item network.up right \
     --set network.up \
-    icon="󰕒" \
+    icon="↑" \
     icon.color=$COLOR_TEXT_LIGHT \
     icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
@@ -107,7 +107,7 @@ sketchybar --add item network.up right \
     --subscribe network.up network_update \
     --add item network.down right \
     --set network.down \
-    icon="󰇚" \
+    icon="↓" \
     icon.color=$COLOR_TEXT_LIGHT \
     icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
