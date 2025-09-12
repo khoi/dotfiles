@@ -7,9 +7,15 @@ source "$HOME/.config/sketchybar/colors.sh"
 
 PERCENTAGE=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
 CHARGING=$(pmset -g batt | grep 'AC Power')
+WATTAGE=""
 
 if [ $PERCENTAGE = "" ]; then
     exit 0
+fi
+
+# Get charging wattage if connected to AC
+if [[ $CHARGING != "" ]]; then
+    WATTAGE=$(system_profiler SPPowerDataType | grep "Wattage (W):" | sed 's/.*Wattage (W): //')
 fi
 
 case ${PERCENTAGE} in
@@ -40,7 +46,14 @@ if [[ $CHARGING != "" ]]; then
     ICON_COLOR=$COLOR_BATTERY_HIGH
 fi
 
+# Set label with wattage if charging
+if [[ $CHARGING != "" ]] && [[ $WATTAGE != "" ]]; then
+    LABEL="${PERCENTAGE}% ${WATTAGE}W"
+else
+    LABEL="${PERCENTAGE}%"
+fi
+
 sketchybar --set $NAME \
     icon=$ICON \
-    label="${PERCENTAGE}%" \
+    label="${LABEL}" \
     icon.color=${ICON_COLOR}
