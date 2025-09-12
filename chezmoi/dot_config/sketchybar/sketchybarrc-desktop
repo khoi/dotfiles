@@ -4,7 +4,8 @@
 source "$HOME/.config/sketchybar/colors.sh"
 source "$HOME/.config/sketchybar/icons.sh"
 
-FONT_FACE="TX02 Nerd Font Mono"
+FONT_FACE="TX-02-Variable"      # Text font
+ICON_FONT="JetbrainsMono Nerd Font"  # Icon font (Nerd Font)
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-desktop"
 PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
 
@@ -21,7 +22,7 @@ sketchybar --bar \
 sketchybar --default \
     background.height=32 \
     icon.color=$COLOR_TEXT_DARK \
-    icon.font="$FONT_FACE:Medium:22.0" \
+    icon.font="$ICON_FONT:Medium:22.0" \
     icon.padding_left=5 \
     icon.padding_right=5 \
     label.color=$COLOR_TEXT_DARK \
@@ -33,7 +34,7 @@ sketchybar --default \
 sketchybar --add item current_space left \
     --set current_space \
     background.color=$COLOR_CURRENT_SPACE \
-    icon.font="$FONT_FACE:Medium:28.0" \
+    icon.font="$ICON_FONT:Medium:28.0" \
     label.drawing=off \
     script="$PLUGIN_SHARED_DIR/current_space.sh" \
     --subscribe current_space space_change mouse.clicked
@@ -51,7 +52,7 @@ sketchybar --add item front_app left \
     background.color=$COLOR_TRANSPARENT \
     icon= \
     icon.color=$COLOR_FRONT_APP \
-    icon.font="$FONT_FACE:Bold:25.0" \
+    icon.font="$ICON_FONT:Bold:25.0" \
     icon.padding_left=0 \
     icon.padding_right=0 \
     icon.y_offset=0 \
@@ -93,7 +94,7 @@ sketchybar --add item network.up right \
     --set network.up \
     icon="󰕒" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
     label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \
@@ -108,7 +109,7 @@ sketchybar --add item network.up right \
     --set network.down \
     icon="󰇚" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
     label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \

@@ -13,7 +13,7 @@
   "file_finder": {
     "modal_max_width": "medium"
   },
-  "buffer_font_family": "TX-02",
+  "buffer_font_family": "TX-02-Variable",
   "vim_mode": true,
   "vim": {
     "enable_vim_sneak": true
@@ -68,7 +68,7 @@
     }
   },
   "terminal": {
-    "font_family": "TX-02",
+    "font_family": "TX-02-Variable",
     "env": {
       "EDITOR": "zed --wait"
     }

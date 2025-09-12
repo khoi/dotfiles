@@ -4,7 +4,8 @@
 source "$HOME/.config/sketchybar/colors.sh"
 source "$HOME/.config/sketchybar/icons.sh"
 
-FONT_FACE="TX02 Nerd Font Mono"
+FONT_FACE="TX-02-Variable"         # Text font
+ICON_FONT="JetbrainsMono Nerd Font" # Icon font (Nerd Font)
 
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins-laptop"
 PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
@@ -24,7 +25,7 @@ sketchybar --default \
     background.corner_radius=5 \
     background.padding_right=5 \
     background.height=26 \
-    icon.font="$FONT_FACE:Medium:17.0" \
+    icon.font="$ICON_FONT:Medium:17.0" \
     icon.padding_left=5 \
     icon.padding_right=5 \
     label.font="$FONT_FACE:Medium:14.0" \
@@ -39,7 +40,7 @@ sketchybar --add event media_stream_changed \
     --set media \
     icon=$ICON_MUSIC \
     icon.y_offset=0 \
-    icon.font="$FONT_FACE:Bold:22.0" \
+    icon.font="$ICON_FONT:Bold:22.0" \
     label.drawing=on \
     label.padding_left=3 \
     label.max_chars=30 \
@@ -50,7 +51,7 @@ sketchybar --add item current_space left \
     --set current_space \
     background.color=$COLOR_CURRENT_SPACE \
     icon.color=$COLOR_TEXT_DARK \
-    icon.font="$FONT_FACE:Medium:28.0" \
+    icon.font="$ICON_FONT:Medium:28.0" \
     label.drawing=off \
     script="$PLUGIN_SHARED_DIR/current_space.sh" \
     --subscribe current_space space_change mouse.clicked
@@ -70,7 +71,7 @@ sketchybar --add item front_app left \
     background.padding_left=-3 \
     icon= \
     icon.color=$COLOR_FRONT_APP \
-    icon.font="$FONT_FACE:Bold:22.0" \
+    icon.font="$ICON_FONT:Bold:19.0" \
     icon.padding_left=0 \
     icon.padding_right=0 \
     icon.y_offset=0 \
@@ -88,7 +89,7 @@ sketchybar --add item weather.moon q \
     background.color=$COLOR_MOON_BG \
     background.padding_right=-1 \
     icon.color=$COLOR_MOON_ICON \
-    icon.font="$FONT_FACE:Bold:24.0" \
+    icon.font="$ICON_FONT:Bold:24.0" \
     icon.padding_left=4 \
     icon.padding_right=3 \
     label.drawing=off \
@@ -98,7 +99,7 @@ sketchybar --add item weather q \
     --set weather \
     icon=$ICON_WEATHER \
     icon.color=$COLOR_WEATHER \
-    icon.font="$FONT_FACE:Bold:17.0" \
+    icon.font="$ICON_FONT:Bold:17.0" \
     update_freq=1800 \
     script="$PLUGIN_SHARED_DIR/weather.sh" \
     --subscribe weather system_woke
@@ -144,7 +145,7 @@ sketchybar --add item network.up right \
     --set network.up \
     icon="󰕒" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
     label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \
@@ -159,7 +160,7 @@ sketchybar --add item network.up right \
     --set network.down \
     icon="󰇚" \
     icon.color=$COLOR_TEXT_LIGHT \
-    icon.font="$FONT_FACE:Bold:14.0" \
+    icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
     label="000 MB/s" \
     label.color=$COLOR_TEXT_LIGHT \

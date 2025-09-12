@@ -162,7 +162,7 @@ tabline.setup({
 tabline.apply_to_config(config)
 config.default_cursor_style = "SteadyBlock"
 config.enable_tab_bar = true
-config.font = wezterm.font("TX-02")
+config.font = wezterm.font("TX-02-Variable")
 config.font_size = 16
 config.initial_cols = 160
 config.show_new_tab_button_in_tab_bar = false

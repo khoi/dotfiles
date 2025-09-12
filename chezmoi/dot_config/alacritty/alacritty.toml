@@ -11,13 +11,13 @@ TERM = "xterm-256color"
 size = 14.0
 
 [font.bold]
-family = "JetbrainsMono Nerd Font"
+family = "TX-02-Variable"
 
 [font.italic]
-family = "JetbrainsMono Nerd Font"
+family = "TX-02-Variable"
 
 [font.normal]
-family = "JetbrainsMono Nerd Font"
+family = "TX-02-Variable"
 style = "Regular"
 
 [window]
