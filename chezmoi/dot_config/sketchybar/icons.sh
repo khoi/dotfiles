@@ -32,6 +32,7 @@ export ICON_HOMEAUTOMATION=󱉑 # home
 export ICON_MUSIC=󰎄 # music, spotify
 export ICON_PODCAST=󰦔 # podcasts
 export ICON_PLAY=󱉺 # tv, quicktime, vlc
+export ICON_PAUSE=󰏤 # pause icon
 export ICON_BOOK=󰂿 # books
 export ICON_BOOKINFO=󱁯 # font book, dictionary
 export ICON_PREVIEW=󰋲 # screenshot, preview

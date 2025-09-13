@@ -41,6 +41,7 @@ sketchybar --add event media_stream_changed \
     icon=$ICON_MUSIC \
     icon.y_offset=0 \
     icon.font="$ICON_FONT:Bold:22.0" \
+    icon.width=28 \
     label.drawing=on \
     label.padding_left=3 \
     label.max_chars=30 \

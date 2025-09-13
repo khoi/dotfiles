@@ -4,9 +4,13 @@
 
 NAME="$1"
 
+# Source icons
+source "$HOME/.config/sketchybar/icons.sh"
+
 # When triggered via custom event, SketchyBar passes env via $INFO or env
 TITLE="${title:-${TITLE:-}}"
 ARTIST="${artist:-${ARTIST:-}}"
+PLAYING="${playing:-${PLAYING:-}}"
 
 # Maximum length for title and artist
 MAX_LENGTH=30
@@ -22,7 +26,15 @@ trim_text() {
   fi
 }
 
+# Determine icon based on state
 if [[ -n "$ARTIST" || -n "$TITLE" ]]; then
+  # Media is available - check if playing or paused
+  if [[ "$PLAYING" == "true" ]]; then
+    ICON="$ICON_PLAY"
+  else
+    ICON="$ICON_PAUSE"
+  fi
+  
   # Trim title and artist if too long
   TITLE=$(trim_text "$TITLE" "$MAX_LENGTH")
   ARTIST=$(trim_text "$ARTIST" "$MAX_LENGTH")
@@ -32,10 +44,10 @@ if [[ -n "$ARTIST" || -n "$TITLE" ]]; then
   else
     LABEL="$TITLE - $ARTIST"
   fi
-  sketchybar --set "${NAME:-media}" label="$LABEL" label.drawing=on
+  sketchybar --set "${NAME:-media}" icon="$ICON" label="$LABEL" label.drawing=on
 else
-  # No data yet: hide label
-  sketchybar --set "${NAME:-media}" label="" label.drawing=off
+  # No media - show music icon
+  sketchybar --set "${NAME:-media}" icon="$ICON_MUSIC" label="" label.drawing=off
 fi
 
 case "$SENDER" in
