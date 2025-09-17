@@ -142,8 +142,8 @@ keybinds clear-defaults=true {
         bind "Super 9" { GoToTab 9; }
         bind "Alt =" { Resize "Increase"; }
         bind "Alt [" { PreviousSwapLayout; }
-        bind "Super [" { GoToPreviousTab; }
         bind "Alt ]" { NextSwapLayout; }
+        bind "Super [" { GoToPreviousTab; }
         bind "Super ]" { GoToNextTab; }
         bind "Super d" { NewPane "right"; }
         bind "Super e" { EditScrollback; }

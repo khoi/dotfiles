@@ -18,7 +18,7 @@ macos-option-as-alt = left
 macos-titlebar-proxy-icon = hidden
 mouse-hide-while-typing = true
 shell-integration-features = no-cursor
-theme = catppuccin-macchiato
+theme = Catppuccin Macchiato
 window-decoration = false
 window-inherit-font-size = true
 window-inherit-working-directory = true
@@ -31,23 +31,29 @@ custom-shader = ./shaders/cursor_blaze.glsl
 # custom-shader = ./shaders/retro-terminal.glsl
 
 # Key bindings
-keybind = cmd+1=unbind
-keybind = cmd+2=unbind
-keybind = cmd+3=unbind
-keybind = cmd+4=unbind
-keybind = cmd+5=unbind
-keybind = cmd+6=unbind
-keybind = cmd+7=unbind
-keybind = cmd+8=unbind
-keybind = cmd+[=unbind
-keybind = cmd+]=unbind
-keybind = cmd+c=unbind
-keybind = cmd+d=unbind
-keybind = cmd+n=unbind
-keybind = cmd+opt+left=unbind
-keybind = cmd+opt+right=unbind
-keybind = cmd+t=unbind
-keybind = cmd+w=unbind
+keybind = super+digit_1=unbind
+keybind = super+digit_2=unbind
+keybind = super+digit_3=unbind
+keybind = super+digit_4=unbind
+keybind = super+digit_5=unbind
+keybind = super+digit_6=unbind
+keybind = super+digit_7=unbind
+keybind = super+digit_8=unbind
+
+keybind = super+1=unbind
+keybind = super+2=unbind
+keybind = super+3=unbind
+keybind = super+4=unbind
+keybind = super+5=unbind
+keybind = super+6=unbind
+keybind = super+7=unbind
+keybind = super+8=unbind
+
+keybind = super+bracket_left=unbind
+keybind = super+bracket_right=unbind
+keybind = super+c=unbind
+keybind = super+d=unbind
+keybind = super+n=unbind
+keybind = super+t=unbind
+keybind = super+w=unbind
 keybind = shift+enter=text:\n
-
-
