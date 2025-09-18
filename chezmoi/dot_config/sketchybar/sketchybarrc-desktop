@@ -79,6 +79,14 @@ sketchybar --add item clock right \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
 
+sketchybar --add item wifi right \
+    --set wifi \
+    icon=$ICON_WIFI \
+    background.color=$COLOR_WIFI \
+    label.drawing=off \
+    update_freq=30 \
+    script="$PLUGIN_SHARED_DIR/wifi.sh"
+
 sketchybar --add item github_prs right \
     --set github_prs \
     icon=$ICON_GIT \
@@ -92,7 +100,7 @@ sketchybar --add event network_update
 
 sketchybar --add item network.up right \
     --set network.up \
-    icon="↑" \
+    icon="⇡" \
     icon.color=$COLOR_TEXT_LIGHT \
     icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \
@@ -107,7 +115,7 @@ sketchybar --add item network.up right \
     --subscribe network.up network_update \
     --add item network.down right \
     --set network.down \
-    icon="↓" \
+    icon="⇣" \
     icon.color=$COLOR_TEXT_LIGHT \
     icon.font="$ICON_FONT:Bold:14.0" \
     icon.padding_right=0 \

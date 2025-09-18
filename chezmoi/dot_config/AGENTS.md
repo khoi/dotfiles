@@ -6,10 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a user configuration directory (`~/.config`) containing dotfiles and configurations for various development tools and applications on macOS.
 
-## Sketchybar Configuration
-
-Sketchybar automatically reloads when configuration files are changed. You do not need to run `sketchybar --reload` after making changes to the configuration files.
-
 ## Key Configuration Directories
 
 ### Development Environments
@@ -67,6 +63,7 @@ This repository is managed with [chezmoi](https://www.chezmoi.io/). After making
 ### Configuration Management
 
 The directory uses a mix of configuration formats:
+
 - **TOML**: Alacritty, Starship, mise configurations
 - **JSON**: Zed, Cursor, various tool configs
 - **Lua**: Neovim (LazyVim), WezTerm configurations
@@ -75,12 +72,14 @@ The directory uses a mix of configuration formats:
 ### Key Integration Points
 
 1. **Shell Environment**: Fish shell integrates with:
+
    - Zoxide for directory jumping
    - Starship for prompt
    - Homebrew environment setup
    - Zellij terminal multiplexer (auto-attaches in Ghostty)
 
-2. **Editor Ecosystem**: 
+2. **Editor Ecosystem**:
+
    - Neovim uses LazyVim framework with plugins in `nvim/lua/plugins/`
    - Common editor configurations share similar keybindings where possible
 

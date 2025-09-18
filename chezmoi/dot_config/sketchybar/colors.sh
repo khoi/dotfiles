@@ -88,3 +88,7 @@ export COLOR_BATTERY_CHARGING=$YELLOW
 
 # Media Colors (formerly Spotify)
 export COLOR_MEDIA_PRIMARY=$GREEN
+
+# Network Colors
+export COLOR_WIFI=$BLUE
+export COLOR_VPN=$TEAL
