@@ -117,13 +117,16 @@ sketchybar --add item clock right \
     update_freq=10 \
     script="$PLUGIN_SHARED_DIR/clock.sh"
 
+sketchybar --add event wifi_change com.apple.wifi.connection
+
 sketchybar --add item wifi right \
     --set wifi \
     icon=$ICON_WIFI \
     icon.color=$COLOR_WIFI \
     label.drawing=off \
     update_freq=30 \
-    script="$PLUGIN_SHARED_DIR/wifi.sh"
+    script="$PLUGIN_SHARED_DIR/wifi.sh" \
+    --subscribe wifi wifi_change
 
 sketchybar --add item github_prs right \
     --set github_prs \
