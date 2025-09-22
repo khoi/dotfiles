@@ -60,10 +60,10 @@ packages:
       - font-jetbrains-mono-nerd-font
       - obsidian
       - orbstack
+      - iina
       - proxyman
       - raycast
       - sf-symbols
       - telegram
       - cursor
-      - vlc
       - wezterm
