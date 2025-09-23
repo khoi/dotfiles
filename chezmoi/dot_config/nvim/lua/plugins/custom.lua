@@ -201,20 +201,6 @@ return {
 
   -- Undo tree
   {
-    "mbbill/undotree",
-    keys = {
-      { "<S-u>", "<cmd>UndotreeToggle<cr>", desc = "Toggle undotree" },
-    },
-  },
-  {
-    "echasnovski/mini.files",
-    opts = {
-      options = {
-        use_as_default_explorer = true,
-      },
-    },
-  },
-  {
     "stevearc/oil.nvim",
     lazy = false,
     dependencies = { "nvim-tree/nvim-web-devicons" },
