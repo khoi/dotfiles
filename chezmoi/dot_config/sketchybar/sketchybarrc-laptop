@@ -85,16 +85,6 @@ sketchybar --add item front_app left \
     label.font="$FONT_FACE:Bold:14.0" \
     label.drawing=yes
 
-sketchybar --add item weather.moon q \
-    --set weather.moon \
-    background.color=$COLOR_MOON_BG \
-    background.padding_right=-1 \
-    icon.color=$COLOR_MOON_ICON \
-    icon.font="$ICON_FONT:Bold:24.0" \
-    icon.padding_left=4 \
-    icon.padding_right=3 \
-    label.drawing=off
-
 sketchybar --add item weather q \
     --set weather \
     icon=$ICON_WEATHER \
