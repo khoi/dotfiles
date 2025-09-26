@@ -67,3 +67,4 @@ packages:
       - telegram
       - cursor
       - wezterm
+      - keka
