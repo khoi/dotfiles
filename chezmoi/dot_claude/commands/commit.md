@@ -64,6 +64,7 @@ Before committing, verify:
 - The imperative mood is used consistently
 - Any body text adds meaningful context
 - The message matches project conventions from recent commits
+- There is no secrets/tokens or sensitive information in the commit
 
 ## What You Must NOT Do
 
