@@ -17,4 +17,4 @@ set -Eeuo pipefail
 REPONAME="Goodnotes/GoodNotes-5"
 # Get branch name from git if $1 is not set
 BRANCH_NAME=${1:-$(cd /Users/khoi/Developer/code/github.com/GoodNotes/GoodNotes-5/ && git rev-parse --abbrev-ref HEAD)}
-gh pr comment "$BRANCH_NAME" -R "$REPONAME" -b "/builds -v 6.0206.0"
+gh pr comment "$BRANCH_NAME" -R "$REPONAME" -b "/builds -v 7.1206.0"
