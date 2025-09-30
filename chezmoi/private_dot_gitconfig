@@ -6,7 +6,6 @@
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	commentChar = %
-	hooksPath = ~/.global_git_hooks/
 [merge]
 	ff = only
 [pull]
