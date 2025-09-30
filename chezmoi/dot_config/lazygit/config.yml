@@ -1,12 +1,8 @@
 customCommands:
   - key: "<c-s>"
     context: "global"
-    command: "GIT_EDITOR=: git commit && git push --no-verify -u origin HEAD"
+    command: "claude -p '/commit' && git push --no-verify -u origin HEAD"
     loadingText: "Generating commit message and push"
-  - key: "<c-c>"
-    context: "global"
-    command: "GIT_EDITOR=: git commit"
-    loadingText: "Generating commit message"
   - key: "<c-q>"
     context: "global"
     command: 'rm -f "$(git rev-parse --git-dir)/index.lock"'
