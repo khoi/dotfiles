@@ -6,7 +6,7 @@ cursor-style-blink = false
 shell-integration-features = no-cursor
 font-family = TX-02-Variable
 font-size = 16
-background-opacity = 0.9
+background-opacity = 1
 font-thicken = true
 fullscreen = false
 link-url = true
@@ -24,7 +24,7 @@ window-inherit-font-size = true
 window-inherit-working-directory = true
 window-theme = system
 
-custom-shader = ./shaders/cursor_blaze.glsl
+# custom-shader = ./shaders/cursor_blaze.glsl
 # custom-shader = ./shaders/inside-the-matrix.glsl
 # custom-shader = ./shaders/bettercrt.glsl
 # custom-shader = ./shaders/glitchy.glsl
