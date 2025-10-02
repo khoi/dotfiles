@@ -35,7 +35,6 @@ packages:
       - restic
       - ripgrep
       - switchaudio-osx
-      - sketchybar
       - tldr
       - tmux
       - tmux-mem-cpu-load
