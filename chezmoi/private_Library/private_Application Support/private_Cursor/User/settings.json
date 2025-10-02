@@ -72,7 +72,6 @@
   "editor.fontSize": 13,
   "window.confirmSaveUntitledWorkspace": false,
   "cursor.cpp.enablePartialAccepts": true,
-  "workbench.preferredDarkColorTheme": "Catppuccin Macchiato",
   "[swift]": {
     "editor.defaultFormatter": "swiftlang.swift-vscode"
   },
@@ -84,5 +83,21 @@
   },
   "git.enableStatusBarSync": false,
   "cursor.diffs.useCharacterLevelDiffs": true,
-  "zig.zls.enabled": "on"
+  "zig.zls.enabled": "on",
+  "cursor.composer.queueMessageDefaultBehavior": "queue",
+  "workbench.preferredDarkColorTheme": "Catppuccin Macchiato",
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  }
 }

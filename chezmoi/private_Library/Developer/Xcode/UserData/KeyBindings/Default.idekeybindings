@@ -534,7 +534,7 @@
 				<key>Navigation</key>
 				<string>YES</string>
 				<key>Title</key>
-				<string>Go Back</string>
+				<string>Show Previous Location in History</string>
 			</dict>
 			<dict>
 				<key>Action</key>
@@ -556,7 +556,7 @@
 				<key>Navigation</key>
 				<string>YES</string>
 				<key>Title</key>
-				<string>Go Back (option)</string>
+				<string>Show Previous Location in History (option)</string>
 			</dict>
 			<dict>
 				<key>Action</key>
@@ -578,31 +578,7 @@
 				<key>Navigation</key>
 				<string>YES</string>
 				<key>Title</key>
-				<string>Go Back (shift+option)</string>
-			</dict>
-			<dict>
-				<key>Action</key>
-				<string>newFolder:</string>
-				<key>Alternate</key>
-				<string>NO</string>
-				<key>CommandGroupID</key>
-				<string>IDENewGrouping</string>
-				<key>CommandID</key>
-				<string>Xcode.IDEKit.CmdDefinition.NewFolder</string>
-				<key>Group</key>
-				<string>File Menu</string>
-				<key>GroupID</key>
-				<string>Xcode.IDEKit.MenuDefinition.Main</string>
-				<key>GroupedAlternate</key>
-				<string>NO</string>
-				<key>Keyboard Shortcut</key>
-				<string>~@n</string>
-				<key>Navigation</key>
-				<string>NO</string>
-				<key>Parent Title</key>
-				<string>New</string>
-				<key>Title</key>
-				<string>Folder</string>
+				<string>Show Previous Location in History (shift+option)</string>
 			</dict>
 			<dict>
 				<key>Action</key>
