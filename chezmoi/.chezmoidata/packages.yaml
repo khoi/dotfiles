@@ -35,7 +35,7 @@ packages:
       - restic
       - ripgrep
       - switchaudio-osx
-      - tldr
+      - tealdeer
       - tmux
       - tmux-mem-cpu-load
       - watchexec
