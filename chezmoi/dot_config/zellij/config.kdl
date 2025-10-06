@@ -84,10 +84,6 @@ keybinds clear-defaults=true {
         bind "tab" { MovePane; }
     }
     scroll {
-        bind "Alt left" { MoveFocusOrTab "left"; SwitchToMode "locked"; }
-        bind "Alt down" { MoveFocus "down"; SwitchToMode "locked"; }
-        bind "Alt up" { MoveFocus "up"; SwitchToMode "locked"; }
-        bind "Alt right" { MoveFocusOrTab "right"; SwitchToMode "locked"; }
         bind "e" { EditScrollback; SwitchToMode "locked"; }
         bind "f" { SwitchToMode "entersearch"; SearchInput 0; }
         bind "s" { SwitchToMode "normal"; }
@@ -125,10 +121,6 @@ keybinds clear-defaults=true {
         }
     }
     shared_among "normal" "locked" {
-        bind "Alt left" { MoveFocusOrTab "left"; }
-        bind "Alt down" { MoveFocus "down"; }
-        bind "Alt up" { MoveFocus "up"; }
-        bind "Alt right" { MoveFocusOrTab "right"; }
         bind "Alt +" { Resize "Increase"; }
         bind "Alt -" { Resize "Decrease"; }
         bind "Super 1" { GoToTab 1; }
@@ -148,59 +140,30 @@ keybinds clear-defaults=true {
         bind "Super d" { NewPane "right"; }
         bind "Super e" { EditScrollback; }
         bind "Alt f" { ToggleFloatingPanes; }
-        bind "Ctrl h" {
-            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
-                name "move_focus"
-                payload "left"
-                floating false
-            }
-        }
         bind "Alt h" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
-                name "resize"
-                payload "left"
-                floating false
-            }
-        }
-        bind "Alt i" { MoveTab "left"; }
-        bind "Ctrl j" {
-            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
-                payload "down"
+                payload "left"
                 floating false
             }
         }
         bind "Alt j" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
-                name "resize"
-                payload "down"
-                floating false
-            }
-        }
-        bind "Ctrl k" {
-            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
-                payload "up"
+                payload "down"
                 floating false
             }
         }
         bind "Alt k" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
-                name "resize"
-                payload "up"
-                floating false
-            }
-        }
-        bind "Ctrl l" {
-            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
-                payload "right"
+                payload "up"
                 floating false
             }
         }
         bind "Alt l" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
-                name "resize"
+                name "move_focus"
                 payload "right"
                 floating false
             }

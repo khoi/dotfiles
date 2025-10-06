@@ -39,71 +39,34 @@ return {
     "mrjones2014/smart-splits.nvim",
     lazy = false,
     keys = function()
-      -- Resizing splits with Alt + hjkl
       return {
         {
           "<A-h>",
-          function()
-            require("smart-splits").resize_left()
-          end,
-          desc = "Resize split left",
-        },
-        {
-          "<A-j>",
-          function()
-            require("smart-splits").resize_down()
-          end,
-          desc = "Resize split down",
-        },
-        {
-          "<A-k>",
-          function()
-            require("smart-splits").resize_up()
-          end,
-          desc = "Resize split up",
-        },
-        {
-          "<A-l>",
-          function()
-            require("smart-splits").resize_right()
-          end,
-          desc = "Resize split right",
-        },
-        -- Moving between splits with Ctrl + hjkl
-        {
-          "<C-h>",
           function()
             require("smart-splits").move_cursor_left()
           end,
           desc = "Move to left split",
         },
         {
-          "<C-j>",
+          "<A-j>",
           function()
             require("smart-splits").move_cursor_down()
           end,
           desc = "Move to split below",
         },
         {
-          "<C-k>",
+          "<A-k>",
           function()
             require("smart-splits").move_cursor_up()
           end,
           desc = "Move to split above",
         },
         {
-          "<C-l>",
+          "<A-l>",
           function()
             require("smart-splits").move_cursor_right()
           end,
           desc = "Move to right split",
-        },
-        {
-          "<C-\\>",
-          function()
-            require("smart-splits").move_cursor_previous()
-          end,
-          desc = "Move to previous split",
         },
       }
     end,
@@ -118,17 +81,6 @@ return {
         "typescript",
       })
     end,
-  },
-
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    opts = {
-      options = {
-        icons_enabled = true,
-        theme = "auto",
-      },
-    },
   },
   {
     "folke/noice.nvim",
@@ -189,7 +141,9 @@ return {
             { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
             { LazyVim.lualine.pretty_path() },
           },
-          lualine_x = {},
+          lualine_x = {
+            "venv-selector",
+          },
           lualine_y = {
             { "location", padding = { left = 1, right = 1 } },
           },
