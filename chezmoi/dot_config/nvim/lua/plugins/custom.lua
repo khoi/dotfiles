@@ -41,28 +41,28 @@ return {
     keys = function()
       return {
         {
-          "<A-h>",
+          "<C-h>",
           function()
             require("smart-splits").move_cursor_left()
           end,
           desc = "Move to left split",
         },
         {
-          "<A-j>",
+          "<C-j>",
           function()
             require("smart-splits").move_cursor_down()
           end,
           desc = "Move to split below",
         },
         {
-          "<A-k>",
+          "<C-k>",
           function()
             require("smart-splits").move_cursor_up()
           end,
           desc = "Move to split above",
         },
         {
-          "<A-l>",
+          "<C-l>",
           function()
             require("smart-splits").move_cursor_right()
           end,

@@ -140,28 +140,28 @@ keybinds clear-defaults=true {
         bind "Super d" { NewPane "right"; }
         bind "Super e" { EditScrollback; }
         bind "Alt f" { ToggleFloatingPanes; }
-        bind "Alt h" {
+        bind "Ctrl h" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
                 payload "left"
                 floating false
             }
         }
-        bind "Alt j" {
+        bind "Ctrl j" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
                 payload "down"
                 floating false
             }
         }
-        bind "Alt k" {
+        bind "Ctrl k" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
                 payload "up"
                 floating false
             }
         }
-        bind "Alt l" {
+        bind "Ctrl l" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
                 payload "right"
