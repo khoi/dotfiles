@@ -24,6 +24,8 @@ set -Ux FZF_DEFAULT_OPTS "\
 --color=marker:#B7BDF8,fg+:#CAD3F5,prompt:#C6A0F6,hl+:#ED8796 \
 --color=selected-bg:#494D64 \
 --color=border:#6E738D,label:#CAD3F5"
+set -Ux FZF_DEFAULT_COMMAND 'fd --type f --strip-cwd-prefix'
+set -Ux FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
 
 # Aliases
 alias o open
