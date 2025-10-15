@@ -1,18 +1,19 @@
 return {
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "folke/tokyonight.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "macchiato", -- latte, frappe, macchiato, mocha
-        transparent_background = true, -- enable transparent background
-        float = {
-          transparent = true, -- enable transparent floating windows
-          solid = false, -- use solid styling for floating windows, see |winborder|
+      require("tokyonight").setup({
+        style = "night", -- Always use the darkest variant
+        transparent = true, -- Enable transparent background
+        styles = {
+          sidebars = "transparent", -- style for sidebars
+          floats = "transparent", -- style for floating windows
         },
       })
+      -- Explicitly set colorscheme to dark variant
+      vim.cmd.colorscheme("tokyonight-night")
     end,
   },
   {
@@ -21,18 +22,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("catppuccin-macchiato")
+        vim.cmd.colorscheme("tokyonight-night") -- Always use dark variant
       end,
       set_light_mode = function()
-        vim.api.nvim_set_option_value("background", "light", {})
-        vim.cmd.colorscheme("catppuccin-macchiato")
+        vim.api.nvim_set_option_value("background", "dark", {}) -- Always dark
+        vim.cmd.colorscheme("tokyonight-night") -- Always use dark variant
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "catppuccin-macchiato",
+      colorscheme = "tokyonight-night", -- Always use dark variant
     },
   },
   {

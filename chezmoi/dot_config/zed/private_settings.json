@@ -7,7 +7,7 @@
     "edit_prediction_provider": "zed"
   },
   "base_keymap": "VSCode",
-  "theme": "Catppuccin Macchiato",
+  "theme": "Tokyo Night",
   "ui_font_size": 17,
   "buffer_font_size": 18,
   "file_finder": {

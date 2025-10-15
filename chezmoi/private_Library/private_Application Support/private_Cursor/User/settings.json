@@ -6,8 +6,6 @@
     "editor.formatOnType": true
   },
   "cmake.configureOnOpen": true,
-  "cmake.showOptionsMovedNotification": false,
-  "console-ninja.featureSet": "Community",
   "editor.accessibilitySupport": "off",
   "editor.autoClosingBrackets": "always",
   "editor.fontFamily": "TX-02",
@@ -49,7 +47,7 @@
   },
   "window.autoDetectColorScheme": true,
   "window.commandCenter": false,
-  "workbench.colorTheme": "Default Light+",
+  "workbench.colorTheme": "Tokyo Night",
   "workbench.editor.empty.hint": "hidden",
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
@@ -62,7 +60,7 @@
   "lldb.library": "/Applications/Xcode-16.2.0.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
   "cursor.composer.collapsePaneInputBoxPills": true,
-  "workbench.preferredLightColorTheme": "Default Light Modern",
+  "workbench.preferredLightColorTheme": "Tokyo Night Light",
   "window.customTitleBarVisibility": "never",
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
@@ -85,7 +83,7 @@
   "cursor.diffs.useCharacterLevelDiffs": true,
   "zig.zls.enabled": "on",
   "cursor.composer.queueMessageDefaultBehavior": "queue",
-  "workbench.preferredDarkColorTheme": "Catppuccin Macchiato",
+  "workbench.preferredDarkColorTheme": "Tokyo Night",
   "[dockercompose]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,

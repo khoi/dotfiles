@@ -1,4 +1,4 @@
-customCommands:
+ customCommands:
   - key: "<c-s>"
     context: "global"
     command: "claude -p '/commit' && git push --no-verify -u origin HEAD"
@@ -28,24 +28,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Catppuccin Macchiato theme
+  # Tokyo Night theme
   theme:
     activeBorderColor:
-      - "#8aadf4"
+      - "#7aa2f7"  # blue
       - bold
     inactiveBorderColor:
-      - "#a5adcb"
+      - "#565f89"  # inactive
     optionsTextColor:
-      - "#8aadf4"
+      - "#7aa2f7"  # blue
     selectedLineBgColor:
-      - "#494d64"
+      - "#414868"  # selection bg
     cherryPickedCommitBgColor:
-      - "#494d64"
+      - "#414868"  # selection bg
     cherryPickedCommitFgColor:
-      - "#8aadf4"
+      - "#bb9af7"  # magenta
     unstagedChangesColor:
-      - "#ed8796"
+      - "#f7768e"  # red
     defaultFgColor:
-      - "#cad3f5"
+      - "#a9b1d6"  # foreground
     searchingActiveBorderColor:
-      - "#eed49f"
+      - "#e0af68"  # yellow
