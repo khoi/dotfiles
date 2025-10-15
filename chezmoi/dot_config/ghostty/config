@@ -7,6 +7,7 @@ shell-integration-features = no-cursor
 font-family = TX-02-Variable
 font-size = 16
 background-opacity = 0.9
+background-blur = true
 font-thicken = true
 fullscreen = false
 link-url = true
