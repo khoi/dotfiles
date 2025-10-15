@@ -8,7 +8,24 @@
 		<key>behaviourArgument</key>
 		<dict>
 			<key>path</key>
-			<string>/Applications/Arc.app</string>
+			<string>/Applications/Dia.app</string>
+			<key>type</key>
+			<string>ChoosyBrowser</string>
+		</dict>
+		<key>enabled</key>
+		<true/>
+		<key>predicate</key>
+		<string>sourceApp == "/Users/khoi/Applications/Slack.app" OR URL CONTAINS "meet.google" OR URL CONTAINS "goodnotes" OR URL CONTAINS "GoodNotes" OR URL CONTAINS "Goodnotes"</string>
+		<key>title</key>
+		<string>Goodnotes</string>
+	</dict>
+	<dict>
+		<key>behaviour</key>
+		<integer>6</integer>
+		<key>behaviourArgument</key>
+		<dict>
+			<key>path</key>
+			<string>/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app</string>
 			<key>type</key>
 			<string>ChoosyBrowser</string>
 		</dict>
