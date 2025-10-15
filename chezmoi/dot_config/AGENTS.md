@@ -1,94 +1,75 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Repository Overview
 
-This is a user configuration directory (`~/.config`) containing dotfiles and configurations for various development tools and applications on macOS.
+This is a user configuration directory (`~/.config`) containing dotfiles and configurations for various development tools and applications on macOS. The configurations are managed using chezmoi for version control and synchronization.
 
 ## Key Configuration Directories
 
 ### Development Environments
 
 - **nvim/** - Neovim configuration using LazyVim framework
-- **emacs/** and **doom/** - Emacs configurations with Doom Emacs
-- **cursor/** - Cursor editor configuration
-- **zed/** - Zed editor configuration with settings and keymaps
+  - Plugins located in `nvim/lua/plugins/`
+  - LazyVim auto-installs plugins on first run
+- **cursor/** - Cursor editor configuration (JSON format)
+- **zed/** - Zed editor configuration with `settings.json` and `keymap.json`
 
 ### Terminal and Shell
 
-- **alacritty/** - Terminal emulator with theme configurations
 - **fish/** - Fish shell configuration
+  - `config.fish` - Main configuration with aliases and environment variables
+  - `functions/` - Custom fish functions
+  - `private_variables.fish` - Sensitive environment variables (not tracked)
+- **ghostty/** - Terminal emulator configuration (auto-attaches to Zellij)
+- **zellij/** - Terminal multiplexer configuration
 - **starship.toml** - Cross-shell prompt configuration
-- **ghostty/** - Terminal configuration
 
 ### Development Tools
 
 - **git/** - Git configuration
-- **gh/** and **gh-copilot/** - GitHub CLI configurations
-- **lazygit/** and **gitui/** - Git UI tools
-- **btop/** and **htop/** - System monitoring tools
+- **gh/** and **gh-copilot/** - GitHub CLI with Copilot extension
+- **lazygit/** - TUI for git operations
+- **btop/** - System monitoring tool
+- **chezmoi/** - Dotfiles management tool configuration
+- **mise/** - Development environment version manager
 
-## Working with Configurations
+### Other Tools
 
-When modifying configuration files:
-
-1. Check existing patterns in the specific config directory
-2. Preserve the existing format (TOML, JSON, Lua, etc.)
-3. For Neovim configs, follow LazyVim conventions
-4. For theme files, maintain consistency with existing theme structures
+- **yazi/** - Terminal file manager
+- **cheat/** - Command-line cheatsheet tool
+- **raycast/** - macOS productivity tool configuration
+- **karabiner/** - Keyboard customization
 
 ## Common Development Commands
 
 ### Managing Dotfiles with chezmoi
 
-This repository is managed with [chezmoi](https://www.chezmoi.io/). After making modifications:
+This configuration is managed with [chezmoi](https://www.chezmoi.io/). Commands:
 
 - `chezmoi add <file>` - Add new or modified files to chezmoi management
 - `chezmoi diff` - Review changes before applying
 - `chezmoi apply` - Apply changes from source to home directory
-- `chezmoi destroy` - Remove files from chezmoi management
+- `chezmoi status` - Show status of managed files
+- `chezmoi update` - Pull latest changes and apply them
+- `chezmoi destroy` - Destroy, forget a managed file
 
-**Important**: Do not add files that shouldn't be in dotfiles (secrets, API keys, large files, etc.)
-
-### Editor Configuration Testing
-
-- **Neovim**: `nvim` (LazyVim will auto-install plugins on first run)
-- **Fish shell**: `fish` then `source ~/.config/fish/config.fish` to reload
-- **Alacritty**: Changes to `alacritty.toml` apply automatically
-- **Zed**: Restart Zed after modifying `settings.json` or `keymap.json`
-
-## Architecture Notes
-
-### Configuration Management
-
-The directory uses a mix of configuration formats:
-
-- **TOML**: Alacritty, Starship, mise configurations
-- **JSON**: Zed, Cursor, various tool configs
-- **Lua**: Neovim (LazyVim), WezTerm configurations
-- **Fish**: Shell functions and completions in fish/
-
-### Key Integration Points
-
-1. **Shell Environment**: Fish shell integrates with:
-
-   - Zoxide for directory jumping
-   - Starship for prompt
-   - Homebrew environment setup
-   - Zellij terminal multiplexer (auto-attaches in Ghostty)
-
-2. **Editor Ecosystem**:
-
-   - Neovim uses LazyVim framework with plugins in `nvim/lua/plugins/`
-   - Common editor configurations share similar keybindings where possible
-
-3. **Git Workflows**: Multiple git tools configured:
-   - Native git config in `git/`
-   - LazyGit for TUI interface
-   - GitHub CLI (`gh`) with Copilot extension
+**Important**: Never add sensitive files (API keys, private variables, `.env`, etc.) to chezmoi
 
 ### Private Configuration
 
 - Fish sources `~/.config/fish/private_variables.fish` for sensitive environment variables
 - This file is NOT tracked and should never be added to chezmoi
+- Keep API keys, tokens, and credentials in private files only
+
+## Theming
+
+When changing theme clone git@github.com:basecamp/omarchy.git to /tmp and look into its themes folder for reference.
+
+### Components that support theming:
+
+- **Neovim** - LazyVim theme configuration in `nvim/lua/plugins/custom.lua`
+- **Zed** - Theme in `zed/settings.json`
+- **Cursor** - Theme in Library/Application Support/Cursor/User/settings.json
+- **Ghostty** - Terminal theme in `ghostty/config`
+- **Zellij** - Terminal multiplexer theme in `zellij/config.kdl` and `zellij/layouts/default.kdl`
+- **LazyGit** - Git TUI theme in `lazygit/config.yml`
+- **btop** - System monitor theme in `btop/btop.conf`
+- **Fish/FZF** - FZF color scheme in `fish/config.fish` (Catppuccin Macchiato colors)
