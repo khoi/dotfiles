@@ -47,7 +47,7 @@
   },
   "window.autoDetectColorScheme": true,
   "window.commandCenter": false,
-  "workbench.colorTheme": "Tokyo Night",
+  "workbench.colorTheme": "Kanagawa",
   "workbench.editor.empty.hint": "hidden",
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
@@ -60,7 +60,7 @@
   "lldb.library": "/Applications/Xcode-16.2.0.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
   "cursor.composer.collapsePaneInputBoxPills": true,
-  "workbench.preferredLightColorTheme": "Tokyo Night Light",
+  "workbench.preferredLightColorTheme": "Kanagawa",
   "window.customTitleBarVisibility": "never",
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
@@ -83,7 +83,7 @@
   "cursor.diffs.useCharacterLevelDiffs": true,
   "zig.zls.enabled": "on",
   "cursor.composer.queueMessageDefaultBehavior": "queue",
-  "workbench.preferredDarkColorTheme": "Tokyo Night",
+  "workbench.preferredDarkColorTheme": "Kanagawa",
   "[dockercompose]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,

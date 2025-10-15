@@ -1,19 +1,35 @@
 return {
   {
-    "folke/tokyonight.nvim",
+    "rebelot/kanagawa.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        style = "night", -- Always use the darkest variant
+      require("kanagawa").setup({
+        compile = false,
+        undercurl = true,
+        commentStyle = { italic = true },
+        functionStyle = {},
+        keywordStyle = { italic = true},
+        statementStyle = { bold = true },
+        typeStyle = {},
         transparent = true, -- Enable transparent background
-        styles = {
-          sidebars = "transparent", -- style for sidebars
-          floats = "transparent", -- style for floating windows
+        dimInactive = false,
+        terminalColors = true,
+        colors = {
+          palette = {},
+          theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+        },
+        overrides = function(colors)
+          return {}
+        end,
+        theme = "wave", -- Load "wave" theme when 'background' is dark, "lotus" when light
+        background = {
+          dark = "wave",
+          light = "lotus",
         },
       })
-      -- Explicitly set colorscheme to dark variant
-      vim.cmd.colorscheme("tokyonight-night")
+      -- Always use the wave (dark) variant
+      vim.cmd.colorscheme("kanagawa-wave")
     end,
   },
   {
@@ -22,18 +38,18 @@ return {
       update_interval = 1000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("tokyonight-night") -- Always use dark variant
+        vim.cmd.colorscheme("kanagawa-wave") -- Always use dark wave variant
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {}) -- Always dark
-        vim.cmd.colorscheme("tokyonight-night") -- Always use dark variant
+        vim.cmd.colorscheme("kanagawa-wave") -- Always use dark wave variant
       end,
     },
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "tokyonight-night", -- Always use dark variant
+      colorscheme = "kanagawa-wave", -- Always use dark wave variant
     },
   },
   {

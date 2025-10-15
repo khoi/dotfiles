@@ -288,7 +288,7 @@ web_client {
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "tokyo-night"
+theme "kanagawa-wave"
  
 // Choose the base input mode of zellij.
 // Default: normal
@@ -316,8 +316,8 @@ default_layout "default"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)
-// 
-// theme_dir "/tmp"
+//
+theme_dir "~/.config/zellij/themes"
  
 // Toggle enabling the mouse mode.
 // On certain configurations, or terminals this could

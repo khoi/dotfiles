@@ -28,24 +28,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Tokyo Night theme
+  # Kanagawa theme
   theme:
     activeBorderColor:
-      - "#7aa2f7"  # blue
+      - "#7E9CD8"  # crystalBlue
       - bold
     inactiveBorderColor:
-      - "#565f89"  # inactive
+      - "#54546D"  # sumiInk4
     optionsTextColor:
-      - "#7aa2f7"  # blue
+      - "#7FB4CA"  # springBlue
     selectedLineBgColor:
-      - "#414868"  # selection bg
+      - "#363646"  # sumiInk3
     cherryPickedCommitBgColor:
-      - "#414868"  # selection bg
+      - "#363646"  # sumiInk3
     cherryPickedCommitFgColor:
-      - "#bb9af7"  # magenta
+      - "#957FB8"  # oniViolet
     unstagedChangesColor:
-      - "#f7768e"  # red
+      - "#E82424"  # peachRed
     defaultFgColor:
-      - "#a9b1d6"  # foreground
+      - "#DCD7BA"  # fujiWhite
     searchingActiveBorderColor:
-      - "#e0af68"  # yellow
+      - "#FFA066"  # surimiOrange
