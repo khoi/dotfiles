@@ -5,15 +5,15 @@ layout {
 
   pane size=2 borderless=true {
     plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
-      format_left   "{mode}  #[fg=#89dceb,bold]{session} #[fg=#cdd6f4]{tabs}"
+      format_left   "{mode}  #[fg=#7FB4CA,bold]{session} #[fg=#DCD7BA]{tabs}"
       format_center "{pipe_zjstatus_hints}"
-      format_right  "#[fg=#f38ba8,bold]  {datetime} ↖ "
-      format_space  "#[fg=#f9e2af] "
+      format_right  "#[fg=#E82424,bold]  {datetime} ↖ "
+      format_space  "#[fg=#DCA561] "
 
       border_enabled  "false"
 
-      mode_normal  "#[fg=#f9e2af] "
-      mode_locked  "#[fg=#f38ba8] "
+      mode_normal  "#[fg=#DCA561] "
+      mode_locked  "#[fg=#E82424] "
       // mode_resize        "{name}"
       // mode_pane          "{name}"
       // mode_tab           "{name}"
@@ -28,24 +28,24 @@ layout {
       // mode_tmux          "{name}"
 
       // formatting for inactive tabs
-      tab_normal              "#[fg=#6C7086]{name}"
-      tab_normal_fullscreen   "#[fg=#6C7086]{name}"
-      tab_normal_sync         "#[fg=#6C7086]{name}"
+      tab_normal              "#[fg=#54546D]{name}"
+      tab_normal_fullscreen   "#[fg=#54546D]{name}"
+      tab_normal_sync         "#[fg=#54546D]{name}"
 
       // formatting for the current active tab
-      tab_active "#[fg=#89b4fa,bold]{name}#[fg=#f9e2af,bold]{floating_indicator}"
-      tab_active_fullscreen "#[fg=#f9e2af,bold]{name}#[fg=#f9e2af,bold]{fullscreen_indicator}"
-      tab_active_sync "#[fg=#a6e3a1,bold]{name}#[fg=#f9e2af,bold]{sync_indicator}"
+      tab_active "#[fg=#7E9CD8,bold]{name}#[fg=#DCA561,bold]{floating_indicator}"
+      tab_active_fullscreen "#[fg=#DCA561,bold]{name}#[fg=#DCA561,bold]{fullscreen_indicator}"
+      tab_active_sync "#[fg=#76946A,bold]{name}#[fg=#DCA561,bold]{sync_indicator}"
 
       // separator between the tabs
-      tab_separator           "#[fg=#89dceb,bold] ⋮ "
+      tab_separator           "#[fg=#7FB4CA,bold] ⋮ "
 
       // indicators
       tab_sync_indicator       " "
       tab_fullscreen_indicator " 󰊓"
       tab_floating_indicator   " 󰹙"
 
-      datetime        "#[fg=#6C7086,bold] {format}"
+      datetime        "#[fg=#54546D,bold] {format}"
       datetime_format "%A, %d %b %Y %H:%M"
       datetime_timezone "Europe/London"
 
