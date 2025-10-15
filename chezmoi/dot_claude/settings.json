@@ -10,7 +10,9 @@
     "type": "command",
     "command": "~/.claude/cc-statusline-rs"
   },
+  "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086902587
-  }
+  },
+  "model": "opus"
 }
