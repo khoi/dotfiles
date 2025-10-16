@@ -111,65 +111,6 @@ return {
       },
     },
   },
-  -- lualine
-  {
-    "nvim-lualine/lualine.nvim",
-    opts = function()
-      local function show_macro_recording()
-        local recording_register = vim.fn.reg_recording()
-        if recording_register == "" then
-          return ""
-        else
-          return "Recording @" .. recording_register
-        end
-      end
-      -- PERF: we don't need this lualine require madness 🤷
-      local lualine_require = require("lualine_require")
-      lualine_require.require = require
-
-      local icons = require("lazyvim.config").icons
-
-      vim.o.laststatus = vim.g.lualine_laststatus
-
-      return {
-        options = {
-          theme = "auto",
-          globalstatus = true,
-          disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
-        },
-        sections = {
-          lualine_a = {
-            "mode",
-            { "macro-recording", fmt = show_macro_recording },
-          },
-          lualine_b = { "branch" },
-
-          lualine_c = {
-            LazyVim.lualine.root_dir(),
-            {
-              "diagnostics",
-              symbols = {
-                error = icons.diagnostics.Error,
-                warn = icons.diagnostics.Warn,
-                info = icons.diagnostics.Info,
-                hint = icons.diagnostics.Hint,
-              },
-            },
-            { LazyVim.lualine.pretty_path() },
-          },
-          lualine_x = {
-            "venv-selector",
-          },
-          lualine_y = {
-            { "filetype", padding = { left = 1, right = 1 } },
-            { "location", padding = { left = 1, right = 1 } },
-          },
-          lualine_z = {},
-        },
-        extensions = { "toggleterm", "neo-tree", "lazy", "quickfix" },
-      }
-    end,
-  },
   {
     "mfussenegger/nvim-lint",
     opts = {
