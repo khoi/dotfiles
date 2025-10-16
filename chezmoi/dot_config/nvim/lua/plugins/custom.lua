@@ -9,7 +9,7 @@ return {
         undercurl = true,
         commentStyle = { italic = true },
         functionStyle = {},
-        keywordStyle = { italic = true},
+        keywordStyle = { italic = true },
         statementStyle = { bold = true },
         typeStyle = {},
         transparent = true, -- Enable transparent background
@@ -155,13 +155,13 @@ return {
                 hint = icons.diagnostics.Hint,
               },
             },
-            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
             { LazyVim.lualine.pretty_path() },
           },
           lualine_x = {
             "venv-selector",
           },
           lualine_y = {
+            { "filetype", padding = { left = 1, right = 1 } },
             { "location", padding = { left = 1, right = 1 } },
           },
           lualine_z = {},
@@ -169,24 +169,6 @@ return {
         extensions = { "toggleterm", "neo-tree", "lazy", "quickfix" },
       }
     end,
-  },
-
-  -- Undo tree
-  {
-    "stevearc/oil.nvim",
-    lazy = false,
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    keys = {
-      { "<leader>e", "<cmd>Oil<CR>", desc = "File Explorer" },
-    },
-    opts = {
-      default_file_explorer = true,
-      skip_confirm_for_simple_edits = true,
-      prompt_save_on_select_new_entry = false,
-      view_options = {
-        show_hidden = true,
-      },
-    },
   },
   {
     "mfussenegger/nvim-lint",
@@ -196,14 +178,22 @@ return {
       },
     },
   },
-  -- Configure blink.cmp for Ctrl+j/k navigation
   {
     "saghen/blink.cmp",
     opts = {
       keymap = {
-        preset = "default",
         ["<C-j>"] = { "select_next", "fallback" },
         ["<C-k>"] = { "select_prev", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "fallback" },
+        ["<Tab>"] = { "select_next", "fallback" },
+      },
+      completion = {
+        list = {
+          selection = {
+            preselect = false,
+            auto_insert = true,
+          },
+        },
       },
     },
   },
