@@ -36,6 +36,19 @@ alias nproc "sysctl -n hw.logicalcpu"
 alias lg lazygit
 alias c cursor
 
+# eza aliases (if available)
+if command -v eza &>/dev/null
+    alias ls 'eza --color=always --group-directories-first --icons'
+    alias ll 'eza -la --octal-permissions --group-directories-first --icons'
+    alias l 'eza -bGF --header --git --color=always --group-directories-first --icons'
+    alias lm 'eza -bGF --header --git --color=always --group-directories-first --icons --sort=modified'
+    alias la 'eza --long --all --group --group-directories-first --icons'
+    alias lx 'eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale --color=always --group-directories-first --icons'
+    alias lS 'eza -1 --color=always --group-directories-first --icons'
+    alias lt 'eza --tree --level=2 --color=always --group-directories-first --icons'
+    alias l. "eza -a | grep -E '^\.'"
+end
+
 # PATH
 fish_add_path ~/.bin
 fish_add_path ~/.local/bin
