@@ -31,6 +31,7 @@ antigen apply
 # Aliases
 alias o="open"
 alias dl="aria2c"
+alias ac="claude --dangerously-skip-permissions"
 
 # HISTORY
 setopt EXTENDED_HISTORY   # enable more detailed history (time, command, etc.)

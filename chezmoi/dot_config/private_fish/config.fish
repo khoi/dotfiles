@@ -35,6 +35,7 @@ alias cat bat
 alias nproc "sysctl -n hw.logicalcpu"
 alias lg lazygit
 alias c cursor
+alias ac "claude --dangerously-skip-permissions"
 
 # eza aliases (if available)
 if command -v eza &>/dev/null
