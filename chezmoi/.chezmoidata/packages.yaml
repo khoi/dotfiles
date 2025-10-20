@@ -9,6 +9,7 @@ packages:
       - age
       - aria2
       - bat
+      - borders
       - chezmoi
       - eza
       - fd

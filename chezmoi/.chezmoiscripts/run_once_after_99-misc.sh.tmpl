@@ -4,6 +4,9 @@ set -eo pipefail
 echo "mise install default tools"
 mise install -y
 
+echo "Starting borders service"
+brew services start felixkratz/formulae/borders
+
 echo "Replacing wezterm icon"
 icon_path=/Applications/WezTerm.app/Contents/Resources/terminal.icns
 cp "{{ .chezmoi.workingTree }}/assets/term-icon.icns" "$icon_path" 

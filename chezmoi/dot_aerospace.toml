@@ -1,4 +1,6 @@
-after-startup-command = []
+after-startup-command = [
+  'exec-and-forget borders active_color=0xff7E9CD8 inactive_color=0xff2A2A37 width=5.0'
+]
 start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
