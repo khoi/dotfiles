@@ -25,7 +25,7 @@ set -Ux FZF_DEFAULT_OPTS "\
 --color=selected-bg:#494D64 \
 --color=border:#6E738D,label:#CAD3F5"
 set -Ux FZF_DEFAULT_COMMAND 'fd --type f --strip-cwd-prefix'
-set -Ux FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
+set -Ux FZF_CTRL_T_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
 
 # Aliases
 alias o open
