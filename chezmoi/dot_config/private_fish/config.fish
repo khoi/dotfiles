@@ -41,7 +41,7 @@ alias ac "claude --dangerously-skip-permissions"
 if command -v eza &>/dev/null
     alias ls 'eza --color=always --group-directories-first --icons'
     alias ll 'eza -la --octal-permissions --group-directories-first --icons'
-    alias l 'eza -bGF --header --git --color=always --group-directories-first --icons'
+    alias l 'eza -b1F --header --git --color=always --group-directories-first --icons'
     alias lm 'eza -bGF --header --git --color=always --group-directories-first --icons --sort=modified'
     alias la 'eza --long --all --group --group-directories-first --icons'
     alias lx 'eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale --color=always --group-directories-first --icons'
