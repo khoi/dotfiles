@@ -143,6 +143,9 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
 # Dock, Dashboard, and hot corners                                            #
 ###############################################################################
 
+# Disable displays have separate Spaces https://nikitabobko.github.io/AeroSpace/guide#a-note-on-displays-have-separate-spaces
+defaults write com.apple.spaces spans-displays -bool true
+
 # Wipe all (default) app icons from the Dock
 defaults write com.apple.dock persistent-apps -array
 
