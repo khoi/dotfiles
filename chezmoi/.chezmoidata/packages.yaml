@@ -3,6 +3,7 @@ packages:
     taps:
       - xcodesorg/made
       - FelixKratz/formulae
+      - nikitabobko/tap
 
     brews:
       - age
@@ -54,6 +55,7 @@ packages:
       - 1password-cli
       - adguard
       - arc
+      - aerospace
       - cleanshot
       - karabiner-elements
       - font-jetbrains-mono-nerd-font
