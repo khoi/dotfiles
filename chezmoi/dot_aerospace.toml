@@ -48,6 +48,10 @@ automatically-unhide-macos-hidden-apps = true
     outer.top =        0
     outer.right =      0
 
+[[on-window-detected]]
+    if.app-id = 'com.tinyspeck.slackmacgap'
+    run = 'move-node-to-workspace S'
+
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 # 'main' binding mode must be always presented
@@ -72,7 +76,6 @@ automatically-unhide-macos-hidden-apps = true
     # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
     alt-enter = 'exec-and-forget open /Applications/Ghostty.app'
-    alt-shift-b = 'exec-and-forget open /Applications/Safari.app'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
