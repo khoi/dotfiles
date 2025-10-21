@@ -1,6 +1,8 @@
 # dotfiles
 
-My highly opinonated dotfiles. Feel free to look around and copy what you like.
+My highly opinonated macOS dotfiles. Feel free to look around and copy what you like.
+
+For Linux/Omarchy refers to https://github.com/khoi/omarchy-dotfiles
 
 ## Installation
 
