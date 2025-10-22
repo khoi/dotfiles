@@ -52,7 +52,7 @@ automatically-unhide-macos-hidden-apps = true
 
 [[on-window-detected]]
     if.app-id = 'com.tinyspeck.slackmacgap'
-    run = 'move-node-to-workspace S'
+    run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
@@ -62,6 +62,7 @@ automatically-unhide-macos-hidden-apps = true
     1 = 'main'
     2 = 'main'
     3 = 'main'
+    ~ = 'main'
     4 = 'secondary'
     5 = 'secondary'
 
