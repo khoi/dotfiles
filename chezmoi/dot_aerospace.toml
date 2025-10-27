@@ -110,6 +110,11 @@ automatically-unhide-macos-hidden-apps = true
     if.app-id = 'com.apple.FaceTime'
     run = 'layout floating'
 
+# Finder → Float windows
+[[on-window-detected]]
+    if.app-id = 'com.apple.finder'
+    run = 'layout floating'
+
 # Terminal → Workspace ~ (backtick)
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
