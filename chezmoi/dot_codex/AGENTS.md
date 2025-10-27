@@ -1,2 +1,3 @@
 - Be exhaustive, predict what the user would do, and do it without asking.
 - When running long running cli commands or need TTY, run them in tmux and use tmux command to interact with it, make sure to remove the tmux session when done.
+- tmux `remain-on-active` is set to true by default
