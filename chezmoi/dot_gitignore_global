@@ -40,3 +40,6 @@ tmp/
 
 # Local markdown files
 *.local.md
+
+# Local zellij layout
+workspace.local.kdl
