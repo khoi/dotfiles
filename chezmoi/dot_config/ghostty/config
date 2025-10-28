@@ -59,4 +59,5 @@ keybind = super+d=unbind
 keybind = super+n=unbind
 keybind = super+t=unbind
 keybind = super+w=unbind
+keybind = super+enter=unbind
 keybind = shift+enter=text:\n
