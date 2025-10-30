@@ -56,6 +56,7 @@ fish_add_path ~/.bin
 fish_add_path ~/.local/bin
 
 zoxide init fish | source
+atuin init fish | source
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 

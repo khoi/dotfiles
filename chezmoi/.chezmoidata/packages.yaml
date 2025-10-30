@@ -8,6 +8,7 @@ packages:
     brews:
       - age
       - aria2
+      - atuin
       - bat
       - borders
       - chezmoi
