@@ -1,12 +1,18 @@
 set fish_greeting
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Initialize Homebrew if it exists
+if test -x /opt/homebrew/bin/brew
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+end
 
 set -g async_prompt_functions _pure_prompt_git
 set -g pure_enable_single_line_prompt false
 set -g pure_separate_prompt_on_error true
 
-source ~/.config/fish/private_variables.fish
+# Source private variables if the file exists
+if test -f ~/.config/fish/private_variables.fish
+    source ~/.config/fish/private_variables.fish
+end
 
 # Global
 set -gx EDITOR nvim
@@ -55,18 +61,28 @@ end
 fish_add_path ~/.bin
 fish_add_path ~/.local/bin
 
-zoxide init fish | source
-atuin init fish | source
+# Initialize zoxide if installed
+if command -v zoxide &>/dev/null
+    zoxide init fish | source
+end
+
+# Initialize atuin if installed
+if command -v atuin &>/dev/null
+    atuin init fish | source
+end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 
 if status is-interactive
-    export ZELLIJ_CONFIG_DIR=$HOME/.config/zellij
-    if [ "$TERM" = xterm-ghostty ]
-        if not set -q ZELLIJ
-            zellij attach -c "$USER"
-            if test "$ZELLIJ_AUTO_EXIT" = true
-                kill $fish_pid
+    # Only configure zellij if it's installed
+    if command -v zellij &>/dev/null
+        export ZELLIJ_CONFIG_DIR=$HOME/.config/zellij
+        if [ "$TERM" = xterm-ghostty ]
+            if not set -q ZELLIJ
+                zellij attach -c "$USER"
+                if test "$ZELLIJ_AUTO_EXIT" = true
+                    kill $fish_pid
+                end
             end
         end
     end
