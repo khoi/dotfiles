@@ -138,13 +138,4 @@ return {
       },
     },
   },
-  -- Configure fzf-lua to show hidden files
-  {
-    "ibhagwan/fzf-lua",
-    opts = {
-      files = {
-        fd_opts = "--color=never --type f --hidden --follow --exclude .git",
-      },
-    },
-  },
 }
