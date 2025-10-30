@@ -189,6 +189,9 @@ automatically-unhide-macos-hidden-apps = true
     # toggle tiling
     alt-t = 'layout floating tiling'
 
+    # toggle fullscreen
+    alt-f = 'fullscreen'
+
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
     alt-tab = 'workspace-back-and-forth'
     # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
