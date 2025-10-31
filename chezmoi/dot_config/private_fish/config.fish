@@ -68,7 +68,7 @@ end
 
 # Initialize atuin if installed
 if command -v atuin &>/dev/null
-    atuin init fish | sed 's/-k up/up/' | source # A hack until https://github.com/atuinsh/atuin/issues/2803 is fixed
+    atuin init fish | source
 end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
