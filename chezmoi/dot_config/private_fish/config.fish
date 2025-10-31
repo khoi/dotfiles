@@ -66,11 +66,6 @@ if command -v zoxide &>/dev/null
     zoxide init fish | source
 end
 
-# Initialize atuin if installed
-if command -v atuin &>/dev/null
-    atuin init fish | source
-end
-
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 
 if status is-interactive
