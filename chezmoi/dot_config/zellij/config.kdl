@@ -139,7 +139,7 @@ keybinds clear-defaults=true {
         bind "Super ]" { GoToNextTab; }
         bind "Super d" { NewPane "right"; }
         bind "Super e" { EditScrollback; }
-        bind "Alt f" { ToggleFloatingPanes; }
+        bind "Super f" { ToggleFloatingPanes; }
         bind "Ctrl h" {
             MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
                 name "move_focus"
