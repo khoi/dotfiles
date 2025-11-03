@@ -105,20 +105,6 @@ automatically-unhide-macos-hidden-apps = true
     if.app-id = 'com.hnc.Discord'
     run = 'move-node-to-workspace 3'
 
-# FaceTime → Float windows
-[[on-window-detected]]
-    if.app-id = 'com.apple.FaceTime'
-    run = 'layout floating'
-
-# Finder → Float windows
-[[on-window-detected]]
-    if.app-id = 'com.apple.finder'
-    run = 'layout floating'
-
-# Terminal → Workspace ~ (backtick)
-[[on-window-detected]]
-    if.app-id = 'com.mitchellh.ghostty'
-    run = 'move-node-to-workspace ~'
 
 [workspace-to-monitor-force-assignment]
     1 = 'main'
@@ -151,10 +137,10 @@ automatically-unhide-macos-hidden-apps = true
     # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
     alt-enter = 'exec-and-forget open /Applications/Ghostty.app'
+    alt-shift-b = 'exec-and-forget open /Applications/Dia.app'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
-    alt-comma = 'layout accordion horizontal vertical'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
     alt-h = 'focus left'
