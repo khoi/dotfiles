@@ -67,18 +67,3 @@ if command -v zoxide &>/dev/null
 end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
-
-if status is-interactive
-    # Only configure zellij if it's installed
-    if command -v zellij &>/dev/null
-        export ZELLIJ_CONFIG_DIR=$HOME/.config/zellij
-        if [ "$TERM" = xterm-ghostty ]
-            if not set -q ZELLIJ
-                zellij attach -c "$USER"
-                if test "$ZELLIJ_AUTO_EXIT" = true
-                    kill $fish_pid
-                end
-            end
-        end
-    end
-end
