@@ -22,10 +22,13 @@ BRANCH_NAME="wt/${WORD}"
 git worktree add -b "${BRANCH_NAME}" "${WORKTREE_PATH}" >/dev/null 2>&1
 
 if [ $? -eq 0 ]; then
+    # Get absolute path of the worktree
+    ABSOLUTE_PATH="$(pwd)/${WORKTREE_PATH}"
+
     if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
-        cd "${WORKTREE_PATH}"
+        cd "${ABSOLUTE_PATH}"
     else
-        echo "${WORKTREE_PATH}"
+        echo "${ABSOLUTE_PATH}"
     fi
 else
     exit 1
