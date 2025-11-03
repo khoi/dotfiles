@@ -43,3 +43,6 @@ tmp/
 
 # Local zellij layout
 workspace.local.kdl
+
+# Git worktrees
+.worktrees/
