@@ -7,4 +7,4 @@
 
 If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.
 
-- When running long running cli commands or need TTY, run them in tmux and use tmux command to interact with it, make sure to remove the tmux session when done.
+- When running long running cli commands or need TTY, run them in `tmux new-session -s {name_of_the_session} zsh -l` (the login shell is needed)
