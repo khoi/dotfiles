@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Detect if we're inside a worktree and back out to main if needed
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+if [[ "$GIT_DIR" == *"/worktrees/"* ]]; then
+    # We're in a worktree, find the main worktree location
+    MAIN_WORKTREE=$(git worktree list --porcelain | grep -m 1 "^worktree" | cut -d' ' -f2)
+    cd "$MAIN_WORKTREE"
+fi
+
 if [ -f /usr/share/dict/words ]; then
     WORD=$(sort -R /usr/share/dict/words | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d "'")
 else
