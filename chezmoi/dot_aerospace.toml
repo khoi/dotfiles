@@ -80,8 +80,8 @@ automatically-unhide-macos-hidden-apps = true
 
     # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
-    alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
-    alt-shift-b = 'exec-and-forget open -n /Applications/Dia.app'
+    alt-enter = 'exec-and-forget open /Applications/Ghostty.app'
+    alt-shift-b = 'exec-and-forget open /Applications/Dia.app'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
