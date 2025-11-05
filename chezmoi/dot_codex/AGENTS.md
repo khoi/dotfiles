@@ -2,8 +2,6 @@
 
 - Find Files: `fd`
 - Find Text: `rg` (ripgrep)
-- Find Code Structure use `ast-grep`
-  - set `--lang` appropriately (e.g., `--lang rust`).
 
 If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.
 
