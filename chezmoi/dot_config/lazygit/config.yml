@@ -3,6 +3,10 @@
     context: "global"
     command: "claude -p '/commit' && git push --no-verify -u origin HEAD"
     loadingText: "Generating commit message and push"
+  - key: "<c-p>"
+    context: "global"
+    command: "claude -p '/pr-create'"
+    loadingText: "Creating pull request"
   - key: "<c-q>"
     context: "global"
     command: 'rm -f "$(git rev-parse --git-dir)/index.lock"'
