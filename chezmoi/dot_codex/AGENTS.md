@@ -6,3 +6,5 @@
 If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.
 
 - When running long running cli commands or need TTY, run them in `tmux new-session -s {branch_name_name_of_the_session} zsh -l` (the login shell is needed)
+
+Be extremely concise. Sacrifice grammar for the sake of concision.
