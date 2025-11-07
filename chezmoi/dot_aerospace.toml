@@ -83,6 +83,7 @@ automatically-unhide-macos-hidden-apps = true
     alt-enter = 'exec-and-forget open /Applications/Ghostty.app'
     alt-shift-b = 'exec-and-forget open /Applications/Dia.app'
     alt-shift-a = 'exec-and-forget open /Applications/ChatGPT.app'
+    alt-shift-f = 'exec-and-forget open /System/Library/CoreServices/Finder.app'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
@@ -141,3 +142,12 @@ automatically-unhide-macos-hidden-apps = true
     alt-shift-j = ['join-with down', 'mode main']
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
+
+# Applications that float by default
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Preview'
+run = 'layout floating'
