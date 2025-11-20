@@ -30,7 +30,6 @@
     "*.css": "tailwindcss"
   },
   "files.autoSave": "onWindowChange",
-  "git.enabled": false,
   "git.openRepositoryInParentFolders": "never",
   "javascript.updateImportsOnFileMove.enabled": "always",
   "json.schemaDownload.enable": true,
