@@ -1,57 +1,48 @@
-return {
-  {
-    "rebelot/kanagawa.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("kanagawa").setup({
-        compile = false,
-        undercurl = true,
-        commentStyle = { italic = true },
-        functionStyle = {},
-        keywordStyle = { italic = true },
-        statementStyle = { bold = true },
-        typeStyle = {},
-        transparent = true, -- Enable transparent background
-        dimInactive = false,
-        terminalColors = true,
-        colors = {
-          palette = {},
-          theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
-        },
-        overrides = function(colors)
-          return {}
-        end,
-        theme = "wave", -- Load "wave" theme when 'background' is dark, "lotus" when light
-        background = {
-          dark = "wave",
-          light = "lotus",
-        },
-      })
-      -- Always use the wave (dark) variant
-      vim.cmd.colorscheme("kanagawa-wave")
-    end,
-  },
-  {
-    "f-person/auto-dark-mode.nvim",
-    opts = {
+-- Keep theme portion close to Omarchy’s approach: load generated theme file, fallback to Tokyo Night.
+local ok, theme_plugins = pcall(require, "plugins.theme")
+local fallback = {
+  { "folke/tokyonight.nvim", priority = 1000 },
+  { "LazyVim/LazyVim", opts = { colorscheme = "tokyonight-night" } },
+}
+local theme_has_switch_meta = vim.g.switch_theme ~= nil
+local plugins = {}
+
+if ok and type(theme_plugins) == "table" then
+  vim.list_extend(plugins, theme_plugins)
+else
+  vim.list_extend(plugins, fallback)
+  if not theme_has_switch_meta then
+    vim.g.switch_theme = {
+      name = "tokyo-night",
+      colorscheme = "tokyonight-night",
+      background = "dark",
+    }
+  end
+end
+
+local function current_theme()
+  return vim.g.switch_theme or { colorscheme = "tokyonight-night", background = "dark" }
+end
+
+table.insert(plugins, {
+  "f-person/auto-dark-mode.nvim",
+  opts = function()
+    local theme = current_theme()
+    local colorscheme = theme.colorscheme or "tokyonight-night"
+    local background = theme.background or "dark"
+    local function apply()
+      vim.api.nvim_set_option_value("background", background, {})
+      vim.cmd.colorscheme(colorscheme)
+    end
+    return {
       update_interval = 1000,
-      set_dark_mode = function()
-        vim.api.nvim_set_option_value("background", "dark", {})
-        vim.cmd.colorscheme("kanagawa-wave") -- Always use dark wave variant
-      end,
-      set_light_mode = function()
-        vim.api.nvim_set_option_value("background", "dark", {}) -- Always dark
-        vim.cmd.colorscheme("kanagawa-wave") -- Always use dark wave variant
-      end,
-    },
-  },
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "kanagawa-wave", -- Always use dark wave variant
-    },
-  },
+      set_dark_mode = apply,
+      set_light_mode = apply,
+    }
+  end,
+})
+
+local rest = {
   {
     "mrjones2014/smart-splits.nvim",
     lazy = false,
@@ -148,3 +139,7 @@ return {
     },
   },
 }
+
+vim.list_extend(plugins, rest)
+
+return plugins

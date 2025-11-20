@@ -35,21 +35,21 @@ gui:
   # Kanagawa theme
   theme:
     activeBorderColor:
-      - "#7E9CD8"  # crystalBlue
+      - "#DCA56"
       - bold
     inactiveBorderColor:
-      - "#54546D"  # sumiInk4
+      - "#72716"
     optionsTextColor:
-      - "#7FB4CA"  # springBlue
+      - "#7aa89"
     selectedLineBgColor:
-      - "#363646"  # sumiInk3
+      - "#22324"
     cherryPickedCommitBgColor:
-      - "#363646"  # sumiInk3
+      - "#22324"
     cherryPickedCommitFgColor:
-      - "#957FB8"  # oniViolet
+      - "#dca56"
     unstagedChangesColor:
-      - "#E82424"  # peachRed
+      - "#E8242"
     defaultFgColor:
-      - "#DCD7BA"  # fujiWhite
+      - "#dcd7b"
     searchingActiveBorderColor:
-      - "#FFA066"  # surimiOrange
+      - "#DCA56"
