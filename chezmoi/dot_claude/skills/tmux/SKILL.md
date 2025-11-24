@@ -13,8 +13,8 @@ Use tmux as a programmable terminal multiplexer for interactive work. Works on L
 ```bash
 SESSION=claude-python                           # slug-like names; avoid spaces
 tmux new -d -s "$SESSION" -n shell
-tmux send-keys -t "$SESSION":0.0 -- 'python3 -q' Enter
-tmux capture-pane -p -J -t "$SESSION":0.0 -S -200  # watch output
+tmux send-keys -t "$SESSION":1.1 -- 'python3 -q' Enter
+tmux capture-pane -p -J -t "$SESSION":1.1 -S -200  # watch output
 tmux kill-session -t "$SESSION"                   # clean up
 ```
 
@@ -25,14 +25,14 @@ To monitor this session yourself:
   tmux attach -t claude-lldb
 
 Or to capture the output once:
-  tmux capture-pane -p -J -t claude-lldb:0.0 -S -200
+  tmux capture-pane -p -J -t claude-lldb:1.1 -S -200
 ```
 
 This must ALWAYS be printed right after a session was started and once again at the end of the tool loop.  But the earlier you send it, the happier the user will be.
 
 ## Targeting panes and naming
 
-- Target format: `{session}:{window}.{pane}`, defaults to `:0.0` if omitted. Keep names short (e.g., `claude-py`, `claude-gdb`).
+- Target format: `{session}:{window}.{pane}`, defaults to `:1.1` if omitted (based on base-index 1 config). Keep names short (e.g., `claude-py`, `claude-gdb`).
 - Inspect: `tmux list-sessions`, `tmux list-panes -a`.
 
 ## Finding sessions
@@ -63,7 +63,7 @@ Some special rules for processes:
 
 - Use timed polling to avoid races with interactive tools. Example: wait for a Python prompt before sending code:
   ```bash
-  ./tools/wait-for-text.sh -t "$SESSION":0.0 -p '^>>>' -T 15 -l 4000
+  ./tools/wait-for-text.sh -t "$SESSION":1.1 -p '^>>>' -T 15 -l 4000
   ```
 - For long-running commands, poll for completion text (`"Type quit to exit"`, `"Program exited"`, etc.) before proceeding.
 
@@ -84,7 +84,7 @@ Some special rules for processes:
 `./tools/wait-for-text.sh` polls a pane for a regex (or fixed string) with a timeout. Works on Linux/macOS with bash + tmux + grep.
 
 ```bash
-./tools/wait-for-text.sh -t session:0.0 -p 'pattern' [-F] [-T 20] [-i 0.5] [-l 2000]
+./tools/wait-for-text.sh -t session:1.1 -p 'pattern' [-F] [-T 20] [-i 0.5] [-l 2000]
 ```
 
 - `-t`/`--target` pane target (required)
