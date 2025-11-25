@@ -1,0 +1,1 @@
+- Never git commit unless the user explicitly asks.
