@@ -32,24 +32,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Kanagawa theme
+  # Tokyo Night theme
   theme:
     activeBorderColor:
-      - "#DCA56"
+      - "#e0af6"
       - bold
     inactiveBorderColor:
-      - "#72716"
+      - "#565f8"
     optionsTextColor:
-      - "#7aa89"
+      - "#7dcff"
     selectedLineBgColor:
-      - "#22324"
+      - "#41486"
     cherryPickedCommitBgColor:
-      - "#22324"
+      - "#41486"
     cherryPickedCommitFgColor:
-      - "#dca56"
+      - "#cfc9c"
     unstagedChangesColor:
-      - "#E8242"
+      - "#f7768"
     defaultFgColor:
-      - "#dcd7b"
+      - "#cfc9c"
     searchingActiveBorderColor:
-      - "#DCA56"
+      - "#e0af6"
