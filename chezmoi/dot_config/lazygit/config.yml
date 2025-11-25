@@ -35,21 +35,21 @@ gui:
   # Tokyo Night theme
   theme:
     activeBorderColor:
-      - "#e0af6"
+      - "#e0af68"
       - bold
     inactiveBorderColor:
-      - "#565f8"
+      - "#565f89"
     optionsTextColor:
-      - "#7dcff"
+      - "#7dcfff"
     selectedLineBgColor:
-      - "#41486"
+      - "#414868"
     cherryPickedCommitBgColor:
-      - "#41486"
+      - "#414868"
     cherryPickedCommitFgColor:
-      - "#cfc9c"
+      - "#cfc9c2"
     unstagedChangesColor:
-      - "#f7768"
+      - "#f7768e"
     defaultFgColor:
-      - "#cfc9c"
+      - "#cfc9c2"
     searchingActiveBorderColor:
-      - "#e0af6"
+      - "#e0af68"

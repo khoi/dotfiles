@@ -164,7 +164,7 @@ load_palette() {
   fi
   PALETTE=()
   while IFS= read -r line; do
-    if [[ $line =~ theme\[([^\]]+)\][[:space:]]*=[[:space:]]*\"?([#A-Fa-f0-9]{6})\"? ]]; then
+    if [[ $line =~ theme\[([^\]]+)\][[:space:]]*=[[:space:]]*\"?(#[A-Fa-f0-9]{6})\"? ]]; then
       local key="${BASH_REMATCH[1]}"
       local val="${BASH_REMATCH[2]}"
       [[ $val != \#* ]] && val="#$val"
