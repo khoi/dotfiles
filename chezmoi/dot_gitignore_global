@@ -46,3 +46,6 @@ workspace.local.kdl
 
 # Git worktrees
 .worktrees/
+
+# Claude Code
+.claude/settings.local.json
