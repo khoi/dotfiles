@@ -25,7 +25,7 @@
 		<key>behaviourArgument</key>
 		<dict>
 			<key>path</key>
-			<string>/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app</string>
+			<string>/Applications/Orion.app</string>
 			<key>type</key>
 			<string>ChoosyBrowser</string>
 		</dict>
