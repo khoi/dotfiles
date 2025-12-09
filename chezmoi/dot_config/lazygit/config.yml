@@ -2,7 +2,7 @@
   - key: "<c-s>"
     context: "global"
     command: "claude -p '/commit' && git pull --rebase && git push --no-verify -u origin HEAD"
-    loadingText: "Generating commit message and push"
+    loadingText: "Generating commit message, rebase and push"
   - key: "<c-p>"
     context: "global"
     command: "claude -p '/pr-create'"
