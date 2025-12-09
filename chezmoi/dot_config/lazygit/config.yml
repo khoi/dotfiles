@@ -1,7 +1,7 @@
  customCommands:
   - key: "<c-s>"
     context: "global"
-    command: "claude -p '/commit' && git push --no-verify -u origin HEAD"
+    command: "claude -p '/commit' && git pull --rebase && git push --no-verify -u origin HEAD"
     loadingText: "Generating commit message and push"
   - key: "<c-p>"
     context: "global"
@@ -32,24 +32,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Tokyo Night theme
+  # Kanagawa theme
   theme:
     activeBorderColor:
-      - "#e0af68"
+      - "#DCA561"
       - bold
     inactiveBorderColor:
-      - "#565f89"
+      - "#727169"
     optionsTextColor:
-      - "#7dcfff"
+      - "#7aa89f"
     selectedLineBgColor:
-      - "#414868"
+      - "#223249"
     cherryPickedCommitBgColor:
-      - "#414868"
+      - "#223249"
     cherryPickedCommitFgColor:
-      - "#cfc9c2"
+      - "#dca561"
     unstagedChangesColor:
-      - "#f7768e"
+      - "#E82424"
     defaultFgColor:
-      - "#cfc9c2"
+      - "#dcd7ba"
     searchingActiveBorderColor:
-      - "#e0af68"
+      - "#DCA561"
