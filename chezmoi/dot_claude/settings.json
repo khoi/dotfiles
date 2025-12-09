@@ -10,6 +10,12 @@
     "type": "command",
     "command": "~/.claude/cc-statusline-rs"
   },
+  "enabledPlugins": {
+    "claude-opus-4-5-migration@claude-code-plugins": true,
+    "frontend-design@claude-code-plugins": true,
+    "feature-dev@claude-code-plugins": true,
+    "example-skills@anthropic-agent-skills": true
+  },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086902587
