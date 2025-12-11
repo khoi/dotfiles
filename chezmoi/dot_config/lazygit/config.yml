@@ -1,7 +1,7 @@
  customCommands:
   - key: "<c-s>"
     context: "global"
-    command: "claude -p '/commit' && git pull --rebase --no-tags origin $(git branch --show-current) && git push --no-verify -u origin HEAD"
+    command: "claude -p '/commit' && git pull --rebase --no-tags origin $(git branch --show-current) 2>/dev/null || true && git push --no-verify -u origin HEAD"
     loadingText: "Generating commit message, rebase and push"
   - key: "<c-p>"
     context: "global"
