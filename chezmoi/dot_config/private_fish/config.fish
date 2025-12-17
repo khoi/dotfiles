@@ -74,8 +74,8 @@ test -d ~/.bin && fish_add_path ~/.bin
 test -d ~/.local/bin && fish_add_path ~/.local/bin
 
 # Keybindings
-bind \cf forward-word    # Ctrl+F: accept one word of autosuggestion
-bind \ce end-of-line     # Ctrl+E: accept full autosuggestion
+bind \cf forward-word # Ctrl+F: accept one word of autosuggestion
+bind \ce end-of-line # Ctrl+E: accept full autosuggestion
 
 # Initialize zoxide if installed
 if command -v zoxide &>/dev/null

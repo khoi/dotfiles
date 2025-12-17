@@ -60,4 +60,4 @@ keybind = super+t=unbind
 keybind = super+w=unbind
 keybind = super+enter=unbind
 keybind = shift+enter=text:\n
-theme = TokyoNight
+theme = Kanagawa Wave
