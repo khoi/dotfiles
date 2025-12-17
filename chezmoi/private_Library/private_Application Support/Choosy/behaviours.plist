@@ -15,7 +15,7 @@
 		<key>enabled</key>
 		<true/>
 		<key>predicate</key>
-		<string>sourceApp == "/Users/khoi/Applications/Slack.app" OR URL CONTAINS "meet.google" OR URL CONTAINS "goodnotes" OR URL CONTAINS "GoodNotes" OR URL CONTAINS "Goodnotes"</string>
+		<string>URL CONTAINS "okta" OR URL CONTAINS "greenhouse" OR sourceApp == "/Users/khoi/Applications/Slack.app" OR URL CONTAINS "meet.google" OR URL CONTAINS "goodnotes" OR URL CONTAINS "GoodNotes" OR URL CONTAINS "Goodnotes"</string>
 		<key>title</key>
 		<string>Goodnotes</string>
 	</dict>
@@ -25,7 +25,7 @@
 		<key>behaviourArgument</key>
 		<dict>
 			<key>path</key>
-			<string>/Applications/Orion.app</string>
+			<string>/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app</string>
 			<key>type</key>
 			<string>ChoosyBrowser</string>
 		</dict>

@@ -147,7 +147,7 @@ automatically-unhide-macos-hidden-apps = true
 # Applications that float by default
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
-run = 'layout floating'
+run = ['layout floating', 'move-node-to-workspace 4']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Preview'
