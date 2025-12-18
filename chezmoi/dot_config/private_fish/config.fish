@@ -72,6 +72,7 @@ end
 # PATH (validate directories exist)
 test -d ~/.bin && fish_add_path ~/.bin
 test -d ~/.local/bin && fish_add_path ~/.local/bin
+test -d ~/.bun/bin && fish_add_path ~/.bun/bin
 
 # Keybindings
 bind \cf forward-word # Ctrl+F: accept one word of autosuggestion
