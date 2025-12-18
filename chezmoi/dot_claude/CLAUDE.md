@@ -1,3 +1,4 @@
 - Do not git commit unless the user explicitly asks.
 - Prefer to have self-documented code over comments.
 - When needing to check github code, always clone it using `ghq get` instead of using the web 
+- In all interactions, plans, and commit messages, be extremely concise and sacrifice grammar for the sake of concision.
