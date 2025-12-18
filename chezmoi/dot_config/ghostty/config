@@ -20,6 +20,7 @@ macos-icon-screen-color = 24273A
 macos-option-as-alt = left
 macos-titlebar-style = tabs
 
+window-padding-x = 4
 
 # custom-shader = ./shaders/cursor_blaze.glsl
 # custom-shader = ./shaders/inside-the-matrix.glsl
