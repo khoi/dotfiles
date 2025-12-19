@@ -1,0 +1,19 @@
+#!/bin/bash
+# Show unique claude sessions with their latest message
+
+if [[ "$1" == "--all" ]]; then
+  filter="true"
+else
+  filter=".project == \"$PWD\""
+fi
+
+jq -rs --arg filter "$filter" '
+  [.[] | select(.sessionId != null)]
+  | group_by(.sessionId)
+  | map(max_by(.timestamp))
+  | sort_by(.timestamp)
+  | reverse
+  | .[]
+  | select('"$filter"')
+  | "\(.sessionId)\t\(.project | split("/") | .[-1])\t\(.display | .[0:80])"
+' ~/.claude/history.jsonl | column -t -s $'\t'
