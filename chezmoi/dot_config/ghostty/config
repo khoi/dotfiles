@@ -20,6 +20,7 @@ macos-icon-ghost-color = CAD3F5
 macos-icon-screen-color = 24273A
 macos-option-as-alt = left
 macos-titlebar-style = tabs
+macos-window-buttons = hidden
 
 # Keybindings
 keybind = super+p=toggle_command_palette
