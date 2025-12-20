@@ -5,7 +5,7 @@ confirm-close-surface = false
 cursor-style = block
 cursor-style-blink = false
 font-family = TX-02-Variable
-font-size = 15
+font-size = 16
 
 fullscreen = false
 link-url = true
