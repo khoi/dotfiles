@@ -51,7 +51,7 @@ This configuration is managed with [chezmoi](https://www.chezmoi.io/). Commands:
 - `chezmoi update` - Pull latest changes and apply them
 - `chezmoi destroy` - Destroy, forget a managed file
 
-Always commit changes automatically.
+Always commit changes automatically and push. But never use any destructive git commands. 
 
 **Important**: Never add sensitive files (API keys, private variables, `.env`, etc.) to chezmoi
 
