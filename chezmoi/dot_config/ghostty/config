@@ -5,13 +5,12 @@ confirm-close-surface = false
 cursor-style = block
 cursor-style-blink = false
 font-family = TX-02-Variable
-font-size = 16
+font-size = 17
 
 fullscreen = false
 link-url = true
 mouse-hide-while-typing = true
 shell-integration-features = no-cursor
-theme = Kanagawa Wave
 
 # macOS related configurations
 macos-icon = custom-style
@@ -24,3 +23,5 @@ macos-window-buttons = hidden
 
 # Keybindings
 keybind = super+p=toggle_command_palette
+keybind = super+enter=unbind
+theme = Kanagawa Wave
