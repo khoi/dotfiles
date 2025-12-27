@@ -1,10 +1,2 @@
-# When you need to call tools from the shell, **use this rubric**:
-
-- Find Files: `fd`
-- Find Text: `rg` (ripgrep)
-
-If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.
-
-- When running long running cli commands or need TTY, run them in `tmux new-session -s {branch_name_name_of_the_session} zsh -l` (the login shell is needed)
-
-Be extremely concise. Sacrifice grammar for the sake of concision.
+- When running long running cli commands or need TTY, run them in `tmux new-session -s {branch_name_name_of_the_session} -d 'zsh -l'` (start with the login shell first before running any command to avoid tmux exit). For single non-long running do not use tmux. Also clean up tmux session after done with it
+- When you need to clone something from github to explore, use `ghq get {path_to_git_url}` to do it

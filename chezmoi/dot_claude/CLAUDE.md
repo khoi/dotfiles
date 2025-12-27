@@ -1,5 +1,6 @@
 - Do not git commit unless the user explicitly asks.
 - Prefer to have self-documented code over comments.
 - When needing to check github code, always clone it using `ghq get` instead of using the web 
+- When running long running cli commands or need TTY, run them in `tmux new-session -s {branch_name_name_of_the_session} -d 'zsh -l'` (start with the login shell first before running any command to avoid tmux exit)
 - In all interactions, plans, and commit messages, be extremely concise and sacrifice grammar for the sake of concision.
 - Do not every git add -A or git add . 
