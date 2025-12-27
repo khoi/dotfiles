@@ -14,9 +14,6 @@ touch /Applications/WezTerm.app
 killall Finder
 killall Dock
 
-echo "Install TX-02 Fonts"
-op document get "TX-02-Variable" --force -o ~/Library/Fonts/TX-02-Variable.ttf
-
 echo "Change the Git remote from HTTP to SSH"
 cd {{ .chezmoi.sourceDir }} || exit 1
 
