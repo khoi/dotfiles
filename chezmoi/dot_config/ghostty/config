@@ -1,5 +1,4 @@
-auto-update-channel = tip
-background-blur = macos-glass-clear
+auto-update-channel = stable
 clipboard-trim-trailing-spaces = true
 confirm-close-surface = false
 cursor-style = block
