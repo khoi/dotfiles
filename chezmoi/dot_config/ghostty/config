@@ -1,4 +1,5 @@
 auto-update-channel = stable
+clipboard-paste-protection = false
 clipboard-trim-trailing-spaces = true
 confirm-close-surface = false
 cursor-style = block
