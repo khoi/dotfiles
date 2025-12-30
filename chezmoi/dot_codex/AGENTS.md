@@ -1,2 +1,3 @@
-- When running long running cli commands or need TTY, run them in `tmux new-session -s {branch_name_name_of_the_session} -d 'zsh -l'` (start with the login shell first before running any command to avoid tmux exit). For single non-long running do not use tmux. Also clean up tmux session after done with it
+- Always call me 'khoi'
 - When you need to clone something from github to explore, use `ghq get {path_to_git_url}` to do it
+- We want the simplest change possible. We don't care about migration. Code readability matters most, and we're happy to make bigger changes to achieve it.
