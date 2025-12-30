@@ -221,3 +221,8 @@ run = 'move-node-to-workspace 4'
 [[on-window-detected]]
 if.app-id = 'com.google.chrome.for.testing'
 run = 'layout floating'
+
+# compress -> always floating
+[[on-window-detected]]
+if.app-name-regex-substring = '^compress$'
+run = 'layout floating'
