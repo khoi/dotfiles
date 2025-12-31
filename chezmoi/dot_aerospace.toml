@@ -80,7 +80,7 @@ automatically-unhide-macos-hidden-apps = true
 
     # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
-    alt-enter = 'exec-and-forget open /Applications/Ghostty.app'
+    alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
     alt-shift-b = 'exec-and-forget open /Applications/Dia.app'
     alt-shift-a = 'exec-and-forget open /Applications/ChatGPT.app'
     alt-shift-f = 'exec-and-forget open /System/Library/CoreServices/Finder.app'
