@@ -15,9 +15,6 @@
   },
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "vim_mode": true,
-  "vim": {
-    "enable_vim_sneak": true
-  },
   "relative_line_numbers": true,
   "tab_bar": {
     "show": true
@@ -40,7 +37,7 @@
     "default_model": {
       "provider": "openai",
       "model": "gpt-5"
-    },
+    }
   },
   "inlay_hints": {
     "enabled": true
@@ -62,7 +59,6 @@
       }
     },
     "Python": {
-      "format_on_save": { "language_server": { "name": "ruff" } },
       "formatter": { "language_server": { "name": "ruff" } },
       "language_servers": ["pyright", "ruff"]
     }
@@ -117,9 +113,6 @@
     "dock": "left"
   },
   "notification_panel": {
-    "dock": "left"
-  },
-  "chat_panel": {
     "dock": "left"
   }
 }
