@@ -85,3 +85,4 @@ if command -v zoxide &>/dev/null
 end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
+abbr -a fd 'fd -HI'
