@@ -226,3 +226,7 @@ run = 'layout floating'
 [[on-window-detected]]
 if.app-name-regex-substring = '^compress$'
 run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.realvnc.vncviewer'
+run = 'layout floating'
