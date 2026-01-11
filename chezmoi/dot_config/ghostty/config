@@ -24,4 +24,5 @@ macos-window-buttons = hidden
 # Keybindings
 keybind = super+p=toggle_command_palette
 keybind = super+enter=unbind
+keybind = shift+enter=text:\x1b\r
 theme = Kanagawa Wave
