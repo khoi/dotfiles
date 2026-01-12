@@ -50,7 +50,7 @@ abbr -a lg lazygit
 abbr -a c cursor
 abbr -a ac "claude --dangerously-skip-permissions"
 abbr -a acf "claude --dangerously-skip-permissions --resume --fork-session"
-abbr -a ad "codex --dangerously-bypass-approvals-and-sandbox --search"
+abbr -a ad codex
 
 # Aliases (command replacements)
 command -v nvim &>/dev/null && alias vim nvim
