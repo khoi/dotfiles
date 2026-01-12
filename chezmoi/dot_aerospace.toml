@@ -230,3 +230,7 @@ run = 'layout floating'
 [[on-window-detected]]
 if.app-id = 'com.realvnc.vncviewer'
 run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.traderepublic.cilicon'
+run = 'layout floating'
