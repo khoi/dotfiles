@@ -1,10 +1,10 @@
 [tools]
 ruby = "latest"
 nodejs = "lts"
-rust = "latest"
+rust = "1.92.0"
 go = "latest"
 python = "latest"
-zig = "latest"
+zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
