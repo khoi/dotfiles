@@ -30,3 +30,4 @@ TypeScript generates JSON config. Hyper key = right_option. Edit `rules.ts` for 
 ## Rules
 
 - Always edit the file individually, do not touch or commit changes that't not yours nodifications.
+- After apply success, commit the files
