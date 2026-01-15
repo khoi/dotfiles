@@ -32,24 +32,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Flexoki Dark theme
+  # Flexoki Light theme
   theme:
     activeBorderColor:
-      - "#DA702C"
+      - "#BC5215"
       - bold
     inactiveBorderColor:
-      - "#878580"
+      - "#6F6E69"
     optionsTextColor:
-      - "#4385BE"
+      - "#205EA6"
     selectedLineBgColor:
       - "#414868"
     cherryPickedCommitBgColor:
       - "#414868"
     cherryPickedCommitFgColor:
-      - "#CECDC3"
+      - "#100F0F"
     unstagedChangesColor:
-      - "#D14D41"
+      - "#AF3029"
     defaultFgColor:
-      - "#CECDC3"
+      - "#100F0F"
     searchingActiveBorderColor:
-      - "#DA702C"
+      - "#BC5215"
