@@ -28,7 +28,7 @@ friendly() {
 list_themes() {
   if [[ -d "$THEMES_DIR" ]]; then
     for d in "$THEMES_DIR"/*; do
-      [[ -d "$d" ]] && basename "$d"
+      [[ -d "$d" && ! -L "$d" ]] && basename "$d"
     done | sort
   fi
 }
