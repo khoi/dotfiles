@@ -61,9 +61,6 @@
   "cursor.composer.collapsePaneInputBoxPills": true,
   "workbench.preferredLightColorTheme": "Kanagawa",
   "window.customTitleBarVisibility": "never",
-  "extensions.experimental.affinity": {
-    "asvetliakov.vscode-neovim": 1
-  },
   "vim.useSystemClipboard": true,
   "cursor.composer.shouldChimeAfterChatFinishes": true,
   "editor.fontSize": 13,
