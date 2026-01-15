@@ -7,7 +7,7 @@
     "edit_prediction_provider": "zed"
   },
   "base_keymap": "VSCode",
-  "theme": "Flexoki Light",
+  "theme": "Flexoki Dark",
   "ui_font_size": 17,
   "buffer_font_size": 18,
   "file_finder": {
@@ -15,7 +15,7 @@
   },
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "vim_mode": true,
-  "relative_line_numbers": "enabled",
+  "relative_line_numbers": true,
   "tab_bar": {
     "show": true
   },
@@ -64,7 +64,10 @@
     }
   },
   "terminal": {
-    "dock": "right"
+    "font_family": "JetBrainsMono Nerd Font",
+    "env": {
+      "EDITOR": "zed --wait"
+    }
   },
   // File syntax highlighting
   "file_types": {
@@ -104,7 +107,7 @@
     "git_status": true
   },
   "outline_panel": {
-    "dock": "left"
+    "dock": "right"
   },
   "collaboration_panel": {
     "dock": "left"
