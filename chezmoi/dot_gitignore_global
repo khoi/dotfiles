@@ -49,3 +49,6 @@ workspace.local.kdl
 
 # Claude Code
 .claude/settings.local.json
+
+# superset
+.superset/
