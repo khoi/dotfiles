@@ -43,4 +43,4 @@
 	find = "!git log --color -S "
 	nuke = "!git reset --hard && git clean -fd"
 [submodule]
-	recurse = false
+	recurse = true
