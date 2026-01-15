@@ -1,7 +1,6 @@
 model = "gpt-5.2-codex"
 model_reasoning_effort = "high"
 model_verbosity = "low"
-model_reasoning_summary = "concise"
 forced_login_method = "chatgpt"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"

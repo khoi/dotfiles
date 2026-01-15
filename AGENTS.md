@@ -5,8 +5,7 @@ macOS dotfiles managed by chezmoi. Source of truth is `chezmoi/` (set via `.chez
 ## Common Operations
 
 ```bash
-chezmoi edit --apply <file>        # edit source, triggers apply
-chezmoi apply                      # apply dotfiles to home
+chezmoi apply <target>             # always apply individual files, never all
 chezmoi diff                       # preview changes
 ```
 
