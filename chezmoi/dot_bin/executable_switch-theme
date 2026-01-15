@@ -311,7 +311,7 @@ reload_running_apps() {
 }
 
 main() {
-  if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" || "$1" == "--list" ]]; then
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || "${1:-}" == "--list" ]]; then
     usage
     exit 0
   fi
@@ -319,7 +319,17 @@ main() {
   ensure_themes_dir
 
   local slug
-  slug=$(slugify "$1")
+  if [[ $# -eq 0 ]]; then
+    if command -v fzf &>/dev/null; then
+      slug=$(list_themes | fzf --prompt="theme> ")
+      [[ -z "$slug" ]] && exit 0
+    else
+      usage
+      exit 0
+    fi
+  else
+    slug=$(slugify "$1")
+  fi
   local theme_dir="$THEMES_DIR/$slug"
   if [[ ! -d "$theme_dir" ]]; then
     echo "Theme '$slug' not found in $THEMES_DIR" >&2
