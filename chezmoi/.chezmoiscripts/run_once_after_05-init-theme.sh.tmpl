@@ -1,0 +1,33 @@
+#!/usr/bin/env zsh
+set -eo pipefail
+
+themes_dir="$HOME/.config/themes"
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+current="$themes_dir/current"
+
+if [[ -L "$current" ]] || [[ -f "$state_dir/ghostty/config" ]] || [[ -f "$state_dir/zed/settings.json" ]] || [[ -f "$state_dir/lazygit/config.yml" ]] || [[ -f "$state_dir/nvim/theme.lua" ]] || [[ -f "$state_dir/btop/current.theme" ]] || [[ -f "$state_dir/zellij/current.kdl" ]]; then
+  exit 0
+fi
+
+if [[ ! -d "$themes_dir" ]]; then
+  exit 0
+fi
+
+theme=""
+for d in "$themes_dir"/*; do
+  [[ -d "$d" ]] || continue
+  if [[ "$(basename "$d")" != "current" ]]; then
+    theme="$(basename "$d")"
+    break
+  fi
+done
+
+if [[ -z "$theme" ]]; then
+  exit 0
+fi
+
+if ! command -v switch-theme >/dev/null 2>&1; then
+  exit 0
+fi
+
+switch-theme "$theme"
