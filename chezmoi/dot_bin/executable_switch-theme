@@ -304,9 +304,13 @@ EOF
 }
 
 reload_running_apps() {
+  echo "[reload] kitty"
   pkill -SIGUSR1 kitty 2>/dev/null || true
-  pkill -SIGUSR2 ghostty 2>/dev/null || true
+  echo "[reload] ghostty"
+  osascript -e 'tell application "System Events" to tell process "ghostty" to keystroke "," using {command down, shift down}' 2>/dev/null || true
+  echo "[reload] btop"
   pkill -SIGUSR2 btop 2>/dev/null || true
+  echo "[reload] zellij"
   zellij action reload-config 2>/dev/null || true
 }
 
