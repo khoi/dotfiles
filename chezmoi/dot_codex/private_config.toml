@@ -1,0 +1,21 @@
+model = "gpt-5.2-codex"
+model_reasoning_effort = "high"
+model_verbosity = "low"
+forced_login_method = "chatgpt"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[features]
+ghost_commit = false
+unified_exec = true
+apply_patch_freeform = true
+web_search_request = true
+skills = true
+shell_snapshot = true
+
+[notice]
+hide_rate_limit_model_nudge = true
+
+[feedback]
+enabled = false
+
