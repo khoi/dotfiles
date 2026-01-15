@@ -24,7 +24,7 @@ set -gx EDITOR nvim
 set -gx HOMEBREW_NO_ANALYTICS 1
 set -gx HOMEBREW_NO_AUTO_UPDATE 1
 set -gx HOMEBREW_VERBOSE 1
-set -gx GHQ_ROOT ~/Developer/code
+set -gx GJ_ROOT ~/Developer/code
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 set -gx XDG_CONFIG_HOME ~/.config
 

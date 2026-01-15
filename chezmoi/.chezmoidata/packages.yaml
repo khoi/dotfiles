@@ -17,7 +17,7 @@ packages:
       - fzf
       - gawk
       - gh
-      - ghq
+      - gj
       - git
       - git-absorb
       - git-crypt

@@ -92,8 +92,8 @@ if type starship >/dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# ghq https://github.com/x-motemen/ghq
-export GHQ_ROOT=~/Developer/code
+# gj
+export GJ_ROOT=~/Developer/code
 
 # restic
 export RESTIC_REPOSITORY="rest:http://restic:restic@vault.local:8769"
