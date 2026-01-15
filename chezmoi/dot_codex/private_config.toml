@@ -19,7 +19,3 @@ hide_rate_limit_model_nudge = true
 
 [feedback]
 enabled = false
-
-[tui]
-animations = false
-
