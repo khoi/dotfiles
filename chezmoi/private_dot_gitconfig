@@ -26,8 +26,6 @@
 [commit]
 	gpgsign = true
 	status = false
-[gj]
-	root = ~/code
 [init]
 	defaultBranch = main
 [filter "lfs"]

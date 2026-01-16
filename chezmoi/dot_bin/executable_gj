@@ -10,12 +10,13 @@ usage() {
 Usage:
   $script_name get [git clone flags...] <repo>
 
-Environment:
-  GJ_ROOT   Existing directory where repositories are stored.
+Config:
+  gj.root   Existing directory where repositories are stored.
 
 Examples:
   $script_name get https://github.com/org/repo
   $script_name get --depth 1 git@github.com:org/repo.git
+  git config --global gj.root ~/Developer/code
 EOF
 }
 
@@ -66,12 +67,14 @@ run_get() {
     exit 2
   fi
 
-  if [[ -z "${GJ_ROOT-}" ]]; then
-    die "GJ_ROOT is not set"
+  root=$(git config --get gj.root || true)
+  if [[ -z "$root" ]]; then
+    die "gj.root is not set in git config"
   fi
 
-  if [[ ! -d "$GJ_ROOT" ]]; then
-    die "GJ_ROOT does not exist: $GJ_ROOT"
+  root="${root/#\~/$HOME}"
+  if [[ ! -d "$root" ]]; then
+    die "gj.root does not exist: $root"
   fi
 
   if [[ $# -eq 1 ]]; then
@@ -85,11 +88,12 @@ run_get() {
     die "Could not parse repo: $repo"
   fi
 
-  dest="$GJ_ROOT/$rel"
+  dest="$root/$rel"
 
   if [[ -e "$dest" ]]; then
     if [[ -d "$dest/.git" ]]; then
       git -C "$dest" remote update --prune
+      printf '%s\n' "$dest"
       return 0
     fi
     die "Destination exists and is not a git repo: $dest"
@@ -97,6 +101,7 @@ run_get() {
 
   mkdir -p "$(dirname "$dest")"
   git clone "${flags[@]}" "$repo" "$dest"
+  printf '%s\n' "$dest"
 }
 
 main() {
