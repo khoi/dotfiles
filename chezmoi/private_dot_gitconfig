@@ -42,3 +42,5 @@
 	nuke = "!git reset --hard && git clean -fd"
 [submodule]
 	recurse = true
+[gj]
+	root = /Users/khoi/Developer/code
