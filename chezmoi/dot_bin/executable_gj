@@ -14,6 +14,7 @@ Config:
   gj.root   Existing directory where repositories are stored.
 
 Examples:
+  $script_name get org/repo
   $script_name get https://github.com/org/repo
   $script_name get --depth 1 git@github.com:org/repo.git
   git config --global gj.root ~/Developer/code
@@ -27,6 +28,15 @@ die() {
 
 require_git() {
   command -v git >/dev/null 2>&1 || die "git is required on PATH"
+}
+
+is_shorthand() {
+  local input=$1
+  [[ "$input" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]
+}
+
+expand_shorthand() {
+  printf 'https://github.com/%s\n' "$1"
 }
 
 parse_repo() {
@@ -82,6 +92,10 @@ run_get() {
   else
     repo="${@: -1}"
     flags=("${@:1:$#-1}")
+  fi
+
+  if is_shorthand "$repo"; then
+    repo=$(expand_shorthand "$repo")
   fi
 
   if ! rel=$(parse_repo "$repo"); then
