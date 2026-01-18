@@ -13,7 +13,7 @@
 
 # Misc
 
-- When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` to do it
+- When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
 - When interacting with GitHub, always use the gh CLI and not the browser
 - When Git commiting, only add the files related to the change, skip everything else. 
 - Before commiting, make sure to run lint, check if there is one. Run tests if they're lightweight.
