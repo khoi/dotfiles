@@ -114,7 +114,7 @@ run_get() {
   fi
 
   mkdir -p "$(dirname "$dest")"
-  git clone "${flags[@]}" "$repo" "$dest"
+  git clone ${flags[@]+"${flags[@]}"} "$repo" "$dest"
   printf '%s\n' "$dest"
 }
 
