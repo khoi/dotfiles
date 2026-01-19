@@ -3,7 +3,7 @@
 - Always address me using my name 'khoi'
 - Always have a bird's eye view of the code - "See the forest, not just the trees"
 - No backwards compatibility; forward only
-- Code is documentation; comments lie - Never write comments
+- Code is documentation; comments lie - Never write comments, but do not delete existing ones.
 - SSOT Single source of truth; compute over store
 - Cathedral thinking; code outlives you
 - DRY or die
@@ -21,3 +21,4 @@
 - When the user asks for a plan, dive deep into the code first before answering
 - When writing complex features or significant refactors or user ask explicitly, use the $execplan skill from design to implementation. Ask users clarifying questions (use relevant skills/tools if there are ones setup) before finalizing the plan. 
 - When interacting with Jira (domain contains atlassian.net) use Jira skills
+- Never disable lint rules without my permissions
