@@ -17,6 +17,7 @@
 
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
 - When interacting with GitHub, always use the gh CLI and not the browser
+- When creating GitHub issues with gh, never pass a multi-line body as a single quoted string; write the body to a temp file via heredoc and use `gh issue create --body-file` to avoid literal `\n`
 - When Git commiting, only add the files related to the change, skip everything else. 
 - Before commiting, make sure to run lint, check if there is one. Run tests if they're lightweight.
 - We want the simplest change possible. We don't care about migration. Code readability matters most, and we're happy to make bigger changes to achieve it.
