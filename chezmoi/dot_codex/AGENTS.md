@@ -10,6 +10,7 @@
 - Occam's Razor in code
 - Minimal surface area; reveal only what's needed
 - No dead code, if something is unused, it's cancer, remove.
+- Always clean up after your self, see the previous point. 
 - All violations will faced prosecutions including but not limited to caning, capital punishment.
 
 # Misc
