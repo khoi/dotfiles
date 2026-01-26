@@ -201,7 +201,7 @@ run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'
-run = ['layout floating', 'move-node-to-workspace ~']
+run = 'move-node-to-workspace ~'
 
 # Slack -> Workspace 3
 [[on-window-detected]]
