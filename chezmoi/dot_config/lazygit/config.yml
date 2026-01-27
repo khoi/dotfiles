@@ -1,4 +1,4 @@
- customCommands:
+customCommands:
   - key: "<c-s>"
     context: "global"
     command: "claude -p '/commit' && git pull --rebase --no-tags origin $(git branch --show-current) 2>/dev/null || true && git push --no-verify -u origin HEAD"
@@ -21,7 +21,7 @@ git:
   autoRefresh: true
 
 gui:
-  screenMode: half
+  screenMode: full
   spinner:
     frames:
       - "⢿"
@@ -32,24 +32,24 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Flexoki Light theme
+  # Kanagawa theme
   theme:
     activeBorderColor:
-      - "#BC5215"
+      - "#DCA561"
       - bold
     inactiveBorderColor:
-      - "#6F6E69"
+      - "#727169"
     optionsTextColor:
-      - "#205EA6"
+      - "#7aa89f"
     selectedLineBgColor:
-      - "#414868"
+      - "#223249"
     cherryPickedCommitBgColor:
-      - "#414868"
+      - "#223249"
     cherryPickedCommitFgColor:
-      - "#100F0F"
+      - "#dca561"
     unstagedChangesColor:
-      - "#AF3029"
+      - "#E82424"
     defaultFgColor:
-      - "#100F0F"
+      - "#dcd7ba"
     searchingActiveBorderColor:
-      - "#BC5215"
+      - "#DCA561"
