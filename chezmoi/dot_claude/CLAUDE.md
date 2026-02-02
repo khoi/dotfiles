@@ -15,6 +15,8 @@
 
 # Misc
 
+- Automatically commit your changes and your changes only. Do not use `git add .`
+- Before you go on your task, check the current git branch name, if it's something generic like an animal name, name it accordingly. Do not do this for main branch
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
 - When interacting with GitHub, always use the gh CLI and not the browser
 - When creating GitHub issues with gh, never pass a multi-line body as a single quoted string; write the body to a temp file via heredoc and use `gh issue create --body-file` to avoid literal `\n`
