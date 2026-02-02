@@ -31,9 +31,13 @@ set -gx XDG_CONFIG_HOME ~/.config
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
 set -gx FZF_CTRL_T_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
 
-# FZF shell integration (Ctrl+R history, Ctrl+T files, Alt+C cd)
+# FZF shell integration (cached)
 if command -v fzf &>/dev/null
-    fzf --fish | source
+    set -l fzf_cache "$HOME/.cache/fzf_init.fish"
+    if not test -f $fzf_cache; or test (command -v fzf) -nt $fzf_cache
+        fzf --fish > $fzf_cache
+    end
+    source $fzf_cache
 end
 
 # Abbreviations (expand in-place)
@@ -50,19 +54,6 @@ command -v nvim &>/dev/null && alias vim nvim
 command -v bat &>/dev/null && alias cat bat
 alias nproc "sysctl -n hw.logicalcpu"
 
-# eza aliases (if available)
-if command -v eza &>/dev/null
-    alias ls 'eza --color=always --group-directories-first --icons'
-    alias ll 'eza -la --octal-permissions --group-directories-first --icons'
-    alias l 'eza -bGF --header --git --color=always --group-directories-first --icons'
-    alias lm 'eza -bGF --header --git --color=always --group-directories-first --icons --sort=modified'
-    alias la 'eza --long --all --group --group-directories-first --icons'
-    alias lx 'eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale --color=always --group-directories-first --icons'
-    alias lS 'eza -1 --color=always --group-directories-first --icons'
-    alias lt 'eza --tree --level=2 --color=always --group-directories-first --icons'
-    alias l. "eza -a | grep -E '^\.'"
-end
-
 # PATH (validate directories exist)
 test -d ~/.bin && fish_add_path ~/.bin
 test -d ~/.local/bin && fish_add_path ~/.local/bin
@@ -72,9 +63,13 @@ test -d ~/.bun/bin && fish_add_path ~/.bun/bin
 bind \cf forward-word # Ctrl+F: accept one word of autosuggestion
 bind \ce end-of-line # Ctrl+E: accept full autosuggestion
 
-# Initialize zoxide if installed
+# Initialize zoxide (cached)
 if command -v zoxide &>/dev/null
-    zoxide init fish | source
+    set -l zoxide_cache "$HOME/.cache/zoxide_init.fish"
+    if not test -f $zoxide_cache; or test (command -v zoxide) -nt $zoxide_cache
+        zoxide init fish > $zoxide_cache
+    end
+    source $zoxide_cache
 end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :

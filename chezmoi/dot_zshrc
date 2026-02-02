@@ -1,14 +1,3 @@
-# Powerlevel10k
-#
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-source ~/antigen.zsh
-
 [ -f ~/.zsh_local ] && source ~/.zsh_local # local configs, private envs
 
 # lang
@@ -16,15 +5,11 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
 # antigen setup
+source ~/antigen.zsh
 antigen use oh-my-zsh
-
 antigen bundle git
-antigen bundle pip
-antigen bundle bundler
 antigen bundle zsh-users/zsh-completions
 antigen bundle Aloxaf/fzf-tab
-antigen theme romkatv/powerlevel10k
-
 antigen apply
 
 
@@ -53,33 +38,26 @@ export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE=1
 
-[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  FPATH=/opt/homebrew/share/zsh/site-functions:$FPATH
+fi
 
-if type brew &>/dev/null; then
-  export PATH="$(brew --prefix)/bin:$PATH"
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-
-  autoload -Uz compinit
+autoload -Uz compinit
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
   compinit
+else
+  compinit -C
 fi
 
 # PATH
 export PATH=~/.bin:$PATH
 
 # Nvim
-if type nvim >/dev/null; then
-  alias vi="nvim"
-  alias v="nvim"
-  alias vim="nvim"
-fi
+(( $+commands[nvim] )) && alias vi="nvim" v="nvim" vim="nvim"
 
-# lazygit 
+# lazygit
 alias lg="lazygit"
-
-# Github CLI
-if type gh >/dev/null; then
-  eval "$(gh completion -s zsh)"
-fi
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -87,9 +65,14 @@ export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore --follow'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--tiebreak end"
 
-# starship
-if type starship >/dev/null; then
-  eval "$(starship init zsh)"
+# starship (cached init)
+if (( $+commands[starship] )); then
+  _starship_cache="${XDG_CACHE_HOME:-$HOME/.cache}/starship_init.zsh"
+  if [[ ! -f "$_starship_cache" || "$_starship_cache" -ot "$(command -v starship)" ]]; then
+    starship init zsh > "$_starship_cache"
+  fi
+  source "$_starship_cache"
+  unset _starship_cache
 fi
 
 # gj
@@ -102,16 +85,13 @@ export RESTIC_PASSWORD_COMMAND="op read 'op://Personal/vault/restic encryption'"
 # ripgrep
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
-if type bat >/dev/null; then
-  alias cat="bat"
-fi
+(( $+commands[bat] )) && alias cat="bat"
 
 # eza alias
-if type eza >/dev/null; then
-  # general use
-  alias ls='eza'                                                         # ls
-  alias l='eza --icons -lbF'                                               # list, size, type, git
-  alias lt='eza --icons --tree --level=2' # tree
+if (( $+commands[eza] )); then
+  alias ls='eza'
+  alias l='eza --icons -lbF'
+  alias lt='eza --icons --tree --level=2'
 fi
 
 # fzf-tab
@@ -128,18 +108,17 @@ function y() {
   rm -f -- "$tmp"
 }
 
-if type zoxide >/dev/null; then
-  eval "$(zoxide init zsh)"
+# zoxide (cached init)
+if (( $+commands[zoxide] )); then
+  _zoxide_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zoxide_init.zsh"
+  if [[ ! -f "$_zoxide_cache" || "$_zoxide_cache" -ot "$(command -v zoxide)" ]]; then
+    zoxide init zsh > "$_zoxide_cache"
+  fi
+  source "$_zoxide_cache"
+  unset _zoxide_cache
 fi
 
-if type aicommits >/dev/null; then
-  alias aic='aicommits'
-fi
+(( $+commands[aicommits] )) && alias aic='aicommits'
 
 # TLDR update
 export TLDR_AUTO_UPDATE_DISABLED=1
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-PATH=~/.console-ninja/.bin:$PATH
