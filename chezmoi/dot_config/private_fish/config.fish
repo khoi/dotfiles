@@ -35,7 +35,7 @@ set -gx FZF_CTRL_T_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-pref
 if command -v fzf &>/dev/null
     set -l fzf_cache "$HOME/.cache/fzf_init.fish"
     if not test -f $fzf_cache; or test (command -v fzf) -nt $fzf_cache
-        fzf --fish > $fzf_cache
+        fzf --fish >$fzf_cache
     end
     source $fzf_cache
 end
@@ -67,10 +67,22 @@ bind \ce end-of-line # Ctrl+E: accept full autosuggestion
 if command -v zoxide &>/dev/null
     set -l zoxide_cache "$HOME/.cache/zoxide_init.fish"
     if not test -f $zoxide_cache; or test (command -v zoxide) -nt $zoxide_cache
-        zoxide init fish > $zoxide_cache
+        zoxide init fish >$zoxide_cache
     end
     source $zoxide_cache
 end
 
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 abbr -a fd 'fd -HI'
+
+if command -v gj &>/dev/null
+    function gj --wraps gj --description 'gj wrapper that auto-cds on get'
+        if test (count $argv) -ge 1 && test "$argv[1]" = get
+            set -l dest (command gj $argv)
+            and test -d "$dest"
+            and cd "$dest"
+        else
+            command gj $argv
+        end
+    end
+end
