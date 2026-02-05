@@ -16,12 +16,13 @@
 	autoUpdate = true
 [fetch]
 	prune = true
+	parallel = 0
 [rebase]
 	autosquash = true
 	autostash = true
 [user]
 	name = khoi
-	email = git@khoi.io
+	email = 6994441+khoi@users.noreply.github.com
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEIR0MxbYdOCgxOp1D27lGSjolzabibv88N2wplMbcbE
 [commit]
 	gpgsign = true
@@ -42,5 +43,14 @@
 	nuke = "!git reset --hard && git clean -fd"
 [submodule]
 	recurse = true
+	fetchJobs = 12
+	alternatelocation = superproject
+	alternateerrorstrategy = info
+[checkout]
+	workers = 0
+[pack]
+	threads = 0
+[index]
+	threads = 0
 [gj]
 	root = /Users/khoi/Developer/code

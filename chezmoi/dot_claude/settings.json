@@ -6,6 +6,9 @@
     "DISABLE_ERROR_REPORTING": "1"
   },
   "includeCoAuthoredBy": false,
+  "permissions": {
+    "defaultMode": "default"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/cc-statusline-rs"
@@ -13,11 +16,43 @@
   "enabledPlugins": {
     "pr-review-toolkit@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "ralph-wiggum@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true
+    "gn-github@goodnotes-skills": true
   },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086902587
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /tmp/notify.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /tmp/notify.sh"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /tmp/notify.sh"
+          }
+        ]
+      }
+    ]
   }
 }

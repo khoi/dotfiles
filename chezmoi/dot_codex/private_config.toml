@@ -1,18 +1,19 @@
 model = "gpt-5.2-codex"
-model_reasoning_effort = "high"
+notify = ["bash", "/tmp/notify.sh"]
+model_reasoning_effort = "xhigh"
 model_verbosity = "low"
 forced_login_method = "chatgpt"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 file_opener = "cursor"
+personality = "pragmatic"
 
 [features]
 ghost_commit = false
 unified_exec = true
-apply_patch_freeform = true
-web_search_request = true
 skills = true
 shell_snapshot = true
+steer = true
 
 [notice]
 hide_rate_limit_model_nudge = true
