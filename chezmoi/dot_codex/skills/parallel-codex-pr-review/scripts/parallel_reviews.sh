@@ -4,7 +4,7 @@ set -euo pipefail
 count=""
 base=""
 model="gpt-5.3-codex"
-reasoning_effort="high"
+reasoning_effort="xhigh"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -81,7 +81,7 @@ export PARALLEL_REVIEW_REASONING="$reasoning_effort"
 combined="$(
   seq 1 "$count" | xargs -P "$count" -I{} bash -c '
     idx="$1"
-    out="$(codex e review -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''\"$PARALLEL_REVIEW_REASONING\"'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
+    out="$(codex e review -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''$PARALLEL_REVIEW_REASONING'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
     code="$?"
     printf "<<<REVIEW:%s:EXIT:%s>>>\n" "$idx" "$code"
     printf "%s\n" "$out"
