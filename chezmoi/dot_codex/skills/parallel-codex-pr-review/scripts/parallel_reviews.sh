@@ -78,11 +78,19 @@ export PARALLEL_REVIEW_MODEL="$model"
 export PARALLEL_REVIEW_BASE="$base"
 export PARALLEL_REVIEW_REASONING="$reasoning_effort"
 
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required" >&2
+  exit 1
+fi
+
 combined="$(
   seq 1 "$count" | xargs -P "$count" -I{} bash -c '
     idx="$1"
-    out="$(codex e review -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''$PARALLEL_REVIEW_REASONING'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
+    set +e
+    json="$(codex e review --json -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''$PARALLEL_REVIEW_REASONING'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
     code="$?"
+    set -e
+    out="$(printf "%s\n" "$json" | jq -r "select(.type==\"item.completed\" and .item.type==\"agent_message\") | .item.text" | tail -n 1)"
     printf "<<<REVIEW:%s:EXIT:%s>>>\n" "$idx" "$code"
     printf "%s\n" "$out"
     printf "<<<END:%s>>>\n" "$idx"
