@@ -83,19 +83,39 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-combined="$(
-  seq 1 "$count" | xargs -P "$count" -I{} bash -c '
-    idx="$1"
-    set +e
-    json="$(codex e review --json -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''$PARALLEL_REVIEW_REASONING'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
-    code="$?"
-    set -e
-    out="$(printf "%s\n" "$json" | jq -r "select(.type==\"item.completed\" and .item.type==\"agent_message\") | .item.text" | tail -n 1)"
-    printf "<<<REVIEW:%s:EXIT:%s>>>\n" "$idx" "$code"
-    printf "%s\n" "$out"
-    printf "<<<END:%s>>>\n" "$idx"
-  ' _ {}
-)"
+heartbeat_interval="${HEARTBEAT_INTERVAL_SECONDS:-15}"
+if ! [[ "$heartbeat_interval" =~ ^[0-9]+$ ]] || [[ "$heartbeat_interval" -le 0 ]]; then
+  echo "HEARTBEAT_INTERVAL_SECONDS must be a positive integer" >&2
+  exit 2
+fi
+
+combined_file="$(mktemp)"
+cleanup() {
+  rm -f "$combined_file"
+}
+trap cleanup EXIT
+
+seq 1 "$count" | xargs -P "$count" -I{} bash -c '
+  idx="$1"
+  set +e
+  json="$(codex e review --json -m "$PARALLEL_REVIEW_MODEL" -c "model_reasoning_effort='\''$PARALLEL_REVIEW_REASONING'\''" --base "$PARALLEL_REVIEW_BASE" 2>/dev/null)"
+  code="$?"
+  set -e
+  out="$(printf "%s\n" "$json" | jq -r "select(.type==\"item.completed\" and .item.type==\"agent_message\") | .item.text" | tail -n 1)"
+  printf "<<<REVIEW:%s:EXIT:%s>>>\n" "$idx" "$code"
+  printf "%s\n" "$out"
+  printf "<<<END:%s>>>\n" "$idx"
+' _ {} >"$combined_file" &
+reviews_pid="$!"
+
+while kill -0 "$reviews_pid" >/dev/null 2>&1; do
+  completed="$(awk '/^<<<END:[0-9]+>>>$/ { c++ } END { print c + 0 }' "$combined_file")"
+  printf "[heartbeat] %s completed %s/%s review runs\n" "$(date '+%H:%M:%S')" "$completed" "$count"
+  sleep "$heartbeat_interval"
+done
+wait "$reviews_pid"
+
+combined="$(cat "$combined_file")"
 
 printf "Base branch: %s\n" "$base"
 printf "Reviewers requested: %s\n" "$count"
