@@ -1,0 +1,5 @@
+interface:
+  display_name: "Parallel Codex PR Review"
+  short_description: "Run parallel PR reviews and validate findings"
+  default_prompt: "Use $parallel-codex-pr-review to run N parallel Codex reviews, validate and dedupe findings, and build a fix plan."
+
