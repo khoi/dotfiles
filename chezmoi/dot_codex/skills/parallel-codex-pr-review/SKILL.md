@@ -48,3 +48,7 @@ The script emits periodic heartbeat lines while reviews are running.
 As long as heartbeat lines continue to print, the run is healthy.
 
 Large repositories can take a long time before final review blocks are printed.
+
+Do not poll for completion state. Do not inspect processes. Do not kill processes.
+
+During long runs, do nothing except wait for completion while heartbeat is active.
