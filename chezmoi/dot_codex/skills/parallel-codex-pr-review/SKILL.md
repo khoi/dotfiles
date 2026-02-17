@@ -40,3 +40,11 @@ Run 8 reviewers and force a base branch:
 ```bash
 bash scripts/parallel_reviews.sh --count 8 --base develop
 ```
+
+## Heartbeat
+
+The script emits periodic heartbeat lines while reviews are running.
+
+As long as heartbeat lines continue to print, the run is healthy.
+
+Large repositories can take a long time before final review blocks are printed.
