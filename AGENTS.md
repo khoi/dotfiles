@@ -16,15 +16,6 @@ chezmoi diff                       # preview changes
   - `.chezmoiscripts/` - install scripts (homebrew, macOS prefs)
   - `dot_*` maps to `~/.*`
   - `private_*` prefix for sensitive files
-- `karabiner/` - TypeScript-based Karabiner config generator
-
-## Karabiner Config
-
-```bash
-cd karabiner && make       # builds rules.ts → ~/.config/karabiner/karabiner.json, run after changes
-```
-
-TypeScript generates JSON config. Hyper key = right_option. Edit `rules.ts` for keybinds.
 
 ## Rules
 
