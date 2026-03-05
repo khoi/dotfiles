@@ -90,9 +90,14 @@ EOF
 }
 
 apply_ghostty() {
-  local dir="$1" slug="$2" theme_name="$3"
+  local dir="$1" slug="$2" theme_name="$3" background="$4"
   if [[ ! -f "$GHOSTTY_CONFIG" ]]; then
     echo "[ghostty] warning: ghostty config missing at $GHOSTTY_CONFIG" >&2
+    return 0
+  fi
+
+  if [[ "$background" != "light" ]]; then
+    echo "[ghostty] skipping dark update for now"
     return 0
   fi
 
@@ -105,14 +110,31 @@ apply_ghostty() {
   ' "$GHOSTTY_CONFIG" >"$tmp"
 
   if [[ -n "$theme_name" ]]; then
+    local current_theme dark_theme new_theme
+    current_theme=$(sed -n 's/^[[:space:]]*theme[[:space:]]*=[[:space:]]*//p' "$tmp" | head -n1)
+    dark_theme=$(perl -e '
+      my $s = shift // "";
+      if ($s =~ /(?:^|,)\s*dark:([^,]+)/) {
+        print $1;
+      } elsif ($s =~ /(?:^|,)\s*light:([^,]+)/) {
+        print $1;
+      } else {
+        print $s;
+      }
+    ' "$current_theme")
+    dark_theme=$(echo "$dark_theme" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+    new_theme="light:$theme_name"
+    if [[ -n "$dark_theme" ]]; then
+      new_theme="$new_theme,dark:$dark_theme"
+    fi
     if grep -q '^[[:space:]]*theme[[:space:]]*=' "$tmp"; then
-      perl -pi -e 's/^\s*theme\s*=.*/theme = '"$theme_name"'/g' "$tmp"
+      perl -pi -e 's/^\s*theme\s*=.*/theme = '"$new_theme"'/g' "$tmp"
     else
-      echo "theme = $theme_name" >>"$tmp"
+      echo "theme = $new_theme" >>"$tmp"
     fi
     mv "$tmp" "$GHOSTTY_CONFIG"
     chmod 644 "$GHOSTTY_CONFIG" 2>/dev/null || true
-    echo "[ghostty] theme=$theme_name"
+    echo "[ghostty] theme=$new_theme"
     return 0
   fi
 
@@ -351,10 +373,14 @@ main() {
 
   echo "[theme] applying $slug"
 
-  write_nvim_theme "$theme_dir" "$slug" "$colorscheme" "$background" || exit 1
-  echo "[nvim] colorscheme=$colorscheme, bg=$background"
+  if [[ "$background" == "light" ]]; then
+    write_nvim_theme "$theme_dir" "$slug" "$colorscheme" "$background" || exit 1
+    echo "[nvim] updated light colorscheme=$colorscheme"
+  else
+    echo "[nvim] skipping dark update for now"
+  fi
 
-  apply_ghostty "$theme_dir" "$slug" "$ghostty_theme"
+  apply_ghostty "$theme_dir" "$slug" "$ghostty_theme" "$background"
   local zed_name="${ghostty_theme:-$(friendly "$slug")}"
   apply_zed "$zed_name"
   apply_btop "$theme_dir" "$slug"
