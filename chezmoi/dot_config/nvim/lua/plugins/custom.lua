@@ -15,21 +15,31 @@ else
     vim.g.switch_theme = {
       name = "tokyo-night",
       colorscheme = "tokyonight-night",
+      dark_colorscheme = "tokyonight-night",
+      light_colorscheme = "tokyonight-day",
       background = "dark",
     }
   end
 end
 
 local function current_theme()
-  return vim.g.switch_theme or { colorscheme = "tokyonight-night", background = "dark" }
+  return vim.g.switch_theme
+    or {
+      colorscheme = "tokyonight-night",
+      dark_colorscheme = "tokyonight-night",
+      light_colorscheme = "tokyonight-day",
+      background = "dark",
+    }
 end
 
 table.insert(plugins, {
   "f-person/auto-dark-mode.nvim",
   opts = function()
     local theme = current_theme()
-    local colorscheme = theme.colorscheme or "tokyonight-night"
+    local dark_colorscheme = theme.dark_colorscheme or theme.colorscheme or "tokyonight-night"
+    local light_colorscheme = theme.light_colorscheme or theme.colorscheme or dark_colorscheme
     local function apply(background)
+      local colorscheme = background == "light" and light_colorscheme or dark_colorscheme
       vim.api.nvim_set_option_value("background", background, {})
       vim.cmd.colorscheme(colorscheme)
     end
