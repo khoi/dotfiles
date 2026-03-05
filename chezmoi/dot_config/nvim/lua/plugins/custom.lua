@@ -29,15 +29,18 @@ table.insert(plugins, {
   opts = function()
     local theme = current_theme()
     local colorscheme = theme.colorscheme or "tokyonight-night"
-    local background = theme.background or "dark"
-    local function apply()
+    local function apply(background)
       vim.api.nvim_set_option_value("background", background, {})
       vim.cmd.colorscheme(colorscheme)
     end
     return {
       update_interval = 1000,
-      set_dark_mode = apply,
-      set_light_mode = apply,
+      set_dark_mode = function()
+        apply("dark")
+      end,
+      set_light_mode = function()
+        apply("light")
+      end,
     }
   end,
 })
