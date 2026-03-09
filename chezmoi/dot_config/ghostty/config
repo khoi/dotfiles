@@ -24,5 +24,11 @@ macos-window-buttons = hidden
 # Keybindings
 keybind = super+p=toggle_command_palette
 keybind = super+enter=unbind
-keybind = shift+enter=text:\x1b\r
-theme = light:Catppuccin Latte,dark:Srcery
+keybind = opt+h=goto_split:left
+keybind = opt+j=goto_split:bottom
+keybind = opt+k=goto_split:top
+keybind = opt+l=goto_split:right
+theme = light:Atom One Light,dark:Atom One Dark
+
+# background-opacity = 0.95
+# background-blur = 10
