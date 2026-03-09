@@ -64,6 +64,7 @@ local rest = {
       opts.picker.sources = opts.picker.sources or {}
       opts.picker.sources.files = vim.tbl_deep_extend("force", opts.picker.sources.files or {}, {
         hidden = true,
+        ignored = true,
       })
       return opts
     end,
