@@ -2,14 +2,12 @@ packages:
   darwin:
     taps:
       - xcodesorg/made
-      - FelixKratz/formulae
       - nikitabobko/tap
 
     brews:
       - age
       - aria2
       - bat
-      - borders
       - chezmoi
       - eza
       - fd
@@ -30,7 +28,7 @@ packages:
       - media-control
       - m-cli
       - mosh
-      - nvim
+      - neovim
       - parallel
       - reattach-to-user-namespace
       - restic
