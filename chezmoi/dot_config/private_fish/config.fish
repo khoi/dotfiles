@@ -48,6 +48,8 @@ abbr -a c cursor
 abbr -a ac "claude --dangerously-skip-permissions"
 abbr -a acf "claude --dangerously-skip-permissions --resume --fork-session"
 abbr -a ad codex
+abbr -a adf "codex --profile fast"
+abbr -a ads "codex --profile slow"
 
 # Aliases (command replacements)
 command -v nvim &>/dev/null && alias vim nvim
