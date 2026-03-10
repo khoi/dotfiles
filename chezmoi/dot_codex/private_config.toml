@@ -1,7 +1,7 @@
 approval_policy = "never"
 forced_login_method = "chatgpt"
 model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "low"
+model_reasoning_effort = "medium"
 model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
@@ -34,24 +34,3 @@ status_line = [
   "five-hour-limit",
   "weekly-limit"
 ]
-
-[projects."/Users/khoi/Developer/code/github.com/Goodnotes-Paddington/frontend"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/.supacode/repos/frontend/sunny-wolf-433"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/.supacode/repos/frontend/quick-shark-727"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/.supacode/repos/frontend/curious-kangaroo-237"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/.supacode/repos/frontend/happy-dog-516"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Developer/code/github.com/supabitapp/supacode"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Developer/code/github.com/GoodNotes/Goodnotes-5"]
-trust_level = "trusted"
