@@ -143,9 +143,6 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
 # Dock, Dashboard, and hot corners                                            #
 ###############################################################################
 
-# Disable displays have separate Spaces https://nikitabobko.github.io/AeroSpace/guide#a-note-on-displays-have-separate-spaces
-defaults write com.apple.spaces spans-displays -bool true
-
 # Wipe all (default) app icons from the Dock
 defaults write com.apple.dock persistent-apps -array
 
@@ -154,11 +151,6 @@ defaults write com.apple.dock static-only -bool true
 
 # Speed up Mission Control animations
 defaults write com.apple.dock expose-animation-duration -float 0.1
-
-# Don’t group windows by application in Mission Control
-# (i.e. use the old Exposé behavior instead)
-# This needs to be set to true for aerospace to work properly
-defaults write com.apple.dock expose-group-by-app -bool true
 
 # Remove the auto-hiding Dock delay
 defaults write com.apple.dock autohide-delay -float 0
