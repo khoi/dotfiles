@@ -34,3 +34,6 @@ status_line = [
   "five-hour-limit",
   "weekly-limit"
 ]
+
+[projects."/Users/khoi/.local/share/chezmoi"]
+trust_level = "trusted"
