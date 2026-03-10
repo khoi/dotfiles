@@ -52,17 +52,13 @@ packages:
       - 1password
       - 1password-cli
       - adguard
-      - arc
       - cleanshot
       - font-jetbrains-mono-nerd-font
-      - obsidian
       - orbstack
       - iina
-      - jordanbaird-ice
       - proxyman
       - raycast
       - sf-symbols
       - telegram
       - cursor
-      - wezterm
-      - keka
+      - ghostty
