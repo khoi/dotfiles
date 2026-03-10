@@ -8,7 +8,11 @@ zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
+"github:ldomaradzki/xcsift" = "latest"
+node = "22.22.0"
 
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = []
+trusted_config_paths = ["/Users/khoi/.supacode/repos"]
+idiomatic_version_file = true

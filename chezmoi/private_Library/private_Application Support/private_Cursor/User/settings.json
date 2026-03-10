@@ -9,15 +9,15 @@
   "editor.accessibilitySupport": "off",
   "editor.autoClosingBrackets": "always",
   "editor.fontFamily": "TX-02",
-  "editor.formatOnPaste": false,
-  "editor.formatOnSave": false,
-  "editor.formatOnType": false,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
   "editor.guides.bracketPairs": "active",
   "editor.inlineSuggest.enabled": true,
   "editor.minimap.enabled": false,
   "git.autoRepositoryDetection": false,
   "terminal.integrated.autoReplies": {},
-"git.enabled": false,
+  "git.enabled": false,
   "editor.quickSuggestions": {
     "strings": true
   },
@@ -52,7 +52,6 @@
     "*.ipynb": "jupyter-notebook"
   },
   "zenMode.fullScreen": false,
-
   "makefile.configureOnOpen": true,
   "security.promptForRemoteFileProtocolHandling": false,
   "search.useParentIgnoreFiles": true,

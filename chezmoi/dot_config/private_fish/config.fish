@@ -86,3 +86,10 @@ if command -v gj &>/dev/null
         end
     end
 end
+
+if not contains -- "/Users/khoi/.supacode/hooks/bin/" $PATH
+  set -gx PATH "/Users/khoi/.supacode/hooks/bin/" $PATH
+end
+
+# opencode
+fish_add_path /Users/khoi/.opencode/bin

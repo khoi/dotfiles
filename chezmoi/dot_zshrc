@@ -12,7 +12,6 @@ antigen bundle zsh-users/zsh-completions
 antigen bundle Aloxaf/fzf-tab
 antigen apply
 
-
 # Aliases
 alias o="open"
 alias dl="aria2c"
@@ -122,3 +121,6 @@ fi
 
 # TLDR update
 export TLDR_AUTO_UPDATE_DISABLED=1
+if [[ ":$PATH:" != *":/Users/khoi/.supacode/hooks/bin/:"* ]]; then
+  export PATH="/Users/khoi/.supacode/hooks/bin/:$PATH"
+fi

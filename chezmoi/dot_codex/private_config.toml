@@ -1,10 +1,11 @@
-model = "gpt-5.3-codex"
-model_reasoning_effort = "xhigh"
-model_verbosity = "low"
-forced_login_method = "chatgpt"
 approval_policy = "never"
-sandbox_mode = "danger-full-access"
+forced_login_method = "chatgpt"
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "low"
+model_verbosity = "low"
 personality = "pragmatic"
+sandbox_mode = "danger-full-access"
+service_tier = "fast"
 
 [agents]
 max_threads = 8
@@ -16,7 +17,7 @@ unified_exec = true
 skills = true
 shell_snapshot = true
 steer = true
-responses_websockets_v2 = true
+# responses_websockets_v2 = true
 multi_agent = true
 
 [notice]
@@ -24,3 +25,33 @@ hide_rate_limit_model_nudge = true
 
 [feedback]
 enabled = false
+
+[tui]
+status_line = [
+  "model-with-reasoning",
+  "context-remaining",
+  "current-dir",
+  "five-hour-limit",
+  "weekly-limit"
+]
+
+[projects."/Users/khoi/Developer/code/github.com/Goodnotes-Paddington/frontend"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/.supacode/repos/frontend/sunny-wolf-433"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/.supacode/repos/frontend/quick-shark-727"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/.supacode/repos/frontend/curious-kangaroo-237"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/.supacode/repos/frontend/happy-dog-516"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/Developer/code/github.com/supabitapp/supacode"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/Developer/code/github.com/GoodNotes/Goodnotes-5"]
+trust_level = "trusted"

@@ -3,12 +3,14 @@
   "env": {
     "USE_BUILTIN_RIPGREP": "0",
     "DISABLE_TELEMETRY": "1",
-    "DISABLE_ERROR_REPORTING": "1"
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "includeCoAuthoredBy": false,
   "permissions": {
     "defaultMode": "default"
   },
+  "hooks": {},
   "statusLine": {
     "type": "command",
     "command": "~/.claude/cc-statusline-rs"
@@ -19,40 +21,8 @@
     "gn-github@goodnotes-skills": true
   },
   "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086902587
-  },
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /tmp/notify.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /tmp/notify.sh"
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /tmp/notify.sh"
-          }
-        ]
-      }
-    ]
   }
 }
