@@ -53,7 +53,7 @@ function canEmit(hasUI: boolean): boolean {
   return hasUI && process.stdout.isTTY === true;
 }
 
-export default function ghostty(pi: ExtensionAPI) {
+export default function terminalProgress(pi: ExtensionAPI) {
   let activeAgents = 0;
   let clearTimer: ReturnType<typeof setTimeout> | undefined;
 
