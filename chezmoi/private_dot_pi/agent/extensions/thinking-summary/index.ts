@@ -40,9 +40,7 @@ function getCollapsedThinkingSummary(thinking: string): string {
     return "Thinking...";
   }
 
-  const visibleHeadings = headings.slice(0, 3);
-  const suffix = headings.length > visibleHeadings.length ? " · …" : "";
-  return truncateSummary(`${visibleHeadings.join(" · ")}${suffix}`);
+  return truncateSummary(headings[0]);
 }
 
 function summarizeMessage(message: AssistantMessageLike): AssistantMessageLike {
