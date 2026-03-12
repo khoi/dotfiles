@@ -49,6 +49,29 @@ function extractProgress(candidate: unknown): number | undefined {
   return clampProgress(progress);
 }
 
+function countToolCalls(candidate: unknown): number {
+  if (!candidate || typeof candidate !== "object") return 0;
+  const role = (candidate as { role?: unknown }).role;
+  const content = (candidate as { content?: unknown }).content;
+  if (role !== "assistant" || !Array.isArray(content)) return 0;
+  return content.filter((item) => item && typeof item === "object" && (item as { type?: unknown }).type === "toolCall").length;
+}
+
+function calculateProgress(total: number, completed: number, activeProgress?: number, hasActiveTool = false): number | undefined {
+  if (!Number.isFinite(total) || total <= 0) return undefined;
+  const safeCompleted = Math.max(0, Math.min(total, completed));
+
+  if (typeof activeProgress === "number" && Number.isFinite(activeProgress) && safeCompleted < total) {
+    return clampProgress(((safeCompleted + activeProgress / 100) / total) * 100);
+  }
+
+  if (hasActiveTool && safeCompleted < total) {
+    return clampProgress(((safeCompleted + 0.5) / total) * 100);
+  }
+
+  return clampProgress((safeCompleted / total) * 100);
+}
+
 function canEmit(hasUI: boolean): boolean {
   return hasUI && process.stdout.isTTY === true;
 }
@@ -56,6 +79,19 @@ function canEmit(hasUI: boolean): boolean {
 export default function terminalProgress(pi: ExtensionAPI) {
   let activeAgents = 0;
   let clearTimer: ReturnType<typeof setTimeout> | undefined;
+  let totalToolCalls = 0;
+  let completedToolCallIds = new Set<string>();
+  let activeToolCallId: string | undefined;
+  let activeToolProgress: number | undefined;
+  let lastProgress: number | undefined;
+
+  function resetToolProgress() {
+    totalToolCalls = 0;
+    completedToolCallIds = new Set<string>();
+    activeToolCallId = undefined;
+    activeToolProgress = undefined;
+    lastProgress = undefined;
+  }
 
   function cancelPendingClear() {
     if (clearTimer) {
@@ -64,36 +100,82 @@ export default function terminalProgress(pi: ExtensionAPI) {
     }
   }
 
+  function rememberProgress(progress?: number): number | undefined {
+    if (typeof progress !== "number" || !Number.isFinite(progress)) return undefined;
+    const nextProgress = clampProgress(progress);
+    if (typeof lastProgress === "number" && nextProgress < lastProgress && lastProgress < 100) {
+      return lastProgress;
+    }
+    lastProgress = nextProgress;
+    return nextProgress;
+  }
+
   function emit(hasUI: boolean, state: ProgressState, progress?: number) {
     if (!canEmit(hasUI)) return;
     cancelPendingClear();
-    writeSequence(buildSequence(state, progress));
+    writeSequence(buildSequence(state, state === "set" || state === "error" || state === "pause" ? rememberProgress(progress) : progress));
+  }
+
+  function emitTrackedProgress(hasUI: boolean, state: Exclude<ProgressState, "remove" | "indeterminate">, progress?: number) {
+    const trackedProgress = calculateProgress(
+      totalToolCalls,
+      completedToolCallIds.size,
+      activeToolCallId ? activeToolProgress : undefined,
+      activeToolCallId != null,
+    );
+    emit(hasUI, state, trackedProgress ?? progress);
   }
 
   pi.on("agent_start", async (_event, ctx) => {
+    if (activeAgents === 0) resetToolProgress();
     activeAgents += 1;
     emit(ctx.hasUI, "indeterminate");
   });
 
-  pi.on("tool_execution_start", async (_event, ctx) => {
-    emit(ctx.hasUI, "indeterminate");
+  pi.on("message_end", async (event) => {
+    const toolCalls = countToolCalls(event.message);
+    if (toolCalls === 0) return;
+    totalToolCalls = toolCalls;
+    completedToolCallIds = new Set<string>();
+    activeToolCallId = undefined;
+    activeToolProgress = undefined;
+    lastProgress = undefined;
+  });
+
+  pi.on("tool_execution_start", async (event, ctx) => {
+    activeToolCallId = event.toolCallId;
+    activeToolProgress = undefined;
+    const trackedProgress = calculateProgress(totalToolCalls, completedToolCallIds.size, undefined, true);
+    if (trackedProgress == null) {
+      emit(ctx.hasUI, "indeterminate");
+      return;
+    }
+    emit(ctx.hasUI, "set", trackedProgress);
   });
 
   pi.on("tool_execution_update", async (event, ctx) => {
     const progress = extractProgress(event.partialResult);
     if (progress == null) return;
-    emit(ctx.hasUI, "set", progress);
+    activeToolCallId = event.toolCallId;
+    activeToolProgress = progress;
+    emitTrackedProgress(ctx.hasUI, "set", progress);
   });
 
   pi.on("tool_execution_end", async (event, ctx) => {
+    completedToolCallIds.add(event.toolCallId);
+    if (activeToolCallId === event.toolCallId) {
+      activeToolCallId = undefined;
+      activeToolProgress = undefined;
+    }
+
     if (event.isError) {
-      emit(ctx.hasUI, "error", extractProgress(event.result));
+      emitTrackedProgress(ctx.hasUI, "error", extractProgress(event.result));
       return;
     }
 
-    const progress = extractProgress(event.result);
-    if (progress == null) return;
-    emit(ctx.hasUI, progress >= 100 ? "pause" : "set", progress);
+    const resultProgress = extractProgress(event.result);
+    const isComplete = totalToolCalls > 0 ? completedToolCallIds.size >= totalToolCalls : resultProgress === 100;
+    emitTrackedProgress(ctx.hasUI, isComplete ? "pause" : "set", resultProgress);
   });
 
   pi.on("agent_end", async (_event, ctx) => {
@@ -105,10 +187,12 @@ export default function terminalProgress(pi: ExtensionAPI) {
       writeSequence(buildSequence("remove"));
       clearTimer = undefined;
     }, CLEAR_DELAY_MS);
+    resetToolProgress();
   });
 
   pi.on("session_shutdown", async (_event, ctx) => {
     activeAgents = 0;
+    resetToolProgress();
     emit(ctx.hasUI, "remove");
   });
 }
