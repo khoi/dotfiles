@@ -10,8 +10,5 @@
   "editorPaddingX": 2,
   "steeringMode": "all",
   "quietStartup": true,
-  "theme": "light",
-  "packages": [
-    "npm:pi-ghostty"
-  ]
+  "theme": "light"
 }
