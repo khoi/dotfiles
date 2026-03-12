@@ -35,7 +35,9 @@ const HtmlEntityMap: Record<string, string> = {
 
 const WebFetchParams = Type.Object({
   url: Type.String({ description: "URL to fetch" }),
-  raw: Type.Optional(Type.Boolean({ description: "Return the raw response text without cleanup" })),
+  convert_to_markdown: Type.Optional(
+    Type.Boolean({ description: "Convert the response to cleaned readable markdown/text (default: true)" }),
+  ),
   timeout: Type.Optional(Type.Number({ description: "Timeout in seconds (default: 20)" })),
 });
 
@@ -54,7 +56,7 @@ interface WebFetchDetails {
   status: number;
   contentType: string;
   mode: WebFetchMode;
-  raw: boolean;
+  convertToMarkdown: boolean;
   viaMarkdownProxy?: boolean;
   markdownProxyUrl?: string;
   truncation?: TruncationResult;
@@ -174,8 +176,12 @@ function htmlToText(html: string): string {
   return text || title || "";
 }
 
-function formatProcessedBody(body: string, contentType: string, raw: boolean): { mode: WebFetchMode; text: string } {
-  if (raw) {
+function formatProcessedBody(
+  body: string,
+  contentType: string,
+  convertToMarkdown: boolean,
+): { mode: WebFetchMode; text: string } {
+  if (!convertToMarkdown) {
     return { mode: "raw", text: body.trim() };
   }
 
@@ -272,25 +278,25 @@ export default function webFetch(pi: ExtensionAPI) {
     name: "web_fetch",
     label: "Web Fetch",
     description: `Fetch a URL and return readable content. Supports HTML, JSON, markdown, and plain text. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}.`,
-    promptSnippet: "Fetch a URL and return cleaned readable content for HTML, JSON, markdown, or plain text.",
+    promptSnippet: "Fetch a URL and return cleaned readable markdown/text for HTML, JSON, markdown, or plain text.",
     promptGuidelines: [
       "Use this tool when the user provides a URL or asks you to inspect a specific web page.",
       "Prefer this tool over bash/curl for reading web content.",
-      "Use raw:true only when exact source response text matters more than readability.",
+      "Leave convert_to_markdown unset for the default cleaned output; set it to false only when exact source text matters more than readability.",
     ],
     parameters: WebFetchParams,
 
     async execute(_toolCallId, params, signal) {
       const url = normalizeUrl(params.url);
       const timeoutSeconds = clampTimeout(params.timeout);
-      const raw = params.raw === true;
+      const convertToMarkdown = params.convert_to_markdown !== false;
 
       const primary = await fetchText(url, timeoutSeconds, signal);
-      let processed = formatProcessedBody(primary.body, primary.contentType, raw);
+      let processed = formatProcessedBody(primary.body, primary.contentType, convertToMarkdown);
       let viaMarkdownProxy = false;
       let proxyUrl: string | undefined;
 
-      if (!raw && processed.mode === "html" && new URL(url).hostname !== "markdown.new") {
+      if (convertToMarkdown && processed.mode === "html" && new URL(url).hostname !== "markdown.new") {
         const proxied = await tryMarkdownProxy(url, timeoutSeconds, signal);
         if (proxied) {
           processed = { mode: "markdown", text: proxied.body };
@@ -321,7 +327,7 @@ export default function webFetch(pi: ExtensionAPI) {
         status: primary.status,
         contentType: primary.contentType || "unknown",
         mode: processed.mode,
-        raw,
+        convertToMarkdown,
         viaMarkdownProxy,
         markdownProxyUrl: proxyUrl,
       };
@@ -342,8 +348,8 @@ export default function webFetch(pi: ExtensionAPI) {
 
     renderCall(args, theme) {
       let text = theme.fg("toolTitle", theme.bold("web_fetch ")) + theme.fg("accent", args.url);
-      if (args.raw === true) {
-        text += theme.fg("warning", " raw");
+      if (args.convert_to_markdown === false) {
+        text += theme.fg("warning", " source");
       }
       if (typeof args.timeout === "number") {
         text += theme.fg("dim", ` ${Math.round(args.timeout)}s`);

@@ -6,7 +6,8 @@ Project-local pi extension that fetches a URL and returns readable text.
 
 - `web_fetch` tool for URLs
 - readable output for HTML, JSON, markdown, and plain text
-- `raw: true` to return source text without cleanup
+- `convert_to_markdown: true` by default for cleaned readable output
+- `convert_to_markdown: false` to return source text without cleanup
 - automatic `markdown.new` fallback for friendlier HTML extraction
 - truncates large output and saves full text to a temp file
 
@@ -15,7 +16,7 @@ Project-local pi extension that fetches a URL and returns readable text.
 ```json
 {
   "url": "https://example.com",
-  "raw": false,
+  "convert_to_markdown": true,
   "timeout": 20
 }
 ```
@@ -24,4 +25,4 @@ Project-local pi extension that fetches a URL and returns readable text.
 
 - `url` accepts bare domains and normalizes them to `https://...`
 - non-text content types are currently reported as unsupported
-- HTML cleanup is heuristic; use `raw: true` when exact source matters
+- HTML cleanup is heuristic; use `convert_to_markdown: false` when exact source matters
