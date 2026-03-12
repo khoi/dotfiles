@@ -1,4 +1,4 @@
-import type { ExtensionAPI, Theme } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import {
   createBashTool,
   createEditTool,
@@ -14,7 +14,20 @@ import { homedir } from "node:os";
 type BuiltInTools = ReturnType<typeof createBuiltInTools>;
 type BuiltInToolName = keyof BuiltInTools;
 
+type ToolSummaryItem = {
+  toolName: BuiltInToolName;
+  call: string;
+  output?: string;
+  isError?: boolean;
+};
+
+type ToolSummaryDetails = {
+  items: ToolSummaryItem[];
+};
+
+const CUSTOM_TYPE = "minimal-tool-summary";
 const toolCache = new Map<string, BuiltInTools>();
+const managedTools = new Set<BuiltInToolName>(["read", "bash", "edit", "write", "find", "grep", "ls"]);
 
 function createBuiltInTools(cwd: string) {
   return {
@@ -42,40 +55,64 @@ function shortenPath(path: string): string {
   return path.startsWith(home) ? `~${path.slice(home.length)}` : path;
 }
 
-function toolLabel(theme: Theme, label: string): string {
-  return `${theme.fg("success", "•")} ${theme.fg("toolTitle", theme.bold(label))}`;
-}
-
 function summarizeCommand(command: string): string {
   const singleLine = command.replace(/\s+/g, " ").trim();
   return singleLine.length > 100 ? `${singleLine.slice(0, 97)}...` : singleLine;
 }
 
-function renderExpandedResult(result: { content?: Array<{ type: string; text?: string }> }, theme: Theme) {
-  const image = result.content?.find((item) => item.type === "image");
+function formatToolCall(toolName: BuiltInToolName, args: Record<string, any>): string {
+  switch (toolName) {
+    case "read": {
+      const path = shortenPath(args.path || "...");
+      const start = args.offset;
+      const limit = args.limit;
+      if (start !== undefined || limit !== undefined) {
+        const first = start ?? 1;
+        const last = limit !== undefined ? first + limit - 1 : "";
+        return `${path}:${first}${last ? `-${last}` : ""}`;
+      }
+      return path;
+    }
+    case "bash":
+      return summarizeCommand(args.command || "...");
+    case "write": {
+      const path = shortenPath(args.path || "...");
+      const lineCount = typeof args.content === "string" ? args.content.split("\n").length : 0;
+      return lineCount > 0 ? `${path} (${lineCount} lines)` : path;
+    }
+    case "edit":
+      return shortenPath(args.path || "...");
+    case "find":
+      return `${args.pattern || ""} in ${shortenPath(args.path || ".")}`;
+    case "grep": {
+      const glob = args.glob ? ` (${args.glob})` : "";
+      return `/${args.pattern || ""}/ in ${shortenPath(args.path || ".")}${glob}`;
+    }
+    case "ls":
+      return shortenPath(args.path || ".");
+  }
+}
+
+function extractPreview(content: Array<{ type: string; text?: string }>): string | undefined {
+  const image = content.find((item) => item.type === "image");
   if (image) {
-    return new Text(theme.fg("success", "Image loaded"), 0, 0);
+    return "[image]";
   }
 
-  const text = result.content
-    ?.filter((item): item is { type: "text"; text: string } => item.type === "text" && typeof item.text === "string")
+  const text = content
+    .filter((item): item is { type: "text"; text: string } => item.type === "text" && typeof item.text === "string")
     .map((item) => item.text)
     .join("\n")
     .trim();
 
-  if (!text) {
-    return new Text("", 0, 0);
-  }
+  if (!text) return undefined;
 
-  const output = text.split("\n").map((line) => theme.fg("toolOutput", line)).join("\n");
-  return new Text(`\n${output}`, 0, 0);
+  const lines = text.split("\n");
+  const preview = lines.slice(0, 6).join("\n");
+  return lines.length > 6 ? `${preview}\n...` : preview;
 }
 
-function registerBuiltInTool(
-  pi: ExtensionAPI,
-  name: BuiltInToolName,
-  renderCall: (args: Record<string, any>, theme: Theme) => Text,
-) {
+function registerBuiltInTool(pi: ExtensionAPI, name: BuiltInToolName) {
   const tool = getBuiltInTools(process.cwd())[name];
 
   pi.registerTool({
@@ -88,67 +125,99 @@ function registerBuiltInTool(
       return getBuiltInTools(ctx.cwd)[name].execute(toolCallId, params, signal, onUpdate);
     },
 
-    renderCall,
+    renderCall() {
+      return undefined;
+    },
 
-    renderResult(result, { expanded }, theme) {
-      if (!expanded) {
-        return new Text("", 0, 0);
-      }
-      return renderExpandedResult(result, theme);
+    renderResult() {
+      return undefined;
     },
   });
 }
 
 export default function minimalToolOutput(pi: ExtensionAPI) {
-  registerBuiltInTool(pi, "read", (args, theme) => {
-    const path = shortenPath(args.path || "");
-    let text = `${toolLabel(theme, "read")} ${theme.fg("accent", path || "...")}`;
+  let items: ToolSummaryItem[] = [];
+  let itemIndexByCallId = new Map<string, number>();
 
-    if (args.offset !== undefined || args.limit !== undefined) {
-      const start = args.offset ?? 1;
-      const end = args.limit !== undefined ? start + args.limit - 1 : "";
-      text += theme.fg("warning", `:${start}${end ? `-${end}` : ""}`);
+  const resetTurn = () => {
+    items = [];
+    itemIndexByCallId = new Map();
+  };
+
+  for (const toolName of managedTools) {
+    registerBuiltInTool(pi, toolName);
+  }
+
+  pi.on("turn_start", async () => {
+    resetTurn();
+  });
+
+  pi.on("tool_call", async (event) => {
+    if (!managedTools.has(event.toolName as BuiltInToolName)) return;
+    const toolName = event.toolName as BuiltInToolName;
+    itemIndexByCallId.set(event.toolCallId, items.length);
+    items.push({
+      toolName,
+      call: formatToolCall(toolName, event.input as Record<string, any>),
+    });
+  });
+
+  pi.on("tool_result", async (event) => {
+    if (!managedTools.has(event.toolName as BuiltInToolName)) return;
+    const index = itemIndexByCallId.get(event.toolCallId);
+    if (index === undefined) return;
+    const item = items[index];
+    if (!item) return;
+    item.output = extractPreview(event.content as Array<{ type: string; text?: string }>);
+    item.isError = event.isError;
+  });
+
+  pi.on("turn_end", async (_event, ctx) => {
+    if (!ctx.hasUI || items.length === 0) return;
+
+    pi.sendMessage(
+      {
+        customType: CUSTOM_TYPE,
+        content: "",
+        display: true,
+        details: { items: items.map((item) => ({ ...item })) } satisfies ToolSummaryDetails,
+      },
+      { triggerTurn: false },
+    );
+  });
+
+  pi.on("context", async (event) => ({
+    messages: event.messages.filter((message) => {
+      const candidate = message as { customType?: string };
+      return candidate.customType !== CUSTOM_TYPE;
+    }),
+  }));
+
+  pi.registerMessageRenderer(CUSTOM_TYPE, (message, { expanded }, theme) => {
+    const details = message.details as ToolSummaryDetails | undefined;
+    const summaryItems = details?.items ?? [];
+    if (summaryItems.length === 0) {
+      return new Text("", 0, 0);
     }
 
-    return new Text(text, 0, 0);
-  });
+    let text = "";
+    summaryItems.forEach((item, index) => {
+      const prefix = index === 0 ? `${theme.fg("success", "•")} ` : "  ";
+      const toolColor = item.isError ? "error" : "toolTitle";
+      text += `${prefix}${theme.fg(toolColor, theme.bold(item.toolName))} ${theme.fg("muted", item.call)}`;
 
-  registerBuiltInTool(pi, "bash", (args, theme) => {
-    const command = summarizeCommand(args.command || "...");
-    const text = `${toolLabel(theme, "bash")} ${theme.fg("muted", command)}`;
-    return new Text(text, 0, 0);
-  });
+      if (expanded && item.output) {
+        const outputLines = item.output.split("\n");
+        for (const line of outputLines) {
+          text += `\n    ${theme.fg("toolOutput", line)}`;
+        }
+      }
 
-  registerBuiltInTool(pi, "write", (args, theme) => {
-    const path = shortenPath(args.path || "");
-    const lineCount = typeof args.content === "string" ? args.content.split("\n").length : 0;
-    let text = `${toolLabel(theme, "write")} ${theme.fg("accent", path || "...")}`;
-    if (lineCount > 0) {
-      text += theme.fg("dim", ` (${lineCount} lines)`);
-    }
-    return new Text(text, 0, 0);
-  });
+      if (index < summaryItems.length - 1) {
+        text += "\n";
+      }
+    });
 
-  registerBuiltInTool(pi, "edit", (args, theme) => {
-    const path = shortenPath(args.path || "");
-    return new Text(`${toolLabel(theme, "edit")} ${theme.fg("accent", path || "...")}`, 0, 0);
-  });
-
-  registerBuiltInTool(pi, "find", (args, theme) => {
-    const text = `${toolLabel(theme, "find")} ${theme.fg("accent", args.pattern || "")}${theme.fg("dim", ` in ${shortenPath(args.path || ".")}`)}`;
-    return new Text(text, 0, 0);
-  });
-
-  registerBuiltInTool(pi, "grep", (args, theme) => {
-    let text = `${toolLabel(theme, "grep")} ${theme.fg("accent", `/${args.pattern || ""}/`)}${theme.fg("dim", ` in ${shortenPath(args.path || ".")}`)}`;
-    if (args.glob) {
-      text += theme.fg("dim", ` (${args.glob})`);
-    }
-    return new Text(text, 0, 0);
-  });
-
-  registerBuiltInTool(pi, "ls", (args, theme) => {
-    const text = `${toolLabel(theme, "ls")} ${theme.fg("accent", shortenPath(args.path || "."))}`;
     return new Text(text, 0, 0);
   });
 }
