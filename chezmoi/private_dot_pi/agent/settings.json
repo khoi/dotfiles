@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.57.1",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.3-codex-spark",
+  "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "xhigh",
   "enabledModels": [
     "openai-codex/gpt-5.4",
@@ -10,5 +10,8 @@
   "editorPaddingX": 2,
   "steeringMode": "all",
   "quietStartup": true,
-  "theme": "light"
+  "theme": "light",
+  "packages": [
+    "npm:pi-ghostty"
+  ]
 }
