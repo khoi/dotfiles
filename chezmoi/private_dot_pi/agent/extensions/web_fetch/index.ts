@@ -63,6 +63,20 @@ interface WebFetchDetails {
   fullOutputPath?: string;
 }
 
+function isWebFetchDetails(candidate: unknown): candidate is WebFetchDetails {
+  if (!candidate || typeof candidate !== "object") return false;
+  const details = candidate as Partial<WebFetchDetails>;
+  return (
+    typeof details.url === "string" &&
+    typeof details.fetchedUrl === "string" &&
+    typeof details.status === "number" &&
+    Number.isFinite(details.status) &&
+    typeof details.contentType === "string" &&
+    typeof details.mode === "string" &&
+    typeof details.convertToMarkdown === "boolean"
+  );
+}
+
 function clampTimeout(timeout?: number): number {
   if (typeof timeout !== "number" || !Number.isFinite(timeout)) return DEFAULT_TIMEOUT_SECONDS;
   return Math.max(MIN_TIMEOUT_SECONDS, Math.min(MAX_TIMEOUT_SECONDS, Math.round(timeout)));
@@ -362,10 +376,11 @@ export default function webFetch(pi: ExtensionAPI) {
         return new Text(theme.fg("warning", "Fetching..."), 0, 0);
       }
 
-      const details = result.details as WebFetchDetails | undefined;
+      const details = isWebFetchDetails(result.details) ? result.details : undefined;
       if (!details) {
-        const content = result.content[0];
-        return new Text(content?.type === "text" ? content.text : "", 0, 0);
+        const content = result.content.find((item) => item.type === "text");
+        const text = content?.type === "text" ? content.text.trim() : "";
+        return new Text(text ? theme.fg("error", text) : theme.fg("muted", "No output"), 0, 0);
       }
 
       let text = theme.fg("success", `${details.status}`);
