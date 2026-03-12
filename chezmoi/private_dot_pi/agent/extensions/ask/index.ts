@@ -570,7 +570,7 @@ export default function ask(pi: ExtensionAPI) {
       return new Text(text, 0, 0);
     },
 
-    renderResult(result, _options, theme) {
+    renderResult(result, { expanded }, theme) {
       const details = result.details as AskDetails | undefined;
       if (!details) {
         const text = result.content[0];
@@ -578,6 +578,14 @@ export default function ask(pi: ExtensionAPI) {
       }
 
       if (details.results && details.results.length > 0) {
+        const header = details.cancelled
+          ? theme.fg("warning", "Cancelled")
+          : theme.fg("success", `✓ Answered ${details.results.length} question${details.results.length === 1 ? "" : "s"}`);
+
+        if (!expanded) {
+          return new Text(header, 0, 0);
+        }
+
         const lines = details.results.flatMap((questionResult) => {
           if (questionResult.customInput) {
             return [
@@ -597,9 +605,6 @@ export default function ask(pi: ExtensionAPI) {
           ];
         });
 
-        const header = details.cancelled
-          ? theme.fg("warning", "Cancelled")
-          : theme.fg("success", `✓ Answered ${details.results.length} question${details.results.length === 1 ? "" : "s"}`);
         return new Text([header, ...lines].join("\n"), 0, 0);
       }
 
@@ -608,6 +613,10 @@ export default function ask(pi: ExtensionAPI) {
       }
 
       if (details.customInput) {
+        if (!expanded) {
+          return new Text(theme.fg("success", "✓ Answered"), 0, 0);
+        }
+
         return new Text(
           `${theme.fg("success", "✓ ")}${theme.fg("muted", "(wrote) ")}${theme.fg("accent", details.customInput)}`,
           0,
@@ -617,6 +626,10 @@ export default function ask(pi: ExtensionAPI) {
 
       const selectedOptions = details.selectedOptions ?? [];
       if (selectedOptions.length > 0) {
+        if (!expanded) {
+          return new Text(theme.fg("success", "✓ Answered"), 0, 0);
+        }
+
         return new Text(
           `${theme.fg("success", "✓ ")}${theme.fg("accent", selectedOptions.join(", "))}`,
           0,

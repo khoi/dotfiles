@@ -12,7 +12,6 @@ import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.js";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
-const COLLAPSED_ITEM_COUNT = 10;
 
 function formatTokens(count: number): string {
   if (count < 1000) return count.toString();
@@ -662,22 +661,6 @@ export default function subagent(pi: ExtensionAPI) {
 
       const markdownTheme = getMarkdownTheme();
 
-      const renderDisplayItems = (items: DisplayItem[], limit?: number) => {
-        const visibleItems = limit ? items.slice(-limit) : items;
-        const skipped = limit && items.length > limit ? items.length - limit : 0;
-        let text = "";
-        if (skipped > 0) text += theme.fg("muted", `... ${skipped} earlier items\n`);
-        for (const item of visibleItems) {
-          if (item.type === "text") {
-            const preview = expanded ? item.text : item.text.split("\n").slice(0, 3).join("\n");
-            text += `${theme.fg("toolOutput", preview)}\n`;
-          } else {
-            text += `${theme.fg("muted", "→ ") + formatToolCall(item.name, item.args, theme.fg.bind(theme))}\n`;
-          }
-        }
-        return text.trimEnd();
-      };
-
       if (details.mode === "single" && details.results.length === 1) {
         const current = details.results[0];
         const isError = current.exitCode !== 0 || current.stopReason === "error" || current.stopReason === "aborted";
@@ -722,16 +705,6 @@ export default function subagent(pi: ExtensionAPI) {
 
         let text = `${icon} ${theme.fg("toolTitle", theme.bold(current.agent))}${theme.fg("muted", ` (${current.agentSource})`)}`;
         if (isError && current.stopReason) text += ` ${theme.fg("error", `[${current.stopReason}]`)}`;
-        if (isError && current.errorMessage) {
-          text += `\n${theme.fg("error", `Error: ${current.errorMessage}`)}`;
-        } else if (displayItems.length === 0) {
-          text += `\n${theme.fg("muted", "(no output)")}`;
-        } else {
-          text += `\n${renderDisplayItems(displayItems, COLLAPSED_ITEM_COUNT)}`;
-          if (displayItems.length > COLLAPSED_ITEM_COUNT) {
-            text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
-          }
-        }
         const usage = formatUsageStats(current.usage, current.model);
         if (usage) text += `\n${theme.fg("dim", usage)}`;
         return new Text(text, 0, 0);
@@ -795,15 +768,8 @@ export default function subagent(pi: ExtensionAPI) {
         }
 
         let text = icon + " " + theme.fg("toolTitle", theme.bold("chain ")) + theme.fg("accent", `${successCount}/${details.results.length} steps`);
-        for (const current of details.results) {
-          const currentIcon = current.exitCode === 0 ? theme.fg("success", "✓") : theme.fg("error", "✗");
-          const displayItems = getDisplayItems(current.messages);
-          text += `\n\n${theme.fg("muted", `─── Step ${current.step}: `)}${theme.fg("accent", current.agent)} ${currentIcon}`;
-          text += displayItems.length === 0 ? `\n${theme.fg("muted", "(no output)")}` : `\n${renderDisplayItems(displayItems, 5)}`;
-        }
         const usage = formatUsageStats(aggregateUsage(details.results));
-        if (usage) text += `\n\n${theme.fg("dim", `Total: ${usage}`)}`;
-        text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
+        if (usage) text += `\n${theme.fg("dim", `Total: ${usage}`)}`;
         return new Text(text, 0, 0);
       }
 
@@ -850,21 +816,10 @@ export default function subagent(pi: ExtensionAPI) {
         }
 
         let text = `${icon} ${theme.fg("toolTitle", theme.bold("parallel "))}${theme.fg("accent", status)}`;
-        for (const current of details.results) {
-          const currentIcon = current.exitCode === -1 ? theme.fg("warning", "⏳") : current.exitCode === 0 ? theme.fg("success", "✓") : theme.fg("error", "✗");
-          const displayItems = getDisplayItems(current.messages);
-          text += `\n\n${theme.fg("muted", "─── ")}${theme.fg("accent", current.agent)} ${currentIcon}`;
-          if (displayItems.length === 0) {
-            text += `\n${theme.fg("muted", current.exitCode === -1 ? "(running...)" : "(no output)")}`;
-          } else {
-            text += `\n${renderDisplayItems(displayItems, 5)}`;
-          }
-        }
         if (!isRunning) {
           const usage = formatUsageStats(aggregateUsage(details.results));
-          if (usage) text += `\n\n${theme.fg("dim", `Total: ${usage}`)}`;
+          if (usage) text += `\n${theme.fg("dim", `Total: ${usage}`)}`;
         }
-        if (!expanded) text += `\n${theme.fg("muted", "(Ctrl+O to expand)")}`;
         return new Text(text, 0, 0);
       }
 
