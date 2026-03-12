@@ -1,2 +1,4 @@
 .zsh_history
 .zsh_local
+.pi/agent/auth.json
+.pi/agent/sessions
