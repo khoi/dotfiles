@@ -9,6 +9,10 @@
   ],
   "editorPaddingX": 2,
   "steeringMode": "all",
-  "quietStartup": true,
-  "theme": "light"
+  "quietStartup": false,
+  "theme": "minimal-light",
+  "showHardwareCursor": false,
+  "hideThinkingBlock": true,
+  "collapseChangelog": true,
+  "treeFilterMode": "user-only"
 }

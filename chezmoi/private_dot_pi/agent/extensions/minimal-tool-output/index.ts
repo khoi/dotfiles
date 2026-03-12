@@ -42,6 +42,15 @@ function shortenPath(path: string): string {
   return path.startsWith(home) ? `~${path.slice(home.length)}` : path;
 }
 
+function toolLabel(theme: Theme, label: string): string {
+  return `${theme.fg("success", "•")} ${theme.fg("toolTitle", theme.bold(label))}`;
+}
+
+function summarizeCommand(command: string): string {
+  const singleLine = command.replace(/\s+/g, " ").trim();
+  return singleLine.length > 100 ? `${singleLine.slice(0, 97)}...` : singleLine;
+}
+
 function renderExpandedResult(result: { content?: Array<{ type: string; text?: string }> }, theme: Theme) {
   const image = result.content?.find((item) => item.type === "image");
   if (image) {
@@ -93,7 +102,7 @@ function registerBuiltInTool(
 export default function minimalToolOutput(pi: ExtensionAPI) {
   registerBuiltInTool(pi, "read", (args, theme) => {
     const path = shortenPath(args.path || "");
-    let text = `${theme.fg("toolTitle", theme.bold("read"))} ${theme.fg("accent", path || "...")}`;
+    let text = `${toolLabel(theme, "read")} ${theme.fg("accent", path || "...")}`;
 
     if (args.offset !== undefined || args.limit !== undefined) {
       const start = args.offset ?? 1;
@@ -105,54 +114,41 @@ export default function minimalToolOutput(pi: ExtensionAPI) {
   });
 
   registerBuiltInTool(pi, "bash", (args, theme) => {
-    let text = theme.fg("toolTitle", theme.bold(`$ ${args.command || "..."}`));
-    if (typeof args.timeout === "number") {
-      text += theme.fg("muted", ` (timeout ${args.timeout}s)`);
-    }
+    const command = summarizeCommand(args.command || "...");
+    const text = `${toolLabel(theme, "bash")} ${theme.fg("muted", command)}`;
     return new Text(text, 0, 0);
   });
 
   registerBuiltInTool(pi, "write", (args, theme) => {
     const path = shortenPath(args.path || "");
     const lineCount = typeof args.content === "string" ? args.content.split("\n").length : 0;
-    let text = `${theme.fg("toolTitle", theme.bold("write"))} ${theme.fg("accent", path || "...")}`;
+    let text = `${toolLabel(theme, "write")} ${theme.fg("accent", path || "...")}`;
     if (lineCount > 0) {
-      text += theme.fg("muted", ` (${lineCount} lines)`);
+      text += theme.fg("dim", ` (${lineCount} lines)`);
     }
     return new Text(text, 0, 0);
   });
 
   registerBuiltInTool(pi, "edit", (args, theme) => {
     const path = shortenPath(args.path || "");
-    return new Text(`${theme.fg("toolTitle", theme.bold("edit"))} ${theme.fg("accent", path || "...")}`, 0, 0);
+    return new Text(`${toolLabel(theme, "edit")} ${theme.fg("accent", path || "...")}`, 0, 0);
   });
 
   registerBuiltInTool(pi, "find", (args, theme) => {
-    let text = `${theme.fg("toolTitle", theme.bold("find"))} ${theme.fg("accent", args.pattern || "")}`;
-    text += theme.fg("toolOutput", ` in ${shortenPath(args.path || ".")}`);
-    if (args.limit !== undefined) {
-      text += theme.fg("toolOutput", ` (limit ${args.limit})`);
-    }
+    const text = `${toolLabel(theme, "find")} ${theme.fg("accent", args.pattern || "")}${theme.fg("dim", ` in ${shortenPath(args.path || ".")}`)}`;
     return new Text(text, 0, 0);
   });
 
   registerBuiltInTool(pi, "grep", (args, theme) => {
-    let text = `${theme.fg("toolTitle", theme.bold("grep"))} ${theme.fg("accent", `/${args.pattern || ""}/`)}`;
-    text += theme.fg("toolOutput", ` in ${shortenPath(args.path || ".")}`);
+    let text = `${toolLabel(theme, "grep")} ${theme.fg("accent", `/${args.pattern || ""}/`)}${theme.fg("dim", ` in ${shortenPath(args.path || ".")}`)}`;
     if (args.glob) {
-      text += theme.fg("toolOutput", ` (${args.glob})`);
-    }
-    if (args.limit !== undefined) {
-      text += theme.fg("toolOutput", ` limit ${args.limit}`);
+      text += theme.fg("dim", ` (${args.glob})`);
     }
     return new Text(text, 0, 0);
   });
 
   registerBuiltInTool(pi, "ls", (args, theme) => {
-    let text = `${theme.fg("toolTitle", theme.bold("ls"))} ${theme.fg("accent", shortenPath(args.path || "."))}`;
-    if (args.limit !== undefined) {
-      text += theme.fg("toolOutput", ` (limit ${args.limit})`);
-    }
+    const text = `${toolLabel(theme, "ls")} ${theme.fg("accent", shortenPath(args.path || "."))}`;
     return new Text(text, 0, 0);
   });
 }
