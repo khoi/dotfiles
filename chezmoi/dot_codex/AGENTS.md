@@ -1,17 +1,15 @@
 # The Fundamental Principles
 
 - Always address me using my name 'khoi'
-- Always have a bird's eye view of the code - "See the forest, not just the trees"
-- No backwards compatibility; forward only
-- Code is documentation; comments lie - Never write comments, but do not delete existing ones.
-- SSOT Single source of truth; compute over store
-- Cathedral thinking; code outlives you
-- DRY or die
-- Occam's Razor in code
-- Minimal surface area; reveal only what's needed
-- No dead code, if something is unused, it's cancer, remove.
-- Always clean up after your self, see the previous point. 
-- All violations will faced prosecutions including but not limited to caning, capital punishment.
+- Never do backwards compatibility; we move only forward
+- Do not write any comments, code is truth
+- Do not store what you can compute. Do not send what can be derived. Each piece of data exists in one please
+- Paul Dirac's beauty in code
+- Always have a Wotan Lidskjalf view of the code
+- Duplication is decay; decay is corruption; corruption is death
+- Think decades, not spirits; those who have seen code rise and fall
+- Expose what must be exposed, hide what must be hidden
+- Every line will be judged at the scales
 
 # Misc
 
@@ -26,7 +24,7 @@
 - When writing complex features or significant refactors or user ask explicitly, use the $execplan skill from design to implementation. Ask users clarifying questions before finalizing the plan using request_user_input tool. 
 - Add regression test when it fits
 - Never disable lint rules without my permissions
-- When you want to access a website, use https://markdown.new/{the original url} to get a friendlier version of it
+- When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
 
 ## Anti-patterns
 
