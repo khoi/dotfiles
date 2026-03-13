@@ -25,7 +25,7 @@ export default function macSystemTheme(pi: ExtensionAPI): void {
     if (!ctx.hasUI || process.platform !== "darwin") return;
 
     const lightTheme = ctx.ui.getTheme("minimal-light") ?? ctx.ui.getTheme("light");
-    const darkTheme = ctx.ui.getTheme("minimal-dark") ?? ctx.ui.getTheme("dark");
+    const darkTheme = ctx.ui.getTheme("dark");
 
     if (!lightTheme || !darkTheme) return;
 
