@@ -24,10 +24,10 @@ export default function macSystemTheme(pi: ExtensionAPI): void {
   pi.on("session_start", async (_event, ctx) => {
     if (!ctx.hasUI || process.platform !== "darwin") return;
 
-    const lightTheme = ctx.ui.getTheme("minimal-light") ?? ctx.ui.getTheme("light");
-    const darkTheme = ctx.ui.getTheme("dark");
+    const lightThemeName = ctx.ui.getTheme("minimal-light") ? "minimal-light" : "light";
+    const darkThemeName = "dark";
 
-    if (!lightTheme || !darkTheme) return;
+    if (!ctx.ui.getTheme(lightThemeName) || !ctx.ui.getTheme(darkThemeName)) return;
 
     let currentAppearance: boolean | undefined;
 
@@ -35,7 +35,7 @@ export default function macSystemTheme(pi: ExtensionAPI): void {
       const darkMode = await isDarkMode();
       if (darkMode === currentAppearance) return;
       currentAppearance = darkMode;
-      ctx.ui.setTheme(darkMode ? darkTheme : lightTheme);
+      ctx.ui.setTheme(darkMode ? darkThemeName : lightThemeName);
     };
 
     await syncTheme();
