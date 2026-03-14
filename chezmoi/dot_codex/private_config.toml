@@ -26,7 +26,7 @@ unified_exec = true
 skills = true
 shell_snapshot = true
 steer = true
-# responses_websockets_v2 = true
+responses_websockets_v2 = true
 multi_agent = true
 
 [notice]
@@ -44,14 +44,17 @@ status_line = [
   "weekly-limit"
 ]
 
+[projects."/Users/khoi/Developer/code/github.com/supabitapp/supaterm"]
+trust_level = "trusted"
+
 [projects."/Users/khoi/.local/share/chezmoi"]
+trust_level = "trusted"
+
+[projects."/Users/khoi/Developer/code/github.com/khoi/sonata"]
 trust_level = "trusted"
 
 [projects."/Users/khoi/Developer/code/github.com/supabitapp/supacode"]
 trust_level = "trusted"
 
-[projects."/Users/khoi/Developer/code/github.com/GoodNotes/Goodnotes-5"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Desktop"]
+[projects."/Users/khoi/Developer/code/github.com/khoi/sonata/tmp/symphony_workspaces/SUP-6"]
 trust_level = "trusted"
