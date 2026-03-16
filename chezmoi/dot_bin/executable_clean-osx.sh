@@ -40,10 +40,6 @@ rm -rfv ~/Music/iTunes/iTunes\ Media/Mobile\ Applications/* &>/dev/null
 echo 'Remove iOS Device Backups...'
 rm -rfv ~/Library/Application\ Support/MobileSync/Backup/* &>/dev/null
 
-echo 'Cleanup XCode Derived Data and Archives...'
-rm -rfv ~/Library/Developer/Xcode/DerivedData/* &>/dev/null
-rm -rfv ~/Library/Developer/Xcode/Archives/* &>/dev/null
-
 echo 'Cleanup pip cache...'
 rm -rfv ~/Library/Caches/pip
 

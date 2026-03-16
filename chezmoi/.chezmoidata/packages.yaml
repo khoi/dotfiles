@@ -60,5 +60,4 @@ packages:
       - raycast
       - sf-symbols
       - telegram
-      - cursor
       - ghostty

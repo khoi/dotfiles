@@ -5,7 +5,6 @@ set -uo pipefail
 THEMES_DIR="$HOME/.config/themes"
 NVIM_THEME_FILE="$HOME/.config/nvim/lua/plugins/theme.lua"
 GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
-ZED_SETTINGS="$HOME/.config/zed/settings.json"
 BTOP_THEME_DIR="$HOME/.config/btop/themes"
 BTOP_CONF="$HOME/.config/btop/btop.conf"
 ZELLIJ_THEME_DIR="$HOME/.config/zellij/themes"
@@ -155,26 +154,6 @@ apply_ghostty() {
   rm -f "$tmp"
   chmod 644 "$GHOSTTY_CONFIG" 2>/dev/null || true
   echo "[ghostty] inline palette applied"
-}
-
-apply_zed() {
-  local theme_name="$1"
-  if [[ -z "$theme_name" ]]; then
-    echo "[zed] warning: theme missing" >&2
-    return 0
-  fi
-  if [[ ! -f "$ZED_SETTINGS" ]]; then
-    echo "[zed] warning: settings not found at $ZED_SETTINGS" >&2
-    return 0
-  fi
-  perl -0777 -i -pe '
-    my $t = "'"$theme_name"'";
-    if (s/"theme"\s*:\s*"[^"]*"/"theme\": \"$t\"/s) {
-    } else {
-      s/\{/\{\n  "theme": "$t",/;
-    }
-  ' "$ZED_SETTINGS"
-  echo "[zed] theme=$theme_name"
 }
 
 declare -A PALETTE
@@ -381,8 +360,6 @@ main() {
   fi
 
   apply_ghostty "$theme_dir" "$slug" "$ghostty_theme" "$background"
-  local zed_name="${ghostty_theme:-$(friendly "$slug")}"
-  apply_zed "$zed_name"
   apply_btop "$theme_dir" "$slug"
   apply_zellij "$slug"
   apply_lazygit "$slug"

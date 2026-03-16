@@ -44,7 +44,6 @@ end
 abbr -a o open
 abbr -a v nvim
 abbr -a lg lazygit
-abbr -a c cursor
 abbr -a ac "claude --dangerously-skip-permissions"
 abbr -a acf "claude --dangerously-skip-permissions --resume --fork-session"
 abbr -a ad codex
