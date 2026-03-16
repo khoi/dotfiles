@@ -29,7 +29,7 @@ keybind = opt+j=goto_split:bottom
 keybind = opt+k=goto_split:top
 keybind = opt+l=goto_split:right
 command-palette-entry = title:Toggle Background Opacity,action:toggle_background_opacity
-theme = light:Atom One Light,dark:Atom One Dark
+theme = light:Zenbones Light,dark:Zenbones Dark
 
 # background-opacity = 0.95
 # background-blur = 10
