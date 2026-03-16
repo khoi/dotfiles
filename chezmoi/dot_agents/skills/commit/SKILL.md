@@ -40,8 +40,8 @@ Create one commit that matches the actual staged work.
    trailing period.
 8. Write a body that includes:
    - Summary of key changes.
-   - Rationale and trade-offs.
-   - Validation run, or an explicit note that validation was not run.
+   - Optional rationale and trade-offs.
+   - Optional validation run.
 9. Wrap body lines at 72 characters.
 10. Create the commit message with a here-doc or temp file and use
     `git commit -F <file>` so newlines are literal.
