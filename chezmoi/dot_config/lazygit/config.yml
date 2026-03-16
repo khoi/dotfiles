@@ -21,7 +21,6 @@ git:
   autoRefresh: true
 
 gui:
-  screenMode: full
   spinner:
     frames:
       - "⢿"
