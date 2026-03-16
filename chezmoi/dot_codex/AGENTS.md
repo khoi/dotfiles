@@ -2,7 +2,6 @@
 
 - Always address me using my name 'khoi'
 - Never do backwards compatibility; we move only forward
-- Do not write any comments, code is truth
 - Do not store what you can compute. Do not send what can be derived. Each piece of data exists in one please
 - Paul Dirac's beauty in code
 - Always have a Wotan Lidskjalf view of the code
