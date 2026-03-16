@@ -1,7 +1,7 @@
 customCommands:
   - key: "<c-s>"
     context: "global"
-    command: "codex e -m gpt-5.3-codex-spark 'Use $commit but only for staged changes'"
+    command: "codex e --profile fast 'Use $commit but only for staged changes'"
     loadingText: "Generating commit message, rebase and push"
   - key: "<c-p>"
     context: "global"
