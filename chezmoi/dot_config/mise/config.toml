@@ -16,3 +16,4 @@ experimental = true
 idiomatic_version_file_enable_tools = []
 trusted_config_paths = ["/Users/khoi/.supacode/repos"]
 idiomatic_version_file = true
+paranoid = false
