@@ -1,8 +1,11 @@
-local dark_colorscheme = "onedark"
-local light_colorscheme = "onelight"
+local dark_colorscheme = "zenbones"
+local light_colorscheme = "zenbones"
 
 local plugins = {
-  { "olimorris/onedarkpro.nvim", opts = {} },
+  {
+    "zenbones-theme/zenbones.nvim",
+    dependencies = { "rktjmp/lush.nvim" },
+  },
   { "LazyVim/LazyVim", opts = { colorscheme = dark_colorscheme } },
   {
     "f-person/auto-dark-mode.nvim",
