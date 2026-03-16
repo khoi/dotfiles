@@ -22,6 +22,10 @@ Create one commit that matches the actual staged work.
 - `git status`, `git diff`, and `git diff --staged` for the actual changes.
 - Repo-specific commit conventions if documented.
 
+## Validations
+
+- Make sure these are no secrets, tokens are commited.
+
 ## Steps
 
 1. Read session history to identify scope, intent, and rationale.
