@@ -1,59 +1,29 @@
--- Keep theme portion close to Omarchy’s approach: load generated theme file, fallback to Tokyo Night.
-local ok, theme_plugins = pcall(require, "plugins.theme")
-local fallback = {
-  { "folke/tokyonight.nvim", priority = 1000 },
-  { "LazyVim/LazyVim", opts = { colorscheme = "tokyonight-night" } },
+local dark_colorscheme = "onedark"
+local light_colorscheme = "onelight"
+
+local plugins = {
+  { "olimorris/onedarkpro.nvim", opts = {} },
+  { "LazyVim/LazyVim", opts = { colorscheme = dark_colorscheme } },
+  {
+    "f-person/auto-dark-mode.nvim",
+    opts = function()
+      local function apply(background)
+        local colorscheme = background == "light" and light_colorscheme or dark_colorscheme
+        vim.api.nvim_set_option_value("background", background, {})
+        vim.cmd.colorscheme(colorscheme)
+      end
+      return {
+        update_interval = 1000,
+        set_dark_mode = function()
+          apply("dark")
+        end,
+        set_light_mode = function()
+          apply("light")
+        end,
+      }
+    end,
+  },
 }
-local theme_has_switch_meta = vim.g.switch_theme ~= nil
-local plugins = {}
-
-if ok and type(theme_plugins) == "table" then
-  vim.list_extend(plugins, theme_plugins)
-else
-  vim.list_extend(plugins, fallback)
-  if not theme_has_switch_meta then
-    vim.g.switch_theme = {
-      name = "tokyo-night",
-      colorscheme = "tokyonight-night",
-      dark_colorscheme = "tokyonight-night",
-      light_colorscheme = "tokyonight-day",
-      background = "dark",
-    }
-  end
-end
-
-local function current_theme()
-  return vim.g.switch_theme
-    or {
-      colorscheme = "tokyonight-night",
-      dark_colorscheme = "tokyonight-night",
-      light_colorscheme = "tokyonight-day",
-      background = "dark",
-    }
-end
-
-table.insert(plugins, {
-  "f-person/auto-dark-mode.nvim",
-  opts = function()
-    local theme = current_theme()
-    local dark_colorscheme = theme.dark_colorscheme or theme.colorscheme or "tokyonight-night"
-    local light_colorscheme = theme.light_colorscheme or theme.colorscheme or dark_colorscheme
-    local function apply(background)
-      local colorscheme = background == "light" and light_colorscheme or dark_colorscheme
-      vim.api.nvim_set_option_value("background", background, {})
-      vim.cmd.colorscheme(colorscheme)
-    end
-    return {
-      update_interval = 1000,
-      set_dark_mode = function()
-        apply("dark")
-      end,
-      set_light_mode = function()
-        apply("light")
-      end,
-    }
-  end,
-})
 
 local rest = {
   {
