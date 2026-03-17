@@ -9,7 +9,7 @@ service_tier = "fast"
 plan_mode_reasoning_effort = "xhigh"
 
 [profiles.fast]
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.4"
 model_reasoning_effort = "medium"
 
 [profiles.slow]
@@ -36,25 +36,7 @@ hide_rate_limit_model_nudge = true
 enabled = false
 
 [tui]
-status_line = [
-  "model-with-reasoning",
-  "context-remaining",
-  "current-dir",
-  "five-hour-limit",
-  "weekly-limit"
-]
+status_line = ["model-with-reasoning", "context-remaining", "current-dir", "five-hour-limit", "weekly-limit", "context-window-size"]
 
-[projects."/Users/khoi/Developer/code/github.com/supabitapp/supaterm"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/.local/share/chezmoi"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Developer/code/github.com/khoi/sonata"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Developer/code/github.com/supabitapp/supacode"]
-trust_level = "trusted"
-
-[projects."/Users/khoi/Developer/code/github.com/khoi/sonata/tmp/symphony_workspaces/SUP-6"]
+[projects."/Users/khoi/Downloads"]
 trust_level = "trusted"
