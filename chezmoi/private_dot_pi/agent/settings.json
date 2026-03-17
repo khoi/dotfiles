@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.57.1",
+  "lastChangelogVersion": "0.58.4",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "xhigh",
@@ -10,9 +10,16 @@
   "editorPaddingX": 2,
   "steeringMode": "all",
   "quietStartup": false,
-  "theme": "minimal-light",
+  "theme": "zenbones-dark",
   "showHardwareCursor": false,
   "hideThinkingBlock": true,
   "collapseChangelog": true,
-  "treeFilterMode": "user-only"
+  "treeFilterMode": "user-only",
+  "packages": [
+    "npm:pi-interactive-shell",
+    "npm:pi-subagents",
+    "npm:pi-interview",
+    "npm:pi-web-access"
+  ],
+  "workingVibe": "zen"
 }

@@ -4,6 +4,8 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
 const execAsync = promisify(exec);
 const POLL_INTERVAL_MS = 2000;
+const LIGHT_THEME_NAME = "zenbones-light";
+const DARK_THEME_NAME = "zenbones-dark";
 
 async function isDarkMode(): Promise<boolean> {
   if (process.platform !== "darwin") return false;
@@ -24,10 +26,7 @@ export default function macSystemTheme(pi: ExtensionAPI): void {
   pi.on("session_start", async (_event, ctx) => {
     if (!ctx.hasUI || process.platform !== "darwin") return;
 
-    const lightThemeName = ctx.ui.getTheme("minimal-light") ? "minimal-light" : "light";
-    const darkThemeName = "dark";
-
-    if (!ctx.ui.getTheme(lightThemeName) || !ctx.ui.getTheme(darkThemeName)) return;
+    if (!ctx.ui.getTheme(LIGHT_THEME_NAME) || !ctx.ui.getTheme(DARK_THEME_NAME)) return;
 
     let currentAppearance: boolean | undefined;
 
@@ -35,7 +34,7 @@ export default function macSystemTheme(pi: ExtensionAPI): void {
       const darkMode = await isDarkMode();
       if (darkMode === currentAppearance) return;
       currentAppearance = darkMode;
-      ctx.ui.setTheme(darkMode ? darkThemeName : lightThemeName);
+      ctx.ui.setTheme(darkMode ? DARK_THEME_NAME : LIGHT_THEME_NAME);
     };
 
     await syncTheme();
