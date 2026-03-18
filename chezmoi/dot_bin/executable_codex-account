@@ -1,0 +1,472 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+umask 077
+
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
+readonly SCRIPT_NAME
+readonly CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+readonly ACCOUNTS_HOME="${CODEX_ACCOUNTS_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/codex-accounts}"
+readonly AUTH_FILE="${CODEX_HOME}/auth.json"
+readonly FILE_AUTH_OVERRIDE='cli_auth_credentials_store="file"'
+
+AUTH_MODE=""
+ACCOUNT_ID=""
+EMAIL=""
+PLAN=""
+MATCH_COUNT=0
+MATCH_SLOT=""
+MATCH_SLOTS=()
+TEMP_PATHS=()
+
+cleanup() {
+  local path
+  for path in "${TEMP_PATHS[@]}"; do
+    [[ -e "$path" ]] && rm -f "$path"
+  done
+}
+
+trap cleanup EXIT
+
+msg() {
+  printf '%s\n' "$*"
+}
+
+warn() {
+  printf 'warning: %s\n' "$*" >&2
+}
+
+die() {
+  printf 'error: %s\n' "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage: ${SCRIPT_NAME} <command> [args]
+
+Commands:
+  list             List saved ChatGPT account slots
+  current          Show the active ChatGPT account slot
+  save <slot>      Save the current ChatGPT auth into a slot
+  login <slot>     Log into a new ChatGPT account and save it into a slot
+  switch <slot>    Switch Codex auth to a saved slot
+  help             Show this help
+
+Environment:
+  CODEX_HOME           Override Codex home (default: ~/.codex)
+  CODEX_ACCOUNTS_HOME  Override slot storage (default: ~/.local/share/codex-accounts)
+EOF
+}
+
+require_bin() {
+  command -v "$1" >/dev/null 2>&1 || die "'$1' is required"
+}
+
+ensure_prereqs() {
+  require_bin codex
+  require_bin jq
+  require_bin mktemp
+}
+
+ensure_accounts_home() {
+  mkdir -p "$ACCOUNTS_HOME"
+  chmod 700 "$ACCOUNTS_HOME"
+}
+
+slot_file_for() {
+  printf '%s/%s.auth.json\n' "$ACCOUNTS_HOME" "$1"
+}
+
+slot_name_from_file() {
+  local basename
+  basename=$(basename "$1")
+  basename=${basename%.auth.json}
+  printf '%s\n' "$basename"
+}
+
+validate_slot_name() {
+  [[ "$1" =~ ^[a-z0-9][a-z0-9-]*$ ]] || die "slot names must match ^[a-z0-9][a-z0-9-]*$"
+}
+
+join_by() {
+  local delimiter=$1
+  shift
+  local first=1
+  local item
+  for item in "$@"; do
+    if [[ $first -eq 1 ]]; then
+      printf '%s' "$item"
+      first=0
+    else
+      printf '%s%s' "$delimiter" "$item"
+    fi
+  done
+}
+
+auth_metadata_tsv() {
+  jq -er '
+    def b64url_decode:
+      gsub("-"; "+")
+      | gsub("_"; "/")
+      | . + ("=" * ((4 - (length % 4)) % 4))
+      | @base64d;
+    def token_payload:
+      try (.tokens.id_token | split(".")[1] | b64url_decode | fromjson) catch {};
+    {
+      auth_mode: (.auth_mode // ""),
+      account_id: (.tokens.account_id // (token_payload["https://api.openai.com/auth"].chatgpt_account_id // "")),
+      email: (token_payload.email // token_payload["https://api.openai.com/profile"].email // ""),
+      plan: (token_payload["https://api.openai.com/auth"].chatgpt_plan_type // "")
+    }
+    | [.auth_mode, .account_id, .email, .plan]
+    | @tsv
+  ' "$1"
+}
+
+load_auth_metadata() {
+  local metadata
+  metadata=$(auth_metadata_tsv "$1") || die "failed to parse auth file: $1"
+  IFS=$'\t' read -r AUTH_MODE ACCOUNT_ID EMAIL PLAN <<<"$metadata"
+}
+
+assert_chatgpt_metadata() {
+  local context=$1
+  [[ "$AUTH_MODE" == "chatgpt" ]] || die "${context} uses auth mode '${AUTH_MODE:-unknown}'. Only ChatGPT auth is supported."
+  [[ -n "$ACCOUNT_ID" ]] || die "${context} is missing a ChatGPT account id."
+}
+
+format_summary() {
+  local email=$1
+  local account_id=$2
+  local plan=$3
+  local parts=()
+
+  [[ -n "$email" ]] && parts+=("email=$email")
+  parts+=("account_id=$account_id")
+  [[ -n "$plan" ]] && parts+=("plan=$plan")
+
+  join_by ' ' "${parts[@]}"
+}
+
+find_matching_slots() {
+  local expected_auth_mode=$1
+  local expected_account_id=$2
+  local slot_file
+  local slot_name
+  local slot_auth_mode
+  local slot_account_id
+
+  MATCH_COUNT=0
+  MATCH_SLOT=""
+  MATCH_SLOTS=()
+
+  [[ -d "$ACCOUNTS_HOME" ]] || return 0
+
+  while IFS= read -r slot_file; do
+    [[ -n "$slot_file" ]] || continue
+    load_auth_metadata "$slot_file"
+    slot_auth_mode=$AUTH_MODE
+    slot_account_id=$ACCOUNT_ID
+    if [[ "$slot_auth_mode" == "$expected_auth_mode" && "$slot_account_id" == "$expected_account_id" ]]; then
+      slot_name=$(slot_name_from_file "$slot_file")
+      MATCH_SLOTS+=("$slot_name")
+      MATCH_COUNT=$((MATCH_COUNT + 1))
+    fi
+  done < <(find "$ACCOUNTS_HOME" -maxdepth 1 -type f -name '*.auth.json' -print | LC_ALL=C sort)
+
+  if [[ $MATCH_COUNT -eq 1 ]]; then
+    MATCH_SLOT=${MATCH_SLOTS[0]}
+  fi
+}
+
+reject_duplicate_identity() {
+  local slot=$1
+  local expected_auth_mode=$2
+  local expected_account_id=$3
+  local slot_file
+  local other_slot
+  local slot_auth_mode
+  local slot_account_id
+
+  [[ -d "$ACCOUNTS_HOME" ]] || return 0
+
+  while IFS= read -r slot_file; do
+    [[ -n "$slot_file" ]] || continue
+    other_slot=$(slot_name_from_file "$slot_file")
+    [[ "$other_slot" == "$slot" ]] && continue
+    load_auth_metadata "$slot_file"
+    slot_auth_mode=$AUTH_MODE
+    slot_account_id=$ACCOUNT_ID
+    if [[ "$slot_auth_mode" == "$expected_auth_mode" && "$slot_account_id" == "$expected_account_id" ]]; then
+      die "account_id '$expected_account_id' is already saved as '$other_slot'"
+    fi
+  done < <(find "$ACCOUNTS_HOME" -maxdepth 1 -type f -name '*.auth.json' -print | LC_ALL=C sort)
+}
+
+atomic_copy() {
+  local source=$1
+  local destination=$2
+  local destination_dir
+  local temp_file
+
+  destination_dir=$(dirname "$destination")
+  mkdir -p "$destination_dir"
+
+  temp_file=$(mktemp "${destination_dir}/.tmp.XXXXXX")
+  TEMP_PATHS+=("$temp_file")
+
+  cp "$source" "$temp_file"
+  chmod 600 "$temp_file"
+  jq -e . "$temp_file" >/dev/null || die "refusing to write invalid JSON from '$source'"
+  mv "$temp_file" "$destination"
+}
+
+warn_if_codex_running() {
+  local running
+  local native
+  local wrapper
+
+  native=$(pgrep -lf '(^|/)codex($| )' 2>/dev/null || true)
+  wrapper=$(pgrep -lf 'node .*/bin/codex($| )' 2>/dev/null || true)
+  running=$native
+
+  if [[ -n "$running" && -n "$wrapper" ]]; then
+    running+=$'\n'
+  fi
+
+  running+=$wrapper
+
+  if [[ -n "$running" ]]; then
+    warn "Codex appears to be running. Restart existing Codex sessions after this change."
+    printf '%s\n' "$running" >&2
+  fi
+}
+
+save_slot_from_auth_file() {
+  local slot=$1
+  local source_auth_file=$2
+  local destination
+  local auth_mode
+  local account_id
+  local email
+  local plan
+
+  ensure_accounts_home
+  load_auth_metadata "$source_auth_file"
+  assert_chatgpt_metadata "$source_auth_file"
+
+  auth_mode=$AUTH_MODE
+  account_id=$ACCOUNT_ID
+  email=$EMAIL
+  plan=$PLAN
+
+  reject_duplicate_identity "$slot" "$auth_mode" "$account_id"
+
+  destination=$(slot_file_for "$slot")
+  atomic_copy "$source_auth_file" "$destination"
+  msg "Saved '$slot' ($(format_summary "$email" "$account_id" "$plan"))"
+}
+
+preserve_current_auth_or_die() {
+  [[ -f "$AUTH_FILE" ]] || return 0
+
+  load_auth_metadata "$AUTH_FILE"
+  assert_chatgpt_metadata "current auth"
+
+  local current_auth_mode=$AUTH_MODE
+  local current_account_id=$ACCOUNT_ID
+
+  find_matching_slots "$current_auth_mode" "$current_account_id"
+
+  if [[ $MATCH_COUNT -eq 0 ]]; then
+    die "current account is not saved. Run '${SCRIPT_NAME} save <slot>' before switching or logging into another account."
+  fi
+
+  if [[ $MATCH_COUNT -gt 1 ]]; then
+    die "current account matches multiple slots: $(join_by ', ' "${MATCH_SLOTS[@]}")"
+  fi
+
+  save_slot_from_auth_file "$MATCH_SLOT" "$AUTH_FILE"
+}
+
+cmd_list() {
+  local current_auth_mode=""
+  local current_account_id=""
+  local current_slot=""
+  local slot_file
+  local slot_name
+  local slot_account_id
+  local slot_email
+  local slot_plan
+  local marker='-'
+  local found=0
+
+  if [[ -f "$AUTH_FILE" ]]; then
+    load_auth_metadata "$AUTH_FILE"
+    if [[ "$AUTH_MODE" == "chatgpt" && -n "$ACCOUNT_ID" ]]; then
+      current_auth_mode=$AUTH_MODE
+      current_account_id=$ACCOUNT_ID
+      find_matching_slots "$current_auth_mode" "$current_account_id"
+      if [[ $MATCH_COUNT -eq 1 ]]; then
+        current_slot=$MATCH_SLOT
+      fi
+    fi
+  fi
+
+  [[ -d "$ACCOUNTS_HOME" ]] || {
+    msg "(no saved accounts)"
+    return 0
+  }
+
+  while IFS= read -r slot_file; do
+    [[ -n "$slot_file" ]] || continue
+    found=1
+    slot_name=$(slot_name_from_file "$slot_file")
+    load_auth_metadata "$slot_file"
+    slot_account_id=$ACCOUNT_ID
+    slot_email=$EMAIL
+    slot_plan=$PLAN
+    marker='-'
+    if [[ -n "$current_slot" && "$slot_name" == "$current_slot" ]]; then
+      marker='*'
+    fi
+    printf '%s %s %s\n' "$marker" "$slot_name" "$(format_summary "$slot_email" "$slot_account_id" "$slot_plan")"
+  done < <(find "$ACCOUNTS_HOME" -maxdepth 1 -type f -name '*.auth.json' -print | LC_ALL=C sort)
+
+  [[ $found -eq 1 ]] || msg "(no saved accounts)"
+}
+
+cmd_current() {
+  local current_email
+  local current_account_id
+  local current_plan
+
+  if [[ ! -f "$AUTH_FILE" ]]; then
+    msg "Current: not logged in"
+    return 0
+  fi
+
+  load_auth_metadata "$AUTH_FILE"
+
+  if [[ "$AUTH_MODE" != "chatgpt" ]]; then
+    msg "Current: unsupported auth mode ${AUTH_MODE:-unknown}"
+    return 0
+  fi
+
+  if [[ -z "$ACCOUNT_ID" ]]; then
+    msg "Current: missing account_id"
+    return 0
+  fi
+
+  current_email=$EMAIL
+  current_account_id=$ACCOUNT_ID
+  current_plan=$PLAN
+
+  find_matching_slots "$AUTH_MODE" "$ACCOUNT_ID"
+
+  if [[ $MATCH_COUNT -eq 1 ]]; then
+    msg "Current: $MATCH_SLOT $(format_summary "$current_email" "$current_account_id" "$current_plan")"
+    return 0
+  fi
+
+  if [[ $MATCH_COUNT -gt 1 ]]; then
+    msg "Current: ambiguous ($(join_by ', ' "${MATCH_SLOTS[@]}")) $(format_summary "$current_email" "$current_account_id" "$current_plan")"
+    return 0
+  fi
+
+  msg "Current: unsaved $(format_summary "$current_email" "$current_account_id" "$current_plan")"
+}
+
+cmd_save() {
+  local slot=${1:-}
+  [[ -n "$slot" ]] || die "usage: ${SCRIPT_NAME} save <slot>"
+  validate_slot_name "$slot"
+  [[ -f "$AUTH_FILE" ]] || die "no current auth found at $AUTH_FILE"
+  save_slot_from_auth_file "$slot" "$AUTH_FILE"
+}
+
+cmd_login() {
+  local slot=${1:-}
+  [[ -n "$slot" ]] || die "usage: ${SCRIPT_NAME} login <slot>"
+  validate_slot_name "$slot"
+
+  warn_if_codex_running
+  preserve_current_auth_or_die
+
+  codex logout -c "$FILE_AUTH_OVERRIDE"
+  codex login -c "$FILE_AUTH_OVERRIDE"
+
+  [[ -f "$AUTH_FILE" ]] || die "login completed without writing $AUTH_FILE"
+  save_slot_from_auth_file "$slot" "$AUTH_FILE"
+  warn "Restart existing Codex sessions to use '$slot'."
+}
+
+cmd_switch() {
+  local slot=${1:-}
+  local target
+  local current_slot=""
+
+  [[ -n "$slot" ]] || die "usage: ${SCRIPT_NAME} switch <slot>"
+  validate_slot_name "$slot"
+  target=$(slot_file_for "$slot")
+  [[ -f "$target" ]] || die "unknown slot '$slot'"
+
+  warn_if_codex_running
+  preserve_current_auth_or_die
+
+  if [[ -f "$AUTH_FILE" ]]; then
+    load_auth_metadata "$AUTH_FILE"
+    if [[ "$AUTH_MODE" == "chatgpt" && -n "$ACCOUNT_ID" ]]; then
+      find_matching_slots "$AUTH_MODE" "$ACCOUNT_ID"
+      if [[ $MATCH_COUNT -eq 1 ]]; then
+        current_slot=$MATCH_SLOT
+      fi
+    fi
+  fi
+
+  if [[ -n "$current_slot" && "$current_slot" == "$slot" ]]; then
+    msg "Already using '$slot'. Saved the latest auth snapshot."
+    warn "Restart existing Codex sessions if they were already running."
+    return 0
+  fi
+
+  atomic_copy "$target" "$AUTH_FILE"
+  msg "Switched Codex auth to '$slot'."
+  warn "Restart existing Codex sessions to use '$slot'."
+}
+
+main() {
+  ensure_prereqs
+
+  case "${1:-help}" in
+    list)
+      shift
+      cmd_list "$@"
+      ;;
+    current)
+      shift
+      cmd_current "$@"
+      ;;
+    save)
+      shift
+      cmd_save "$@"
+      ;;
+    login)
+      shift
+      cmd_login "$@"
+      ;;
+    switch)
+      shift
+      cmd_switch "$@"
+      ;;
+    help|-h|--help)
+      usage
+      ;;
+    *)
+      die "unknown command '${1:-}'"
+      ;;
+  esac
+}
+
+main "$@"

@@ -1,5 +1,6 @@
 approval_policy = "never"
 forced_login_method = "chatgpt"
+cli_auth_credentials_store = "file"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_verbosity = "low"
