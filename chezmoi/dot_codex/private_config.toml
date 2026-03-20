@@ -9,7 +9,7 @@ service_tier = "fast"
 plan_mode_reasoning_effort = "xhigh"
 
 [profiles.fast]
-model = "gpt-5.4"
+model = "gpt-5.3-codex-spark"
 model_reasoning_effort = "medium"
 
 [profiles.slow]
