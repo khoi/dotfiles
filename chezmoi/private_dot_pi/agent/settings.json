@@ -18,7 +18,6 @@
   "packages": [
     "npm:pi-interactive-shell",
     "npm:pi-subagents",
-    "npm:pi-interview",
     "npm:pi-web-access"
   ],
   "workingVibe": "zen"
