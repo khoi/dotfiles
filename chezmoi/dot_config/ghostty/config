@@ -21,6 +21,8 @@ macos-option-as-alt = left
 macos-titlebar-style = tabs
 macos-window-buttons = hidden
 
+window-padding-x = 8
+theme = light:Zenbones Light,dark:Zenbones Dark
 # Keybindings
 keybind = super+p=toggle_command_palette
 keybind = super+enter=unbind
