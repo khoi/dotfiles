@@ -1,6 +1,5 @@
 approval_policy = "never"
 forced_login_method = "chatgpt"
-cli_auth_credentials_store = "file"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_verbosity = "low"
@@ -33,11 +32,18 @@ multi_agent = true
 [notice]
 hide_rate_limit_model_nudge = true
 
+[analytics]
+enabled = false
+
 [feedback]
 enabled = false
 
 [tui]
-status_line = ["model-with-reasoning", "context-remaining", "current-dir", "five-hour-limit", "weekly-limit", "context-window-size"]
-
-[projects."/Users/khoi/Downloads"]
-trust_level = "trusted"
+status_line = [
+  "model-with-reasoning",
+  "context-remaining",
+  "current-dir",
+  "five-hour-limit",
+  "weekly-limit",
+  "context-window-size"
+]
