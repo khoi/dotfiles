@@ -37,7 +37,17 @@ class FollowUpTabEditor extends CustomEditor {
       return;
     }
 
-    this.actionHandlers.get("followUp")?.();
+    const followUp = this.actionHandlers.get("followUp");
+    if (!followUp) {
+      return;
+    }
+
+    followUp();
+
+    if (beforeText.trim() && this.getText() === beforeText) {
+      this.setText("");
+      this.tui.requestRender();
+    }
   }
 }
 
