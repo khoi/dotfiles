@@ -12,7 +12,7 @@
   "quietStartup": false,
   "theme": "zenbones-dark",
   "showHardwareCursor": false,
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
