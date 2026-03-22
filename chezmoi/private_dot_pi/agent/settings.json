@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.58.4",
+  "lastChangelogVersion": "0.61.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "xhigh",
@@ -16,9 +16,7 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "npm:pi-interactive-shell",
-    "npm:pi-subagents",
-    "npm:pi-web-access"
+    "npm:pi-subagents"
   ],
   "workingVibe": "zen"
 }
