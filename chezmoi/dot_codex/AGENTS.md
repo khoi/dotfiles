@@ -21,7 +21,6 @@
 - Before commiting, make sure to run lint, check if there is one. Run tests if they're lightweight.
 - We want the simplest change possible. We don't care about migration. Code readability matters most, and we're happy to make bigger changes to achieve it.
 - When the user asks for a plan, dive deep into the code first before asking clarifying questions.
-- When writing complex features or significant refactors or user ask explicitly, use the $execplan skill from design to implementation. Ask users clarifying questions before finalizing the plan using request_user_input tool. 
 - Add regression test when it fits
 - Never disable lint rules without my permissions
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
