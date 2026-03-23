@@ -5,6 +5,11 @@ if test -x /opt/homebrew/bin/brew
     eval "$(/opt/homebrew/bin/brew shellenv)"
 end
 
+set -l onepassword_ssh_agent_sock "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+if test -S "$onepassword_ssh_agent_sock"
+    set -gx SSH_AUTH_SOCK "$onepassword_ssh_agent_sock"
+end
+
 # Exit early for non-interactive shells
 if not status is-interactive
     return
