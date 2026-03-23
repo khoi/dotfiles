@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eufo pipefail
+
+. "{{ .chezmoi.sourceDir }}/.chezmoiscripts/lib/homebrew.sh"
+
 echo "🐡 Install fish shell"
-brew install fish
+"$HOMEBREW_BIN" install fish
 sudo bash -c 'echo $(which fish) >> /etc/shells'
 chsh -s $(which fish)

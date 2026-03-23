@@ -1,7 +1,9 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 
-brew bundle --file=/dev/stdin <<EOF
+. "{{ .chezmoi.sourceDir }}/.chezmoiscripts/lib/homebrew.sh"
+
+"$HOMEBREW_BIN" bundle --file=/dev/stdin <<EOF
 {{ range .packages.darwin.brews -}}
 brew {{ . | quote }}
 {{ end -}}

@@ -7,7 +7,7 @@ For Linux/Omarchy refers to https://github.com/khoi/omarchy-dotfiles
 ## Installation
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply khoi
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --use-builtin-git=true khoi
 ```
 
 ## Manual setups
