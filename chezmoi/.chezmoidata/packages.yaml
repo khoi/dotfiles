@@ -19,6 +19,7 @@ packages:
       - htop
       - ifstat
       - jq
+      - lazygit
       - mise
       - mosh
       - neovim
