@@ -1,6 +1,4 @@
 [tools]
-ruby = "latest"
-nodejs = "lts"
 rust = "1.92.0"
 go = "latest"
 python = "latest"
@@ -8,7 +6,6 @@ zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
-"github:ldomaradzki/xcsift" = "latest"
 node = "22.22.0"
 
 [settings]
