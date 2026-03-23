@@ -16,6 +16,16 @@ while true; do
 	kill -0 "$$" || exit
 done 2>/dev/null &
 
+username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
+username="${username#-}"
+username="${username%-}"
+serial="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/ {print $4}')"
+computer_name="$username-$serial"
+
+sudo scutil --set ComputerName "$computer_name"
+sudo scutil --set LocalHostName "$computer_name"
+sudo scutil --set HostName "$computer_name.local"
+
 ###############################################################################
 # General UI/UX                                                               #
 ###############################################################################
