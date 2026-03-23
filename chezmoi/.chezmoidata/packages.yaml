@@ -20,10 +20,12 @@ packages:
       - ifstat
       - jq
       - lazygit
+      - libyaml
       - mise
       - mosh
       - neovim
       - parallel
+      - pkgconf
       - restic
       - ripgrep
       - tealdeer
