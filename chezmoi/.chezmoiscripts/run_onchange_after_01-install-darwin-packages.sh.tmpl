@@ -3,7 +3,7 @@
 
 . "{{ .chezmoi.sourceDir }}/.chezmoiscripts/lib/homebrew.sh"
 
-"$HOMEBREW_BIN" bundle --file=/dev/stdin <<EOF
+"$HOMEBREW_BIN" bundle --verbose --file=/dev/stdin <<EOF
 {{ range .packages.darwin.brews -}}
 brew {{ . | quote }}
 {{ end -}}
