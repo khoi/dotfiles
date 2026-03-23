@@ -36,6 +36,7 @@ packages:
       - 1password-cli
       - adguard
       - cleanshot
+      - choosy
       - font-jetbrains-mono-nerd-font
       - orbstack
       - iina
