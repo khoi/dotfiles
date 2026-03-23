@@ -1,12 +1,12 @@
 [tools]
-rust = "1.92.0"
+rust = "1.94.0"
 go = "latest"
 python = "latest"
 zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
-node = "22.22.0"
+node = "25.8.1"
 "npm:@openai/codex" = "latest"
 
 [settings]
