@@ -1,6 +1,8 @@
 #!/usr/bin/env zsh
 set -eo pipefail
 
+. "{{ .chezmoi.sourceDir }}/.chezmoitemplates/homebrew.sh"
+
 echo "mise install default tools"
 mise install -y
 
