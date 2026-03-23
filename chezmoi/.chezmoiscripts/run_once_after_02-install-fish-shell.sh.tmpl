@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eufo pipefail
 
-. "{{ .chezmoi.sourceDir }}/.chezmoiscripts/lib/homebrew.sh"
+. "{{ .chezmoi.sourceDir }}/.chezmoitemplates/homebrew.sh"
 
 echo "🐡 Install fish shell"
 "$HOMEBREW_BIN" install fish
