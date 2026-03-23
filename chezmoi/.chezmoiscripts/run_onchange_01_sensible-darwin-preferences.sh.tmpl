@@ -66,6 +66,23 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 defaults write NSGlobalDomain KeyRepeat -int 1
 defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
+enabled_input_sources="$(defaults read com.apple.HIToolbox AppleEnabledInputSources 2>/dev/null || true)"
+
+if [[ "$enabled_input_sources" != *'com.apple.inputmethod.VietnameseIM'* ]]; then
+	defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+		"Bundle ID" = "com.apple.inputmethod.VietnameseIM";
+		InputSourceKind = "Keyboard Input Method";
+	}'
+fi
+
+if [[ "$enabled_input_sources" != *'com.apple.inputmethod.VietnameseTelex'* ]]; then
+	defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+		"Bundle ID" = "com.apple.inputmethod.VietnameseIM";
+		"Input Mode" = "com.apple.inputmethod.VietnameseTelex";
+		InputSourceKind = "Input Mode";
+	}'
+fi
+
 ###############################################################################
 # Screen                                                                      #
 ###############################################################################
