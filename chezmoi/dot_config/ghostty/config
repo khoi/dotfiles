@@ -1,30 +1,6 @@
-auto-update-channel = stable
-clipboard-paste-protection = false
-clipboard-trim-trailing-spaces = true
-confirm-close-surface = false
-cursor-style = block
-cursor-style-blink = false
 font-family = JetBrainsMono Nerd Font
 font-size = 17
 
-fullscreen = false
-link-url = true
-mouse-hide-while-typing = true
-shell-integration-features = no-cursor
-unfocused-split-opacity = 1
-# macOS related configurations
-macos-icon = custom-style
-macos-icon-frame = plastic
-macos-icon-ghost-color = CAD3F5
-macos-icon-screen-color = 24273A
-macos-option-as-alt = left
-macos-titlebar-style = tabs
-macos-window-buttons = hidden
-
-theme = light:Zenbones Light,dark:Zenbones Dark
-# Keybindings
-keybind = super+p=toggle_command_palette
-keybind = super+enter=unbind
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
 keybind = super+shift+d=new_split:down
@@ -34,8 +10,5 @@ keybind = opt+h=goto_split:left
 keybind = opt+j=goto_split:bottom
 keybind = opt+k=goto_split:top
 keybind = opt+l=goto_split:right
-command-palette-entry = title:Toggle Background Opacity,action:toggle_background_opacity
-theme = light:Zenbones Light,dark:Zenbones Dark
 
-# background-opacity = 0.95
-# background-blur = 10
+theme = light:Zenbones Light,dark:Zenbones Dark
