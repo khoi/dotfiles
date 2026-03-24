@@ -1,6 +1,7 @@
 font-family = JetBrainsMono Nerd Font
 font-size = 17
 
+confirm-close-surface = false
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
 keybind = super+shift+d=new_split:down
