@@ -1,12 +1,11 @@
 approval_policy = "never"
-forced_login_method = "chatgpt"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
-service_tier = "fast"
 plan_mode_reasoning_effort = "xhigh"
+service_tier = "fast"
 
 [profiles.fast]
 model = "gpt-5.3-codex-spark"
@@ -20,6 +19,7 @@ model_reasoning_effort = "xhigh"
 max_threads = 8
 
 [features]
+prevent_idle_sleep = true
 default_mode_request_user_input = true
 ghost_commit = false
 unified_exec = true
@@ -31,6 +31,7 @@ multi_agent = true
 
 [notice]
 hide_rate_limit_model_nudge = true
+hide_full_access_warning = true
 
 [analytics]
 enabled = false

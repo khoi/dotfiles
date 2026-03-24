@@ -25,6 +25,7 @@
 - Never disable lint rules without my permissions
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
 - If you find uncommited non-related changes, if it doesn't intefer with ur work, leave that alone. U might be working along side other agents as well. do not revert or modify it, if needed stop and ask the users what to do. 
+- Never mention any competitor products in our code/commits messages.
 
 ## Anti-patterns
 
