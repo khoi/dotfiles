@@ -4,7 +4,8 @@
     "USE_BUILTIN_RIPGREP": "0",
     "DISABLE_TELEMETRY": "1",
     "DISABLE_ERROR_REPORTING": "1",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_NEW_INIT": "1"
   },
   "includeCoAuthoredBy": false,
   "permissions": {
