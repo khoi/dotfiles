@@ -1,0 +1,141 @@
+import ConcurrencyExtras
+import Dependencies
+import Testing
+
+public struct _DependenciesTrait : TestScoping, TestTrait, SuiteTrait {
+
+    /// Whether this instance should be applied recursively to child test suites
+    /// and test functions.
+    ///
+    /// If the value is `true`, then the testing library applies this trait
+    /// recursively to child test suites and test functions. Otherwise, it only
+    /// applies the trait to the test suite to which you added the trait.
+    ///
+    /// By default, traits are not recursively applied to children.
+    public var isRecursive: Bool { get }
+
+    /// Provide custom execution scope for a function call which is related to the
+    /// specified test or test case.
+    ///
+    /// - Parameters:
+    ///   - test: The test which `function` encapsulates.
+    ///   - testCase: The test case, if any, which `function` encapsulates.
+    ///     When invoked on a suite, the value of this argument is `nil`.
+    ///   - function: The function to perform. If `test` represents a test suite,
+    ///     this function encapsulates running all the tests in that suite. If
+    ///     `test` represents a test function, this function is the body of that
+    ///     test function (including all cases if the test function is
+    ///     parameterized.)
+    ///
+    /// - Throws: Any error that `function` throws, or an error that prevents this
+    ///   type from providing a custom scope correctly. The testing library
+    ///   records an error thrown from this method as an issue associated with
+    ///   `test`. If an error is thrown before this method calls `function`, the
+    ///   corresponding test doesn't run.
+    ///
+    /// When the testing library prepares to run a test, it starts by finding
+    /// all traits applied to that test, including those inherited from containing
+    /// suites. It begins with inherited suite traits, sorting them
+    /// outermost-to-innermost, and if the test is a function, it then adds all
+    /// traits applied directly to that functions in the order they were applied
+    /// (left-to-right). It then asks each trait for its scope provider (if any)
+    /// by calling ``Trait/scopeProvider(for:testCase:)-cjmg``. Finally, it calls
+    /// this method on all non-`nil` scope providers, giving each an opportunity
+    /// to perform arbitrary work before or after invoking `function`.
+    ///
+    /// This method should either invoke `function` once before returning,
+    /// or throw an error if it's unable to provide a custom scope.
+    ///
+    /// Issues recorded by this method are associated with `test`.
+    ///
+    /// @Metadata {
+    ///   @Available(Swift, introduced: 6.1)
+    ///   @Available(Xcode, introduced: 16.3)
+    /// }
+    public func provideScope(for test: Test, testCase: Test.Case?, performing function: @Sendable () async throws -> Void) async throws
+}
+
+extension Trait where Self == DependenciesTestSupport._DependenciesTrait {
+
+    /// A trait that quarantines a test's dependencies from other tests.
+    ///
+    /// When applied to a `@Suite` (or `@Test`), the dependencies used for that suite (or test)
+    /// will be kept separate from any other suites (and tests) running in parallel.
+    ///
+    /// It is recommended to use a base `@Suite` to apply this to all tests. You can do this by
+    /// defining a `@Suite` with the trait:
+    ///
+    /// ```swift
+    /// @Suite(.dependencies) struct BaseSuite {}
+    /// ```
+    ///
+    /// Then any suite or test you write can be nested inside the base suite:
+    ///
+    /// ```swift
+    /// extension BaseSuite {
+    ///   @Suite struct MyTests {
+    ///     @Test func login() {
+    ///       // Dependencies accessed in here are independency from 'logout' tests.
+    ///     }
+    ///
+    ///     @Test func logout() {
+    ///       // Dependencies accessed in here are independency from 'login' tests.
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    public static var dependencies: DependenciesTestSupport._DependenciesTrait { get }
+
+    /// A trait that overrides a test's or suite's dependency.
+    ///
+    /// Useful for overriding a dependency in a test without incurring the nesting and
+    /// indentation of ``withDependencies(_:operation:)-4uz6m``.
+    ///
+    /// ```swift
+    /// @Test(.dependency(\.continuousClock, .immediate))
+    /// func feature() {
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - keyPath: A key path to a dependency value.
+    ///   - value: A dependency value to override for the test.
+    public static func dependency<Value>(_ keyPath: any WritableKeyPath<Dependencies.DependencyValues, Value> & Sendable, _ value: @autoclosure @escaping @Sendable () throws -> Value) -> Self
+
+    /// A trait that overrides a test's or suite's dependency.
+    ///
+    /// Useful for overriding a dependency in a test without incurring the nesting and
+    /// indentation of ``withDependencies(_:operation:)-4uz6m``.
+    ///
+    /// ```swift
+    /// struct Client: DependencyKey { … }
+    /// @Test(.dependency(Client.mock))
+    /// func feature() {
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - keyPath: A key path to a dependency value.
+    ///   - value: A dependency value to override for the test.
+    public static func dependency<Value>(_ value: @autoclosure @escaping @Sendable () throws -> Value) -> Self where Value : Dependencies.TestDependencyKey, Value == Value.Value
+
+    /// A trait that overrides a test's or suite's dependencies.
+    ///
+    /// Useful for overriding a dependency in a test without incurring the nesting and
+    /// indentation of ``withDependencies(_:operation:)-4uz6m``.
+    ///
+    /// ```swift
+    /// @Test(.dependencies {
+    ///   $0.date.now = Date(timeIntervalSince1970: 1234567890)
+    ///   $0.uuid = .incrementing
+    /// })
+    /// func feature() {
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    public static func dependencies(_ updateValues: @escaping @Sendable (inout Dependencies.DependencyValues) async throws -> Void) -> Self
+}
+

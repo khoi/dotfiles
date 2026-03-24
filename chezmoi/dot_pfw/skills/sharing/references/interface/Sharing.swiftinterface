@@ -1,0 +1,1836 @@
+import Combine
+import CombineSchedulers
+import ConcurrencyExtras
+import CustomDump
+import Dependencies
+import Dispatch
+import Foundation
+import class Foundation.Bundle
+import class Foundation.ProcessInfo
+import struct Foundation.URL
+import IdentifiedCollections
+import IssueReporting
+import PerceptionCore
+import SwiftUI
+import UIKit
+
+/// A type defining a user defaults persistence strategy.
+public struct AppStorageKey<Value> : Sharing.SharedKey where Value : Sendable {
+
+    /// The hashable identity of a shared key.
+    ///
+    /// Used to look up existing shared references associated with this shared key. For example,
+    /// the ``AppStorageKey`` uses the string key and `UserDefaults` instance to define its ID.
+    public var id: Sharing.AppStorageKeyID { get }
+
+    /// Loads the freshest value from storage.
+    ///
+    /// - Parameters
+    ///   - context: The context of loading a value.
+    ///   - continuation: A continuation that can be fed the result of loading a value from an
+    ///     external system.
+    public func load(context: Sharing.LoadContext<Value>, continuation: Sharing.LoadContinuation<Value>)
+
+    /// Subscribes to external updates.
+    ///
+    /// - Parameters:
+    ///   - context: The context of subscribing to updates.
+    ///   - subscriber: A continuation that can be fed new results from an external system, or the
+    ///     initial value if the external system no longer holds a value.
+    /// - Returns: A subscription to updates from an external system. If it is cancelled or
+    ///   deinitialized, `subscriber` will no longer receive updates from the external system.
+    public func subscribe(context: Sharing.LoadContext<Value>, subscriber: Sharing.SharedSubscriber<Value>) -> Sharing.SharedSubscription
+
+    /// Saves a value to storage.
+    ///
+    /// - Parameters:
+    ///   - value: The value to save.
+    ///   - context: The context of saving a value.
+    ///   - continuation: A continuation that should be notified upon the completion of saving a
+    ///     shared value.
+    public func save(_ value: Value, context _: Sharing.SaveContext, continuation: Sharing.SaveContinuation)
+}
+
+extension AppStorageKey : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+public struct AppStorageKeyID : Hashable {
+}
+
+/// A type that encapsulates saving and loading data from disk.
+public struct FileStorage : Hashable, Sendable {
+
+    public let save: @Sendable (Data, URL) throws -> Void
+
+    /// File storage that interacts directly with the file system for saving, loading and listening
+    /// for file changes.
+    ///
+    /// This is the version of the ``Dependencies/DependencyValues/defaultFileStorage`` dependency
+    /// that is used by default when running your app in the simulator or on device.
+    public static let fileSystem: Sharing.FileStorage
+
+    /// File storage that emulates a file system without actually writing anything to disk.
+    ///
+    /// This is the version of the ``Dependencies/DependencyValues/defaultFileStorage`` dependency
+    /// that is used by default when running your app in tests and previews.
+    public static var inMemory: Sharing.FileStorage { get }
+
+    public static func inMemory(fileSystem: ConcurrencyExtras.LockIsolated<[URL : Data]>, scheduler: CombineSchedulers.AnySchedulerOf<DispatchQueue> = .immediate) -> Sharing.FileStorage
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Sharing.FileStorage, rhs: Sharing.FileStorage) -> Bool
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+/// A type defining a file persistence strategy
+///
+/// Use ``SharedReaderKey/fileStorage(_:decoder:encoder:)`` to create values of this type.
+final public class FileStorageKey<Value> : Sharing.SharedKey where Value : Sendable {
+
+    /// The hashable identity of a shared key.
+    ///
+    /// Used to look up existing shared references associated with this shared key. For example,
+    /// the ``AppStorageKey`` uses the string key and `UserDefaults` instance to define its ID.
+    public var id: Sharing.FileStorageKeyID { get }
+
+    /// Loads the freshest value from storage.
+    ///
+    /// - Parameters
+    ///   - context: The context of loading a value.
+    ///   - continuation: A continuation that can be fed the result of loading a value from an
+    ///     external system.
+    public func load(context _: Sharing.LoadContext<Value>, continuation: Sharing.LoadContinuation<Value>)
+
+    /// Subscribes to external updates.
+    ///
+    /// - Parameters:
+    ///   - context: The context of subscribing to updates.
+    ///   - subscriber: A continuation that can be fed new results from an external system, or the
+    ///     initial value if the external system no longer holds a value.
+    /// - Returns: A subscription to updates from an external system. If it is cancelled or
+    ///   deinitialized, `subscriber` will no longer receive updates from the external system.
+    public func subscribe(context _: Sharing.LoadContext<Value>, subscriber: Sharing.SharedSubscriber<Value>) -> Sharing.SharedSubscription
+
+    /// Saves a value to storage.
+    ///
+    /// - Parameters:
+    ///   - value: The value to save.
+    ///   - context: The context of saving a value.
+    ///   - continuation: A continuation that should be notified upon the completion of saving a
+    ///     shared value.
+    public func save(_ value: Value, context: Sharing.SaveContext, continuation: Sharing.SaveContinuation)
+}
+
+extension FileStorageKey : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+public struct FileStorageKeyID : Hashable {
+}
+
+/// A type defining an in-memory persistence strategy
+///
+/// See ``SharedReaderKey/inMemory(_:)`` to create values of this type.
+public struct InMemoryKey<Value> : Sharing.SharedKey where Value : Sendable {
+
+    /// The hashable identity of a shared key.
+    ///
+    /// Used to look up existing shared references associated with this shared key. For example,
+    /// the ``AppStorageKey`` uses the string key and `UserDefaults` instance to define its ID.
+    public var id: Sharing.InMemoryKeyID { get }
+
+    /// Loads the freshest value from storage.
+    ///
+    /// - Parameters
+    ///   - context: The context of loading a value.
+    ///   - continuation: A continuation that can be fed the result of loading a value from an
+    ///     external system.
+    public func load(context: Sharing.LoadContext<Value>, continuation: Sharing.LoadContinuation<Value>)
+
+    /// Subscribes to external updates.
+    ///
+    /// - Parameters:
+    ///   - context: The context of subscribing to updates.
+    ///   - subscriber: A continuation that can be fed new results from an external system, or the
+    ///     initial value if the external system no longer holds a value.
+    /// - Returns: A subscription to updates from an external system. If it is cancelled or
+    ///   deinitialized, `subscriber` will no longer receive updates from the external system.
+    public func subscribe(context _: Sharing.LoadContext<Value>, subscriber _: Sharing.SharedSubscriber<Value>) -> Sharing.SharedSubscription
+
+    /// Saves a value to storage.
+    ///
+    /// - Parameters:
+    ///   - value: The value to save.
+    ///   - context: The context of saving a value.
+    ///   - continuation: A continuation that should be notified upon the completion of saving a
+    ///     shared value.
+    public func save(_ value: Value, context _: Sharing.SaveContext, continuation: Sharing.SaveContinuation)
+}
+
+extension InMemoryKey : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+public struct InMemoryKeyID : Hashable {
+}
+
+public struct InMemoryStorage : Hashable, Sendable {
+
+    public init()
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Sharing.InMemoryStorage, rhs: Sharing.InMemoryStorage) -> Bool
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+/// The context in which a value is loaded by a ``SharedReaderKey``.
+public enum LoadContext<Value> {
+
+    /// The value is being loaded implicitly at the initialization of a `@Shared` or `@SharedReader`
+    /// property (via ``SharedReader/init(wrappedValue:_:)``).
+    ///
+    /// The associated value is the same value passed to the `wrappedValue` argument of the
+    /// initializer.
+    case initialValue(Value)
+
+    /// The value is being loaded explicitly (via ``SharedReader/load()``, ``SharedReader/load(_:)``,
+    /// or ``SharedReader/init(require:)``).
+    case userInitiated
+
+    /// The value associated with ``LoadContext/initialValue(_:)``.
+    public var initialValue: Value? { get }
+}
+
+extension LoadContext : Sendable where Value : Sendable {
+}
+
+extension LoadContext : Equatable where Value : Equatable {
+}
+
+extension LoadContext : Hashable where Value : Hashable {
+}
+
+/// A mechanism to communicate with a shared key's external system, synchronously or asynchronously.
+///
+/// A continuation is passed to ``SharedReaderKey/load(context:continuation:)`` so that state
+/// can be shared from an external system.
+///
+/// > Important: You must call a resume method exactly once on every execution path from the shared
+/// > key it is passed to, _i.e._ in ``SharedReaderKey/load(context:continuation:)``.
+/// >
+/// > Resuming from a continuation more than once is considered a logic error, and only the first
+/// > call to `resume` will be executed. Never resuming leaves the task awaiting the call to
+/// > ``Shared/load()`` in a suspended state indefinitely and leaks any associated resources.
+/// > `LoadContinuation` reports an issue if either of these invariants is violated.
+public struct LoadContinuation<Value> : Sendable {
+
+    public init(_ description: @autoclosure @escaping @Sendable () -> String = "", callback: @escaping @Sendable (Result<Value?, any Error>) -> Void)
+
+    /// Resume the task awaiting the continuation by having it return normally from its suspension
+    /// point.
+    ///
+    /// - Parameter value: The value to return from the continuation.
+    public func resume(returning value: Value)
+
+    /// Resume the task awaiting the continuation by having it throw an error from its
+    /// suspension point.
+    ///
+    /// - Parameter error: The error to throw from the continuation.
+    public func resume(throwing error: any Error)
+
+    /// Resume the task awaiting the continuation by having it return the initial value from its
+    /// suspension point.
+    public func resumeReturningInitialValue()
+
+    /// Resume the task awaiting the continuation by having it either return normally or throw an
+    /// error based on the state of the given `Result` value.
+    ///
+    /// - Parameter result: A value to either return or throw from the
+    ///   continuation.
+    public func resume(with result: Result<Value?, any Error>)
+}
+
+/// The context in which a value is saved by a ``SharedKey``.
+///
+/// A key may use this context to determine the behavior of the save. For example, an external
+/// system that may be expensive to write to very frequently (_i.e._ network or file IO) could
+/// choose to debounce saves when the value is simply updated in memory (via
+/// ``Shared/withLock(_:fileID:filePath:line:column:)``), but forgo debouncing with an immediate
+/// write when the value is saved explicitly (via ``Shared/save()``).
+public enum SaveContext : Hashable, Sendable {
+
+    /// The value is being saved implicitly (after a mutation via
+    /// ``Shared/withLock(_:fileID:filePath:line:column:)``).
+    case didSet
+
+    /// The value is being saved explicitly (via ``Shared/save()``).
+    case userInitiated
+}
+
+/// A mechanism to communicate with a shared key's external system, synchronously or asynchronously.
+///
+/// A continuation is passed to ``SharedKey/save(_:context:continuation:)`` so that state can be
+/// shared to an external system.
+///
+/// > Important: You must call a resume method exactly once on every execution path from the shared
+/// > key it is passed to, _i.e._ in ``SharedReaderKey/load(context:continuation:)`` and
+/// > ``SharedKey/save(_:context:continuation:)``.
+/// >
+/// > Resuming from a continuation more than once is considered a logic error, and only the first
+/// > call to `resume` will be executed. Never resuming leaves the task awaiting the call to
+/// > ``Shared/save()`` in a suspended state indefinitely and leaks any associated resources.
+/// > `SaveContinuation` reports an issue if either of these invariants is violated.
+public struct SaveContinuation : Sendable {
+
+    public init(_ description: @autoclosure @escaping @Sendable () -> String = "", callback: @escaping @Sendable (Result<Never?, any Error>) -> Void)
+
+    /// Resume the task awaiting the continuation by having it return normally from its suspension
+    /// point.
+    public func resume()
+
+    /// Resume the task awaiting the continuation by having it throw an error from its
+    /// suspension point.
+    ///
+    /// - Parameter error: The error to throw from the continuation.
+    public func resume(throwing error: any Error)
+
+    /// Resume the task awaiting the continuation by having it either return normally or throw an
+    /// error based on the state of the given `Result` value.
+    ///
+    /// - Parameter result: A value to either return or throw from the
+    ///   continuation.
+    public func resume(with result: Result<Void, any Error>)
+}
+
+/// A property wrapper type that shares a value with other parts of the application and/or external
+/// systems.
+@dynamicMemberLookup @propertyWrapper public struct Shared<Value> {
+
+    public init(value: sending Value)
+
+    /// Unwraps a shared reference to an optional value.
+    ///
+    /// ```swift
+    /// @Shared(.currentUser) var currentUser: User?
+    ///
+    /// if let sharedUnwrappedUser = Shared($currentUser) {
+    ///   sharedUnwrappedUser  // Shared<User>
+    /// }
+    /// ```
+    ///
+    /// - Parameter base: A shared reference to an optional value.
+    public init?(_ base: Sharing.Shared<Value?>)
+
+    /// Creates a shared reference from another shared reference.
+    ///
+    /// You don't call this initializer directly. Instead, Swift calls it for you when you use a
+    /// property-wrapper attribute on a shared closure parameter.
+    ///
+    /// - Parameter projectedValue: A shared reference.
+    public init(projectedValue: Sharing.Shared<Value>)
+
+    public var wrappedValue: Value { get nonmutating set }
+
+    /// Perform an operation on shared state with isolated access to the underlying value.
+    ///
+    /// See <doc:MutatingSharedState> for more information.
+    ///
+    /// - Parameters
+    ///   - operation: An operation given mutable, isolated access to the underlying shared value.
+    ///   - fileID: The source `#fileID` associated with the lock.
+    ///   - filePath: The source `#filePath` associated with the lock.
+    ///   - line: The source `#line` associated with the lock.
+    ///   - column: The source `#column` associated with the lock.
+    /// - Returns: The value returned from `operation`.
+    public func withLock<R>(_ operation: (inout Value) throws -> R, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) rethrows -> R
+
+    /// A projection of the shared value that returns a shared reference.
+    ///
+    /// Use the projected value to pass a shared value down to another feature. This is most
+    /// commonly done to share a value from one feature to another:
+    ///
+    /// ```swift
+    /// struct SignUpView: View {
+    ///   @Shared var signUpData: SignUpData
+    ///
+    ///   var body: some View {
+    ///     // ...
+    ///     PersonalInfoView(
+    ///       signUpData: $signUpData
+    ///     )
+    ///   }
+    /// }
+    ///
+    /// struct PersonalInfoView: View {
+    ///   @Shared var signUpData: SignUpData
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// Further you can use dot-chaining syntax to derive a smaller piece of shared state to hand
+    /// to another feature:
+    ///
+    /// ```swift
+    /// struct SignUpView: View {
+    ///   @Shared var signUpData: SignUpData
+    ///
+    ///   var body: some View {
+    ///     // ...
+    ///     PhoneNumberView(
+    ///       signUpData: $signUpData.phoneNumber
+    ///     )
+    ///   }
+    /// }
+    ///
+    /// PhoneNumberView(
+    ///   phoneNumber: $signUpData.phoneNumber
+    /// )
+    /// ```
+    ///
+    /// See <doc:DerivingSharedState> for more details.
+    public var projectedValue: Sharing.Shared<Value> { get nonmutating set }
+
+    /// Returns a read-only shared reference to the resulting value of a given closure.
+    ///
+    /// - Returns: A new read-only shared reference.
+    public func read<Member>(_ body: @escaping @Sendable (Value) -> Member) -> Sharing.SharedReader<Member>
+
+    @available(*, deprecated, message: "Use dynamic member lookup instead ('$shared.member', not '$shared.read(\\.member)')")
+    public func read<Member>(_ keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member>
+
+    /// Returns a shared reference to the resulting value of a given key path.
+    ///
+    /// You don't call this subscript directly. Instead, Swift calls it for you when you access a
+    /// property of the underlying value. In the following example, the property access
+    /// `$signUpData.topics` returns the value of invoking this subscript with `\SignUpData.topics`:
+    ///
+    /// ```swift
+    /// @Shared var signUpData: SignUpData
+    ///
+    /// $signUpData.topics  // Shared<Set<Topic>>
+    /// ```
+    ///
+    /// - Parameter keyPath: A key path to a specific resulting value.
+    /// - Returns: A new shared reference.
+    public subscript<Member>(dynamicMember keyPath: WritableKeyPath<Value, Member>) -> Sharing.Shared<Member> { get }
+
+    /// Returns a read-only shared reference to the resulting value of a given key path.
+    ///
+    /// You don't call this subscript directly. Instead, Swift calls it for you when you access a
+    /// property of the underlying value. In the following example, the property access
+    /// `$topics.count` returns the value of invoking this subscript with `\Set<Topic>.count`:
+    ///
+    /// ```swift
+    /// @Shared var topics: Set<Topic>
+    ///
+    /// $topics.count  // SharedReader<Int>
+    /// ```
+    ///
+    /// - Parameter keyPath: A key path to a specific resulting value.
+    /// - Returns: A new read-only shared reference.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member> { get }
+
+    /// Requests an up-to-date value from an external source.
+    ///
+    /// When a shared reference is powered by a ``SharedReaderKey``, this method will tell it to
+    /// reload its value from the associated external source.
+    ///
+    /// Most of the time it is not necessary to call this method, as persistence strategies will often
+    /// subscribe directly to the external source and automatically keep the shared reference
+    /// synchronized. Some persistence strategies, however, may not have the ability to subscribe to
+    /// their external source. In these cases, you should call this method whenever you need the most
+    /// up-to-date value.
+    public func load() async throws
+
+    /// Whether or not an associated shared key is loading data from an external source.
+    public var isLoading: Bool { get }
+
+    /// An error encountered during the most recent attempt to load data.
+    ///
+    /// This value is `nil` unless a load attempt failed. It contains the latest error from the
+    /// underlying ``SharedReaderKey``. Access it from `@Shared`'s projected value:
+    ///
+    /// ```swift
+    /// @Shared(.fileStorage(.users)) var users: [User] = []
+    ///
+    /// var body: some View {
+    ///   if let loadError = $users.loadError {
+    ///     ContentUnavailableView {
+    ///       Label("Failed to load users", systemImage: "xmark.circle")
+    ///     } description: {
+    ///       Text(loadError.localizedDescription)
+    ///     }
+    ///   } else {
+    ///     ForEach(users) { user in /* ... */ }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// > When a load error occurs, ``wrappedValue`` retains results from the last successful fetch.
+    /// > Its value will update once a new load succeeds.
+    public var loadError: (any Error)? { get }
+
+    /// Requests the underlying value be persisted to an external source.
+    ///
+    /// When a shared reference is powered by a ``SharedKey``, this method will tell it to save its
+    /// value to the associated external source.
+    ///
+    /// Most of the time it is not necessary to call this method, as persistence strategies will often
+    /// save to the external source immediately upon modification. Some persistence strategies,
+    /// however, may choose to debounce this work, in which case it may be desirable to tell the
+    /// strategy to save more eagerly.
+    public func save() async throws
+
+    /// An error encountered during the most recent attempt to save data.
+    ///
+    /// This value is `nil` unless a save attempt failed. It contains the latest error from the
+    /// underlying ``SharedKey``.
+    public var saveError: (any Error)? { get }
+}
+
+extension Shared : CustomReflectable {
+
+    /// The custom mirror for this instance.
+    ///
+    /// If this type has value semantics, the mirror should be unaffected by
+    /// subsequent mutations of the instance.
+    public var customMirror: Mirror { get }
+}
+
+extension Shared : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+extension Shared : Equatable where Value : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Sharing.Shared<Value>, rhs: Sharing.Shared<Value>) -> Bool
+}
+
+extension Shared : Identifiable where Value : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public var id: Value.ID { get }
+}
+
+extension Shared : Observable {
+}
+
+extension Shared : Sendable {
+}
+
+extension Shared : PerceptionCore.Perceptible {
+}
+
+extension Shared : CustomDump.CustomDumpRepresentable {
+
+    /// The custom dump value for this instance.
+    public var customDumpValue: Any { get }
+}
+
+extension Shared : CustomDump._CustomDiffObject {
+
+    public var _customDiffValues: (Any, Any) { get }
+
+    public var _objectIdentifier: ObjectIdentifier { get }
+}
+
+extension Shared : DynamicProperty {
+
+    /// Updates the underlying value of the stored value.
+    ///
+    /// SwiftUI calls this function before rendering a view's
+    /// ``View/body-swift.property`` to ensure the view has the most recent
+    /// value.
+    public func update()
+}
+
+extension Shared {
+
+    /// Creates a shared reference to a value using a shared key.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value that is used when no value can be returned from the
+    ///     shared key.
+    ///   - key: A shared key associated with the shared reference. It is responsible for loading
+    ///     and saving the shared reference's value from some external source.
+    public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedKey<Value>)
+
+    /// Creates a shared reference to an optional value using a shared key.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading and saving the shared reference's value from some external source.
+    public init<Wrapped>(_ key: some Sharing.SharedKey) where Value == Wrapped?, Wrapped : Sendable
+
+    /// Creates a shared reference to a value using a shared key with a default value.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading and saving the shared reference's value from some external source.
+    public init(_ key: (some Sharing.SharedKey<Value>).Default)
+
+    /// Creates a shared reference to a value using a shared key by overriding its default value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value that is used when no value can be returned from the
+    ///     shared key.
+    ///   - key: A shared key associated with the shared reference. It is responsible for loading
+    ///     and saving the shared reference's value from some external source.
+    public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedKey<Value>).Default)
+
+    /// Replaces a shared reference's key and attempts to load its value.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading and saving the shared reference's value from some external source.
+    public func load(_ key: some Sharing.SharedKey<Value>) async throws
+
+    /// Creates a shared reference to a value using a shared key by loading it from its external
+    /// source.
+    ///
+    /// If the given shared key cannot load a value, an error is thrown. For a non-throwing,
+    /// synchronous version of this initializer, see ``init(wrappedValue:_:)``.
+    ///
+    /// This initializer should only be used to create a brand new shared reference from a key. To
+    /// replace the key of an existing shared reference, use ``load(_:)``, instead.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading and saving the shared reference's value from some external source.
+    public init(require key: some Sharing.SharedKey<Value>) async throws
+}
+
+extension Shared {
+
+    /// Returns a publisher that emits events when the underlying value changes.
+    ///
+    /// Useful when a feature needs to execute logic when a shared reference is updated outside of
+    /// the feature itself.
+    ///
+    /// ```swift
+    /// @Shared(.currentUser) var user: User?
+    ///
+    /// for await user in $user.publisher.values {
+    ///   // Handle user update
+    /// }
+    /// ```
+    public var publisher: some Publisher<Value, Never> { get }
+}
+
+public struct SharedChangeTracker : Hashable, Sendable {
+
+    public var hasChanges: Bool { get }
+
+    public init(reportUnassertedChanges: Bool = isTesting)
+
+    public func track(_ dependencies: inout Dependencies.DependencyValues)
+
+    public func track<R>(_ body: () throws -> R) rethrows -> R
+
+    public func assert<R>(_ body: () throws -> R) rethrows -> R
+
+    public func reset()
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Sharing.SharedChangeTracker, rhs: Sharing.SharedChangeTracker) -> Bool
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+/// A type that can persist shared state to an external storage.
+///
+/// Conform to this protocol to express persistence to some external storage by describing how to
+/// save to and load from the external storage, and providing a stream of values that represents
+/// when the external storage is changed from the outside. It is only necessary to conform to this
+/// protocol if the ``AppStorageKey``, ``FileStorageKey``, or ``InMemoryKey`` strategies are not
+/// sufficient for your use case.
+///
+/// See the article <doc:PersistenceStrategies#Custom-persistence> for more information.
+public protocol SharedKey<Value> : Sharing.SharedReaderKey {
+
+    /// Saves a value to storage.
+    ///
+    /// - Parameters:
+    ///   - value: The value to save.
+    ///   - context: The context of saving a value.
+    ///   - continuation: A continuation that should be notified upon the completion of saving a
+    ///     shared value.
+    func save(_ value: Self.Value, context: Sharing.SaveContext, continuation: Sharing.SaveContinuation)
+}
+
+/// A property wrapper type that shares a read-only value with multiple parts of an application.
+@dynamicMemberLookup @propertyWrapper public struct SharedReader<Value> {
+
+    public init(value: sending Value)
+
+    /// Creates a read-only shared reference from a shared reference.
+    ///
+    /// - Parameter base: A shared reference.
+    public init(_ base: Sharing.Shared<Value>)
+
+    /// Unwraps a read-only shared reference to an optional value.
+    ///
+    /// ```swift
+    /// @SharedReader(.currentUser) var currentUser: User?
+    ///
+    /// if let sharedUnwrappedUser = SharedReader($currentUser) {
+    ///   sharedUnwrappedUser  // SharedReader<User>
+    /// }
+    /// ```
+    ///
+    /// - Parameter base: A read-only shared reference to an optional value.
+    public init?(_ base: Sharing.Shared<Value?>)
+
+    /// Unwraps a read-only shared reference to an optional value.
+    ///
+    /// ```swift
+    /// @SharedReader(.currentUser) var currentUser: User?
+    ///
+    /// if let sharedUnwrappedUser = SharedReader($currentUser) {
+    ///   sharedUnwrappedUser  // SharedReader<User>
+    /// }
+    /// ```
+    ///
+    /// - Parameter base: A read-only shared reference to an optional value.
+    public init?(_ base: Sharing.SharedReader<Value?>)
+
+    /// Creates a read-only shared reference from another read-only shared reference.
+    ///
+    /// You don't call this initializer directly. Instead, Swift calls it for you when you use a
+    /// property-wrapper attribute on a shared reader closure parameter.
+    ///
+    /// - Parameter projectedValue: A read-only shared reference.
+    public init(projectedValue: Sharing.SharedReader<Value>)
+
+    /// The underlying value referenced by the shared variable.
+    ///
+    /// This property provides primary access to the value's data. However, you don't access
+    /// `wrappedValue` directly. Instead, you use the property variable created with the
+    /// ``SharedReader`` attribute. In the following example, the shared variable `topics` returns the
+    /// value of `wrappedValue`:
+    ///
+    /// ```swift
+    /// @SharedReader var subscriptions: [Subscription]
+    ///
+    /// var isSubscribed: Bool {
+    ///   !subscriptions.isEmpty
+    /// }
+    /// ```
+    public var wrappedValue: Value { get }
+
+    /// A projection of the read-only shared value that returns a shared reference.
+    public var projectedValue: Sharing.SharedReader<Value> { get nonmutating set }
+
+    /// Returns a read-only shared reference to the resulting value of a given closure.
+    ///
+    /// - Returns: A new shared reader.
+    public func read<Member>(_ body: @escaping @Sendable (Value) -> Member) -> Sharing.SharedReader<Member>
+
+    @available(*, deprecated, message: "Use dynamic member lookup instead ('$shared.member', not '$shared.read(\\.member)')")
+    public func read<Member>(_ keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member>
+
+    /// Returns a read-only shared reference to the resulting value of a given key path.
+    ///
+    /// You don't call this subscript directly. Instead, Swift calls it for you when you access a
+    /// property of the underlying value.
+    ///
+    /// - Parameter keyPath: A key path to a specific resulting value.
+    /// - Returns: A new shared reader.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member> { get }
+
+    /// Requests an up-to-date value from an external source.
+    ///
+    /// When a shared reference is powered by a ``SharedReaderKey``, this method will tell it to
+    /// reload its value from the associated external source.
+    ///
+    /// Most of the time it is not necessary to call this method, as persistence strategies will often
+    /// subscribe directly to the external source and automatically keep the shared reference
+    /// synchronized. Some persistence strategies, however, may not have the ability to subscribe to
+    /// their external source. In these cases, you should call this method whenever you need the most
+    /// up-to-date value.
+    public func load() async throws
+
+    /// Whether or not an associated shared key is loading data from an external source.
+    public var isLoading: Bool { get }
+
+    /// An error encountered during the most recent attempt to load data.
+    ///
+    /// This value is `nil` unless a load attempt failed. It contains the latest error from the
+    /// underlying ``SharedReaderKey``. Access it from `@Shared`'s projected value:
+    ///
+    /// ```swift
+    /// @SharedReader(.fileStorage(.users)) var users: [User] = []
+    ///
+    /// var body: some View {
+    ///   if let loadError = $users.loadError {
+    ///     ContentUnavailableView {
+    ///       Label("Failed to load users", systemImage: "xmark.circle")
+    ///     } description: {
+    ///       Text(loadError.localizedDescription)
+    ///     }
+    ///   } else {
+    ///     ForEach(users) { user in /* ... */ }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// > When a load error occurs, ``wrappedValue`` retains results from the last successful fetch.
+    /// > Its value will update once a new load succeeds.
+    public var loadError: (any Error)? { get }
+}
+
+extension SharedReader {
+
+    @available(*, deprecated, message: "Use 'SharedReader(value:)', instead.")
+    public static func constant(_ value: sending Value) -> Sharing.SharedReader<Value>
+}
+
+extension SharedReader {
+
+    /// Returns a publisher that emits events when the underlying value changes.
+    ///
+    /// Useful when a feature needs to execute logic when a shared reference is updated outside of
+    /// the feature itself.
+    ///
+    /// ```swift
+    /// @SharedReader var hapticsEnabled: Bool
+    ///
+    /// for await hapticsEnabled in $hapticsEnabled.publisher.values {
+    ///   // Handle haptics settings change
+    /// }
+    /// ```
+    public var publisher: some Publisher<Value, Never> { get }
+}
+
+extension SharedReader : CustomReflectable {
+
+    /// The custom mirror for this instance.
+    ///
+    /// If this type has value semantics, the mirror should be unaffected by
+    /// subsequent mutations of the instance.
+    public var customMirror: Mirror { get }
+}
+
+extension SharedReader : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+extension SharedReader : Equatable where Value : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Sharing.SharedReader<Value>, rhs: Sharing.SharedReader<Value>) -> Bool
+}
+
+extension SharedReader : Identifiable where Value : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public var id: Value.ID { get }
+}
+
+extension SharedReader : Observable {
+}
+
+extension SharedReader : Sendable {
+}
+
+extension SharedReader : PerceptionCore.Perceptible {
+}
+
+extension SharedReader : CustomDump.CustomDumpRepresentable {
+
+    /// The custom dump value for this instance.
+    public var customDumpValue: Any { get }
+}
+
+extension SharedReader : DynamicProperty {
+
+    /// Updates the underlying value of the stored value.
+    ///
+    /// SwiftUI calls this function before rendering a view's
+    /// ``View/body-swift.property`` to ensure the view has the most recent
+    /// value.
+    public func update()
+}
+
+extension SharedReader {
+
+    /// Creates a shared reference to a read-only value using a shared key.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value that is used when no value can be returned from the
+    ///     shared key.
+    ///   - key: A shared key associated with the shared reference. It is responsible for loading the
+    ///     shared reference's value from some external source.
+    public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedReaderKey<Value>)
+
+    public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedKey<Value>)
+
+    /// Creates a shared reference to an optional, read-only value using a shared key.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading the shared reference's value from some external source.
+    public init<Wrapped>(_ key: some Sharing.SharedReaderKey) where Value == Wrapped?, Wrapped : Sendable
+
+    public init<Wrapped>(_ key: some Sharing.SharedKey) where Value == Wrapped?, Wrapped : Sendable
+
+    /// Creates a shared reference to a read-only value using a shared key with a default value.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading the shared reference's value from some external source.
+    public init(_ key: (some Sharing.SharedReaderKey<Value>).Default)
+
+    public init(_ key: (some Sharing.SharedKey<Value>).Default)
+
+    /// Creates a shared reference to a read-only value using a shared key by overriding its
+    /// default value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value that is used when no value can be returned from the
+    ///     shared key.
+    ///   - key: A shared key associated with the shared reference. It is responsible for loading the
+    ///     shared reference's value from some external source.
+    public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedReaderKey<Value>).Default)
+
+    public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedKey<Value>).Default)
+
+    /// Replaces a shared reference's key and attempts to load its value.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading the shared reference's value from some external source.
+    public func load(_ key: some Sharing.SharedReaderKey<Value>) async throws
+
+    public func load(_ key: some Sharing.SharedKey<Value>) async throws
+
+    /// Creates a shared reference to a read-only value using a shared key by loading it from its
+    /// external source.
+    ///
+    /// If the given shared key cannot load a value, an error is thrown. For a non-throwing,
+    /// synchronous version of this initializer, see ``init(wrappedValue:_:)``.
+    ///
+    /// This initializer should only be used to create a brand new shared reference from a key. To
+    /// replace the key of an existing shared reference, use ``load(_:)``, instead.
+    ///
+    /// - Parameter key: A shared key associated with the shared reference. It is responsible for
+    ///   loading the shared reference's value from some external source.
+    public init(require key: some Sharing.SharedReaderKey<Value>) async throws
+
+    public init(require key: some Sharing.SharedKey<Value>) async throws
+}
+
+/// A type that can load and subscribe to state in an external system.
+///
+/// Conform to this protocol to express loading state from an external system, and subscribing to
+/// state changes in the external system. It is only necessary to conform to this protocol if the
+/// ``AppStorageKey``, ``FileStorageKey``, or ``InMemoryKey`` strategies are not sufficient for your
+/// use case.
+///
+/// See the article <doc:PersistenceStrategies#Custom-persistence> for more information.
+public protocol SharedReaderKey<Value> : Sendable {
+
+    /// A type that can be loaded or subscribed to in an external system.
+    associatedtype Value : Sendable
+
+    /// A type representing the hashable identity of a shared key.
+    associatedtype ID : Hashable = Self
+
+    /// The hashable identity of a shared key.
+    ///
+    /// Used to look up existing shared references associated with this shared key. For example,
+    /// the ``AppStorageKey`` uses the string key and `UserDefaults` instance to define its ID.
+    var id: Self.ID { get }
+
+    /// Loads the freshest value from storage.
+    ///
+    /// - Parameters
+    ///   - context: The context of loading a value.
+    ///   - continuation: A continuation that can be fed the result of loading a value from an
+    ///     external system.
+    func load(context: Sharing.LoadContext<Self.Value>, continuation: Sharing.LoadContinuation<Self.Value>)
+
+    /// Subscribes to external updates.
+    ///
+    /// - Parameters:
+    ///   - context: The context of subscribing to updates.
+    ///   - subscriber: A continuation that can be fed new results from an external system, or the
+    ///     initial value if the external system no longer holds a value.
+    /// - Returns: A subscription to updates from an external system. If it is cancelled or
+    ///   deinitialized, `subscriber` will no longer receive updates from the external system.
+    func subscribe(context: Sharing.LoadContext<Self.Value>, subscriber: Sharing.SharedSubscriber<Self.Value>) -> Sharing.SharedSubscription
+}
+
+extension SharedReaderKey {
+
+    /// Creates a shared key that can read and write to a boolean user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Bool>
+
+    /// Creates a shared key that can read and write to an integer user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Int>
+
+    /// Creates a shared key that can read and write to a double user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Double>
+
+    /// Creates a shared key that can read and write to a string user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<String>
+
+    /// Creates a shared key that can read and write to a string array user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<[String]>
+
+    /// Creates a shared key that can read and write to a URL user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<URL>
+
+    /// Creates a shared key that can read and write to a user default as data.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Data>
+
+    /// Creates a shared key that can read and write to a date user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Date>
+
+    /// Creates a shared key that can read and write a codable value to user defaults.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value>, Value : Decodable, Value : Encodable, Value : Sendable
+
+    /// Creates a shared key that can read and write to an integer user default, transforming
+    /// that to a `RawRepresentable` data type.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value>, Value : RawRepresentable, Value : Sendable, Value.RawValue == Int
+
+    /// Creates a shared key that can read and write to a string user default, transforming
+    /// that to a `RawRepresentable` data type.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value>, Value : RawRepresentable, Value : Sendable, Value.RawValue == String
+
+    /// Creates a shared key that can read and write to an optional boolean user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Bool?>
+
+    /// Creates a shared key that can read and write to an optional integer user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Int?>
+
+    /// Creates a shared key that can read and write to an optional double user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Double?>
+
+    /// Creates a shared key that can read and write to an optional string user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<String?>
+
+    /// Creates a shared key that can read and write to an optional string array user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<[String]?>
+
+    /// Creates a shared key that can read and write to an optional URL user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<URL?>
+
+    /// Creates a shared key that can read and write to a user default as optional data.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Data?>
+
+    /// Creates a shared key that can read and write to an optional date user default.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Date?>
+
+    /// Creates a shared key that can read and write a codable value to user defaults.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value?>, Value : Decodable, Value : Encodable, Value : Sendable
+
+    /// Creates a shared key that can read and write to an optional integer user default,
+    /// transforming that to a `RawRepresentable` data type.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value?>, Value : RawRepresentable, Value : Sendable, Value.RawValue == Int
+
+    /// Creates a shared key that can read and write to an optional string user default,
+    /// transforming that to a `RawRepresentable` data type.
+    ///
+    /// - Parameters:
+    ///   - key: The key to read and write the value to in the user defaults store.
+    ///   - store: The user defaults store to read and write to. A value of `nil` will use the user
+    ///     default store from dependencies.
+    /// - Returns: A user defaults shared key.
+    public static func appStorage<Value>(_ key: String, store: UserDefaults? = nil) -> Self where Self == Sharing.AppStorageKey<Value?>, Value : RawRepresentable, Value : Sendable, Value.RawValue == String
+}
+
+extension SharedReaderKey {
+
+    /// Provides a default value to a shared key.
+    ///
+    /// Use this when constructing type-safe keys (see <doc:TypeSafeKeys> for more
+    /// info) to provide a default that is used instead of providing one at the call site of using
+    /// [`@Shared`](<doc:Shared>).
+    ///
+    /// For example, if an `isOn` value is backed by user defaults and it should default to `false`
+    /// when there is no value in user defaults, then you can define a shared key like so:
+    ///
+    /// ```swift
+    /// extension SharedKey where Self == AppStorageKey<Bool>.Default {
+    ///   static var isOn: Self {
+    ///     Self[.appStorage("isOn"), default: false]
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// And then use it like so:
+    ///
+    /// ```swift
+    /// @Shared(.isOn) var isOn
+    /// ```
+    public typealias Default = Sharing._SharedKeyDefault<Self>
+}
+
+extension SharedReaderKey {
+
+    /// Creates a shared key that can read and write to a `Codable` value in the file system.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// struct Settings: Codable {
+    ///   var hapticsEnabled = true
+    ///   // ...
+    /// }
+    ///
+    /// @Shared(.fileStorage(.documentsDirectory.appending(component: "settings.json"))
+    /// var settings = Settings()
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - url: The file URL from which to read and write the value.
+    ///   - decoder: The JSONDecoder to use for decoding the value.
+    ///   - encoder: The JSONEncoder to use for encoding the value.
+    /// - Returns: A file shared key.
+    public static func fileStorage<Value>(_ url: URL, decoder: JSONDecoder? = nil, encoder: JSONEncoder? = nil) -> Self where Self == Sharing.FileStorageKey<Value>, Value : Decodable, Value : Encodable, Value : Sendable
+
+    /// Creates a shared key that can read and write to a value in the file system.
+    ///
+    /// - Parameters:
+    ///   - url: The file URL from which to read and write the value.
+    ///   - decode: The closure to use for decoding the value.
+    ///   - encode: The closure to use for encoding the value.
+    /// - Returns: A file shared key.
+    public static func fileStorage<Value>(_ url: URL, decode: @escaping @Sendable (Data) throws -> Value, encode: @escaping @Sendable (Value) throws -> Data) -> Self where Self == Sharing.FileStorageKey<Value>, Value : Sendable
+}
+
+extension SharedReaderKey {
+
+    /// Creates a shared key for sharing data in-memory for the lifetime of an application.
+    ///
+    /// For example, one could initialize a key with the date and time at which the application was
+    /// most recently launched, and access this date from anywhere using the ``Shared`` property
+    /// wrapper:
+    ///
+    /// ```swift
+    /// @main
+    /// struct MyApp: App {
+    ///   init() {
+    ///     @Shared(.inMemory("appLaunchedAt")) var appLaunchedAt = Date()
+    ///   }
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameter key: A string key identifying a value to share in memory.
+    /// - Returns: An in-memory shared key.
+    public static func inMemory<Value>(_ key: String) -> Self where Self == Sharing.InMemoryKey<Value>, Value : Sendable
+}
+
+extension SharedReaderKey where Self == Self.ID {
+
+    public var id: Self { get }
+}
+
+/// A mechanism to synchronize with a shared key's external system.
+///
+/// A subscriber is passed to ``SharedReaderKey/subscribe(context:subscriber:)`` so that updates to
+/// an external system can be shared.
+public struct SharedSubscriber<Value> : Sendable {
+
+    public init(callback: @escaping @Sendable (Result<Value?, any Error>) -> Void, onLoading: (@Sendable (Bool) -> Void)? = nil)
+
+    /// Yield an updated value from an external source.
+    ///
+    /// - Parameter value: An updated value.
+    public func yield(_ value: Value)
+
+    /// Yield a loading state from an external source.
+    ///
+    /// - Parameter isLoading: Whether the external source is loading.
+    public func yieldLoading(_ isLoading: Bool = true)
+
+    /// Yield the initial value provided to the property wrapper when none exists in the external
+    /// source.
+    ///
+    /// This method can be invoked when the external system detects that the associated value was
+    /// deleted and the associated shared key should revert back to its default.
+    public func yieldReturningInitialValue()
+
+    /// Yield an error from an external source.
+    ///
+    /// - Parameter error: An error.
+    public func yield(throwing error: any Error)
+
+    /// Yield a result of an updated value or error from an external source.
+    ///
+    /// - Parameter result: A result of an updated value or error.
+    public func yield(with result: Result<Value?, any Error>)
+}
+
+/// A subscription to a ``SharedReaderKey``'s updates.
+///
+/// This object is returned from ``SharedReaderKey/subscribe(context:subscriber:)``, which will feed
+/// updates from an external system for its lifetime, or till ``cancel()`` is called.
+public struct SharedSubscription : Sendable {
+
+    /// Initializes the subscription with the given cancel closure.
+    ///
+    /// - Parameter cancel: A closure that the `cancel()` method executes.
+    public init(_ cancel: @escaping @Sendable () -> Void)
+
+    /// Cancels the subscription.
+    public func cancel()
+}
+
+public typealias _SendableKeyPath<Root, Value> = any KeyPath<Root, Value> & Sendable
+
+public typealias _SendableWritableKeyPath<Root, Value> = any WritableKeyPath<Root, Value> & Sendable
+
+public struct _SharedKeyDefault<Base> : Sharing.SharedReaderKey where Base : Sharing.SharedReaderKey {
+
+    /// The hashable identity of a shared key.
+    ///
+    /// Used to look up existing shared references associated with this shared key. For example,
+    /// the ``AppStorageKey`` uses the string key and `UserDefaults` instance to define its ID.
+    public var id: Base.ID { get }
+
+    /// The default value this key was initialized with.
+    public var initialValue: Base.Value { get }
+
+    /// Wraps an existing shared key in a shared key that provides a default value.
+    ///
+    /// - Parameters:
+    ///   - key: A shared key.
+    ///   - value: A default value that is used when no value can be returned from the given key's
+    ///     persisted storage.
+    public static subscript(key: Base, default value: @autoclosure @escaping @Sendable () -> Base.Value) -> Sharing._SharedKeyDefault<Base> { get }
+
+    /// Loads the freshest value from storage.
+    ///
+    /// - Parameters
+    ///   - context: The context of loading a value.
+    ///   - continuation: A continuation that can be fed the result of loading a value from an
+    ///     external system.
+    public func load(context: Sharing.LoadContext<Base.Value>, continuation: Sharing.LoadContinuation<Base.Value>)
+
+    /// Subscribes to external updates.
+    ///
+    /// - Parameters:
+    ///   - context: The context of subscribing to updates.
+    ///   - subscriber: A continuation that can be fed new results from an external system, or the
+    ///     initial value if the external system no longer holds a value.
+    /// - Returns: A subscription to updates from an external system. If it is cancelled or
+    ///   deinitialized, `subscriber` will no longer receive updates from the external system.
+    public func subscribe(context: Sharing.LoadContext<Base.Value>, subscriber: Sharing.SharedSubscriber<Base.Value>) -> Sharing.SharedSubscription
+}
+
+extension _SharedKeyDefault : Sharing.SharedKey where Base : Sharing.SharedKey {
+
+    /// Saves a value to storage.
+    ///
+    /// - Parameters:
+    ///   - value: The value to save.
+    ///   - context: The context of saving a value.
+    ///   - continuation: A continuation that should be notified upon the completion of saving a
+    ///     shared value.
+    public func save(_ value: Base.Value, context: Sharing.SaveContext, continuation: Sharing.SaveContinuation)
+}
+
+extension _SharedKeyDefault : CustomStringConvertible {
+
+    /// A textual representation of this instance.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(describing:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `description` property for types that conform to
+    /// `CustomStringConvertible`:
+    ///
+    ///     struct Point: CustomStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var description: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(describing: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `description` property.
+    public var description: String { get }
+}
+
+extension Binding {
+
+    /// Creates a binding from a shared reference.
+    ///
+    /// Useful for binding shared state to a SwiftUI control.
+    ///
+    /// ```swift
+    /// @Shared var count: Int
+    /// // ...
+    /// Stepper("\(count)", value: Binding($count))
+    /// ```
+    ///
+    /// - Parameter base: A shared reference to a value.
+    @MainActor public init(_ base: Sharing.Shared<Value>)
+}
+
+extension RangeReplaceableCollection {
+
+    /// Creates an collection of shared elements from a shared collection.
+    ///
+    /// Useful in deriving a shared element when looping over a shared collection, for example in a
+    /// SwiftUI `ForEach` view:
+    ///
+    /// ```swift
+    /// @Shared var users: [User]
+    ///
+    /// ForEach(Array($users)) { $user in
+    ///   UserView(user: $user)
+    /// }
+    /// ```
+    ///
+    /// - Parameter shared: A shared identified collection.
+    public init<Value>(_ shared: Sharing.Shared<Value>) where Value : IdentifiedCollections._MutableIdentifiedCollection, Self.Element == Sharing.Shared<Value.Element>, Value.Index == Value.IDs.Index
+
+    /// Creates an collection of shared elements from a shared collection.
+    ///
+    /// Useful in deriving a shared element when looping over a shared collection, for example in a
+    /// SwiftUI `ForEach` view:
+    ///
+    /// ```swift
+    /// @SharedReader var users: [User]
+    ///
+    /// ForEach(Array($users)) { $user in
+    ///   UserView(user: $user)
+    /// }
+    /// ```
+    /// - Parameter shared: A shared identified collection.
+    public init<Value>(_ shared: Sharing.SharedReader<Value>) where Value : IdentifiedCollections._IdentifiedCollection, Self.Element == Sharing.SharedReader<Value.Element>, Value.Index == Value.IDs.Index
+}
+
+extension DependencyValues {
+
+    /// Default file storage used by ``SharedReaderKey/appStorage(_:)``.
+    ///
+    /// Use this dependency to override the manner in which
+    /// ``SharedReaderKey/appStorage(_:)`` interacts with UserDefaults. For
+    /// example, while your app is running for UI tests you probably do not want your features writing
+    /// changes to your actual UserDefaults suite, which would cause that data to bleed over from test to test.
+    ///
+    /// So, for that situation you can use the ``inMemory`` value so that each
+    /// run of the app starts with a fresh suite that will never interfere with other tests:
+    ///
+    /// ```swift
+    /// import Dependencies
+    /// import Sharing
+    /// import SwiftUI
+    ///
+    /// @main
+    /// struct MyApp: App {
+    ///   init() {
+    ///     if ProcessInfo.processInfo.environment["UITesting"] == "true"
+    ///       prepareDependencies {
+    ///         $0.defaultAppStorage = .inMemory
+    ///       }
+    ///     }
+    ///   }
+    ///   // ...
+    /// }
+    /// ```
+    public var defaultAppStorage: UserDefaults
+
+    public var appStorageKeyFormatWarningEnabled: Bool
+}
+
+extension UserDefaults {
+
+    public static var inMemory: UserDefaults { get }
+}
+
+extension DependencyValues {
+
+    /// Default file storage used by ``SharedReaderKey/fileStorage(_:decoder:encoder:)``.
+    ///
+    /// Use this dependency to override the manner in which
+    /// ``SharedReaderKey/fileStorage(_:decoder:encoder:)`` interacts with file storage. For
+    /// example, while your app is running for UI tests you probably do not want your features writing
+    /// changes to disk, which would cause that data to bleed over from test to test.
+    ///
+    /// So, for that situation you can use the ``FileStorage/inMemory`` file storage so that each
+    /// run of the app starts with a fresh "file system" that will never interfere with other tests:
+    ///
+    /// ```swift
+    /// import Dependencies
+    /// import Sharing
+    /// import SwiftUI
+    ///
+    /// @main
+    /// struct MyApp: App {
+    ///   init() {
+    ///     if ProcessInfo.processInfo.environment["UITesting"] == "true"
+    ///       prepareDependencies {
+    ///         $0.defaultFileStorage = .inMemory
+    ///       }
+    ///     }
+    ///   }
+    ///   // ...
+    /// }
+    /// ```
+    public var defaultFileStorage: Sharing.FileStorage
+}
+
+extension DependencyValues {
+
+    public var defaultInMemoryStorage: Sharing.InMemoryStorage
+}
+
+extension State {
+
+    /// A dynamic property that holds a shared property in view state.
+    ///
+    /// This property is a more ergonomic shorthand for holding a ``Shared`` in SwiftUI's `@State`
+    /// property wrapper, and can be initialized in all the same ways `@Shared` can be initialized.
+    ///
+    /// Instead of explicitly going through extra layers of `$state.wrappedValue` to get to the
+    /// shared property wrapper, you can project directly to it:
+    ///
+    /// ```diff
+    ///  struct BooksView: View {
+    /// -  @State @Shared var books: [Book]
+    /// +  @State.Shared var books: [Book]
+    ///
+    ///    init(
+    /// -    _books = State(wrappedValue: Shared(.books(searchText)))
+    /// +    _books = State.Shared(.books(searchText))
+    ///    )
+    ///
+    ///    var body: some View {
+    ///      List {
+    ///        // ...
+    ///      }
+    ///      .refreshable {
+    /// -      try? await $books.wrappedValue.load(.books(searchText))
+    /// +      try? await $books.load(.books(searchText))
+    ///      }
+    ///      .searchable(text: $searchText)
+    ///      .onChange(of: searchText) {
+    /// -      $books.wrappedValue = Shared(.books(searchText))
+    /// +      $books = Shared(.books(searchText))
+    ///      }
+    ///    }
+    ///  }
+    /// ```
+    @propertyWrapper public struct Shared : DynamicProperty {
+
+        public var wrappedValue: Value { get }
+
+        public var projectedValue: Sharing.Shared<Value> { get nonmutating set }
+
+        public init(value: sending Value)
+
+        public init(projectedValue: Sharing.Shared<Value>)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedKey<Value>)
+
+        public init<Wrapped>(_ key: some Sharing.SharedKey) where Value == Wrapped?, Wrapped : Sendable
+
+        public init(_ key: (some Sharing.SharedKey<Value>).Default)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedKey<Value>).Default)
+
+        public init(require key: some Sharing.SharedKey<Value>) async throws
+    }
+
+    /// A dynamic property that holds a shared reader in view state.
+    ///
+    /// This property is a more ergonomic shorthand for holding a ``SharedReader`` in SwiftUI's
+    /// `@State` property wrapper, and can be initialized in all the same ways `@SharedReader` can
+    /// be initialized.
+    ///
+    /// Instead of explicitly going through extra layers of `$state.wrappedValue` to get to the
+    /// shared property wrapper, you can project directly to it:
+    ///
+    /// ```diff
+    ///  struct BooksView: View {
+    /// -  @State @SharedReader var books: [Book]
+    /// +  @State.SharedReader var books: [Book]
+    ///
+    ///    init(
+    /// -    _books = State(wrappedValue: SharedReader(.books(searchText)))
+    /// +    _books = State.SharedReader(.books(searchText))
+    ///    )
+    ///
+    ///    var body: some View {
+    ///      List {
+    ///        // ...
+    ///      }
+    ///      .refreshable {
+    /// -      try? await $books.wrappedValue.load(.books(searchText))
+    /// +      try? await $books.load(.books(searchText))
+    ///      }
+    ///      .searchable(text: $searchText)
+    ///      .onChange(of: searchText) {
+    /// -      $books.wrappedValue = SharedReader(.books(searchText))
+    /// +      $books = SharedReader(.books(searchText))
+    ///      }
+    ///    }
+    ///  }
+    /// ```
+    @propertyWrapper public struct SharedReader : DynamicProperty {
+
+        public var wrappedValue: Value { get }
+
+        public var projectedValue: Sharing.SharedReader<Value> { get nonmutating set }
+
+        public init(value: sending Value)
+
+        public init(projectedValue: Sharing.SharedReader<Value>)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedReaderKey<Value>)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: some Sharing.SharedKey<Value>)
+
+        public init<Wrapped>(_ key: some Sharing.SharedReaderKey) where Value == Wrapped?, Wrapped : Sendable
+
+        public init<Wrapped>(_ key: some Sharing.SharedKey) where Value == Wrapped?, Wrapped : Sendable
+
+        public init(_ key: (some Sharing.SharedReaderKey<Value>).Default)
+
+        public init(_ key: (some Sharing.SharedKey<Value>).Default)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedReaderKey<Value>).Default)
+
+        public init(wrappedValue: @autoclosure () -> Value, _ key: (some Sharing.SharedKey<Value>).Default)
+
+        public init(require key: some Sharing.SharedReaderKey<Value>) async throws
+
+        public init(require key: some Sharing.SharedKey<Value>) async throws
+    }
+}
+

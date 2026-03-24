@@ -1,0 +1,2778 @@
+import CloudKit
+import Combine
+import ConcurrencyExtras
+import CryptoKit
+import CustomDump
+import Dependencies
+import Dispatch
+import Foundation
+import GRDB
+import struct GRDB.Configuration
+import class GRDB.Database
+import struct GRDB.DatabaseError
+import struct GRDB.DatabaseMigrator
+import class GRDB.DatabasePool
+import class GRDB.DatabaseQueue
+import protocol GRDB.DatabaseReader
+import protocol GRDB.DatabaseWriter
+import protocol GRDB.ValueObservationScheduler
+import GRDBSQLite
+import IssueReporting
+import OSLog
+import Observation
+import OrderedCollections
+import Perception
+import Sharing
+import StructuredQueriesCore
+import StructuredQueriesSQLite
+import SwiftData
+import SwiftUI
+import TabularData
+import UIKit
+import os
+
+/// A view that presents standard screens for adding and removing people from a CloudKit share \
+/// record.
+///
+/// See <doc:CloudKitSharing#Creating-CKShare-records> for more info.
+@available(iOS 17, macOS 14, tvOS 17, *)
+@MainActor public struct CloudSharingView : UIViewControllerRepresentable {
+
+    @MainActor public init(sharedRecord: SQLiteData.SharedRecord, availablePermissions: UICloudSharingController.PermissionOptions = [], didFinish: @escaping (Result<Void, any Error>) -> Void = { _ in }, didStopSharing: @escaping () -> Void = {}, syncEngine: SQLiteData.SyncEngine = {
+          @Dependency(\.defaultSyncEngine) var defaultSyncEngine
+          return defaultSyncEngine
+        }())
+
+    /// Creates the custom instance that you use to communicate changes from
+    /// your view controller to other parts of your SwiftUI interface.
+    ///
+    /// Implement this method if changes to your view controller might affect
+    /// other parts of your app. In your implementation, create a custom Swift
+    /// instance that can communicate with other parts of your interface. For
+    /// example, you might provide an instance that binds its variables to
+    /// SwiftUI properties, causing the two to remain synchronized. If your view
+    /// controller doesn't interact with other parts of your app, providing a
+    /// coordinator is unnecessary.
+    ///
+    /// SwiftUI calls this method before calling the
+    /// ``UIViewControllerRepresentable/makeUIViewController(context:)`` method.
+    /// The system provides your coordinator either directly or as part of a
+    /// context structure when calling the other methods of your representable
+    /// instance.
+    @MainActor public func makeCoordinator() -> SQLiteData._CloudSharingDelegate
+
+    /// Creates the view controller object and configures its initial state.
+    ///
+    /// You must implement this method and use it to create your view controller
+    /// object. Create the view controller using your app's current data and
+    /// contents of the `context` parameter. The system calls this method only
+    /// once, when it creates your view controller for the first time. For all
+    /// subsequent updates, the system calls the
+    /// ``UIViewControllerRepresentable/updateUIViewController(_:context:)``
+    /// method.
+    ///
+    /// - Parameter context: A context structure containing information about
+    ///   the current state of the system.
+    ///
+    /// - Returns: Your UIKit view controller configured with the provided
+    ///   information.
+    @MainActor public func makeUIViewController(context: SQLiteData.CloudSharingView.Context) -> UICloudSharingController
+
+    /// Updates the state of the specified view controller with new information
+    /// from SwiftUI.
+    ///
+    /// When the state of your app changes, SwiftUI updates the portions of your
+    /// interface affected by those changes. SwiftUI calls this method for any
+    /// changes affecting the corresponding UIKit view controller. Use this
+    /// method to update the configuration of your view controller to match the
+    /// new state information provided in the `context` parameter.
+    ///
+    /// - Parameters:
+    ///   - uiViewController: Your custom view controller object.
+    ///   - context: A context structure containing information about the current
+    ///     state of the system.
+    @MainActor public func updateUIViewController(_ uiViewController: UICloudSharingController, context: SQLiteData.CloudSharingView.Context)
+}
+
+/// A property that can query for data in a SQLite database.
+///
+/// It takes a ``FetchKeyRequest`` that describes how to fetch data from a database:
+///
+/// ```swift
+/// @Fetch(Items()) var items = Items.Value()
+/// ```
+///
+/// See <doc:Fetching> for more information.
+@dynamicMemberLookup @propertyWrapper public struct Fetch<Value> : Sendable where Value : Sendable {
+
+    /// The underlying shared reader powering the property wrapper.
+    ///
+    /// Shared readers come from the [Sharing](https://github.com/pointfreeco/swift-sharing) package,
+    /// a general solution to observing and persisting changes to external data sources.
+    public var sharedReader: Sharing.SharedReader<Value>
+
+    /// Data associated with the underlying query.
+    public var wrappedValue: Value { get }
+
+    /// Returns this property wrapper.
+    ///
+    /// Useful if you want to access various property wrapper state, like ``loadError``,
+    /// ``isLoading``, and ``publisher``.
+    public var projectedValue: SQLiteData.Fetch<Value> { get nonmutating set }
+
+    /// Returns a ``sharedReader`` for the given key path.
+    ///
+    /// You do not invoke this subscript directly. Instead, Swift calls it for you when chaining into
+    /// a member of the underlying data type.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member> { get }
+
+    /// An error encountered during the most recent attempt to load data.
+    public var loadError: (any Error)? { get }
+
+    /// Whether or not data is loading from the database.
+    public var isLoading: Bool { get }
+
+    /// Reloads data from the database.
+    public func load() async throws
+
+    /// A publisher that emits events when the database observes changes to the query.
+    public var publisher: some Publisher<Value, Never> { get }
+
+    /// Initializes this property with an initial value.
+    ///
+    /// - Parameter wrappedValue: A default value to associate with this property.
+    public init(wrappedValue: sending Value)
+
+    /// Initializes this property with a request associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init(wrappedValue: Value, _ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil)
+
+    /// Replaces the wrapped value with data from the given request.
+    ///
+    /// - Parameters:
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load(_ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription
+}
+
+extension Fetch {
+
+    /// Initializes this property with a request associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init(wrappedValue: Value, _ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable)
+
+    /// Replaces the wrapped value with data from the given request.
+    ///
+    /// - Parameters:
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load(_ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription
+}
+
+extension Fetch : CustomReflectable {
+
+    /// The custom mirror for this instance.
+    ///
+    /// If this type has value semantics, the mirror should be unaffected by
+    /// subsequent mutations of the instance.
+    public var customMirror: Mirror { get }
+}
+
+extension Fetch : Equatable where Value : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SQLiteData.Fetch<Value>, rhs: SQLiteData.Fetch<Value>) -> Bool
+}
+
+extension Fetch : DynamicProperty {
+
+    /// Updates the underlying value of the stored value.
+    ///
+    /// SwiftUI calls this function before rendering a view's
+    /// ``View/body-swift.property`` to ensure the view has the most recent
+    /// value.
+    public func update()
+
+    /// Initializes this property with a request associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init(wrappedValue: Value, _ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil, animation: Animation)
+
+    /// Replaces the wrapped value with data from the given request.
+    ///
+    /// - Parameters:
+    ///   - request: A request describing the data to fetch.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load(_ request: some SQLiteData.FetchKeyRequest<Value>, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription
+}
+
+/// A property that can query for a collection of data in a SQLite database.
+///
+/// It takes a query built using the StructuredQueries library:
+///
+/// ```swift
+/// @FetchAll(Item.order(by: \.name)) var items
+/// ```
+///
+/// See <doc:Fetching> for more information.
+@dynamicMemberLookup @propertyWrapper public struct FetchAll<Element> : Sendable where Element : Sendable {
+
+    /// The underlying shared reader powering the property wrapper.
+    ///
+    /// Shared readers come from the [Sharing](https://github.com/pointfreeco/swift-sharing) package,
+    /// a general solution to observing and persisting changes to external data sources.
+    public var sharedReader: Sharing.SharedReader<[Element]>
+
+    /// A collection of data associated with the underlying query.
+    public var wrappedValue: [Element] { get }
+
+    /// Returns this property wrapper.
+    ///
+    /// Useful if you want to access various property wrapper state, like ``loadError``,
+    /// ``isLoading``, and ``publisher``.
+    public var projectedValue: SQLiteData.FetchAll<Element> { get nonmutating set }
+
+    /// Returns a ``sharedReader`` for the given key path.
+    ///
+    /// You do not invoke this subscript directly. Instead, Swift calls it for you when chaining into
+    /// a member of the underlying data type.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<[Element], Member>) -> Sharing.SharedReader<Member> { get }
+
+    /// An error encountered during the most recent attempt to load data.
+    public var loadError: (any Error)? { get }
+
+    /// Whether or not data is loading from the database.
+    public var isLoading: Bool { get }
+
+    /// Reloads data from the database.
+    public func load() async throws
+
+    /// A publisher that emits events when the database observes changes to the query.
+    public var publisher: some Publisher<[Element], Never> { get }
+
+    /// Initializes this property with a query that fetches every row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init(wrappedValue: [Element] = [], database: (any GRDB.DatabaseReader)? = nil) where Element : StructuredQueriesCore.Table, Element == Element.QueryOutput
+
+    /// Initializes this property with a default value.
+    public init(wrappedValue: [Element] = [])
+
+    /// Initializes this property with a default value.
+    public init(wrappedValue: [Element] = []) where Element : StructuredQueriesCore._Selection, Element == Element.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<V>(wrappedValue: [Element] = [], _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Element : StructuredQueriesCore.QueryRepresentable, Element == Element.QueryOutput, S : StructuredQueriesCore.Statement, Element.QueryOutput == S.QueryValue
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+}
+
+extension FetchAll {
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'scheduler'.")
+    public init(wrappedValue: [Element] = [], database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Element : StructuredQueriesCore._Selection, Element == Element.QueryOutput
+
+    /// Initializes this property with a query that fetches every row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init(wrappedValue: [Element] = [], database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Element : StructuredQueriesCore.Table, Element == Element.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<V>(wrappedValue: [Element] = [], _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Element : StructuredQueriesCore.QueryRepresentable, Element == Element.QueryOutput, S : StructuredQueriesCore.Statement, Element.QueryOutput == S.QueryValue
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+}
+
+extension FetchAll : CustomReflectable {
+
+    /// The custom mirror for this instance.
+    ///
+    /// If this type has value semantics, the mirror should be unaffected by
+    /// subsequent mutations of the instance.
+    public var customMirror: Mirror { get }
+}
+
+extension FetchAll : Equatable where Element : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SQLiteData.FetchAll<Element>, rhs: SQLiteData.FetchAll<Element>) -> Bool
+}
+
+extension FetchAll : DynamicProperty {
+
+    /// Updates the underlying value of the stored value.
+    ///
+    /// SwiftUI calls this function before rendering a view's
+    /// ``View/body-swift.property`` to ensure the view has the most recent
+    /// value.
+    public func update()
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'animation'.")
+    public init(wrappedValue: [Element] = [], database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Element : StructuredQueriesCore._Selection, Element == Element.QueryOutput
+
+    /// Initializes this property with a query that fetches every row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init(wrappedValue: [Element] = [], database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Element : StructuredQueriesCore.Table, Element == Element.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<V>(wrappedValue: [Element] = [], _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default collection to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: [Element] = [], _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Element : StructuredQueriesCore.QueryRepresentable, Element == Element.QueryOutput, S : StructuredQueriesCore.Statement, Element.QueryOutput == S.QueryValue
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Element == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Element == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+}
+
+/// A type that can request a value from a database.
+///
+/// This type can be used to describe a transaction to read data from SQLite:
+///
+/// ```swift
+/// struct PlayersRequest: FetchKeyRequest {
+///   struct Value {
+///     let injuredPlayerCount: Int
+///     let players: [Player]
+///   }
+///
+///   func fetch(_ db: Database) throws -> Value {
+///     try Value(
+///       injuredPlayerCount: Player
+///         .where(\.isInjured)
+///         .fetchCount(db),
+///       players: Player
+///         .where { !$0.isInjured }
+///         .order(by: \.name)
+///         .limit(10)
+///         .fetchAll(db)
+///     )
+///   }
+/// }
+/// ```
+///
+/// And then can be used with the ``Fetch`` property wrapper to populate state in a SwiftUI view,
+/// `@Observable` model, UIKit view controller, and more:
+///
+/// ```swift
+/// struct PlayersView: View {
+///   @Fetch(PlayersRequest()) var response
+///
+///   var body: some View {
+///     ForEach(response.players) { player in
+///       // ...
+///     }
+///     Button("View injured players (\(response.injuredPlayerCount))") {
+///       // ...
+///     }
+///   }
+/// }
+/// ```
+public protocol FetchKeyRequest<Value> : Hashable, Sendable {
+
+    /// The type associated with the request.
+    associatedtype Value
+
+    /// Fetches a value from a database.
+    func fetch(_ db: GRDB.Database) throws -> Self.Value
+}
+
+/// A property that can query for a value in a SQLite database.
+///
+/// It takes a query built using the StructuredQueries library:
+///
+/// ```swift
+/// @FetchOne(Item.count) var itemsCount = 0
+/// ```
+///
+/// See <doc:Fetching> for more information.
+@dynamicMemberLookup @propertyWrapper public struct FetchOne<Value> : Sendable where Value : Sendable {
+
+    /// The underlying shared reader powering the property wrapper.
+    ///
+    /// Shared readers come from the [Sharing](https://github.com/pointfreeco/swift-sharing) package,
+    /// a general solution to observing and persisting changes to external data sources.
+    public var sharedReader: Sharing.SharedReader<Value>
+
+    /// A value associated with the underlying query.
+    public var wrappedValue: Value { get }
+
+    /// Returns this property wrapper.
+    ///
+    /// Useful if you want to access various property wrapper state, like ``loadError``,
+    /// ``isLoading``, and ``publisher``.
+    public var projectedValue: SQLiteData.FetchOne<Value> { get nonmutating set }
+
+    /// Returns a ``sharedReader`` for the given key path.
+    ///
+    /// You do not invoke this subscript directly. Instead, Swift calls it for you when chaining into
+    /// a member of the underlying data type.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value, Member>) -> Sharing.SharedReader<Member> { get }
+
+    /// An error encountered during the most recent attempt to load data.
+    public var loadError: (any Error)? { get }
+
+    /// Whether or not data is loading from the database.
+    public var isLoading: Bool { get }
+
+    /// Reloads data from the database.
+    public func load() async throws
+
+    /// A publisher that emits events when the database observes changes to the query.
+    public var publisher: some Publisher<Value, Never> { get }
+
+    /// Initializes this property with a wrapped value.
+    ///
+    /// - Parameter wrappedValue: A default value to associate with this property.
+    public init(wrappedValue: sending Value)
+
+    /// Initializes this property with a wrapped value.
+    ///
+    /// - Parameter wrappedValue: A default value to associate with this property.
+    public init(wrappedValue: sending Value) where Value : StructuredQueriesCore._Selection, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil) where Value : StructuredQueriesCore.Table, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil) where Value : StructuredQueriesCore.Table, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<V>(wrappedValue: Value, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<V>(wrappedValue: Value = nil, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Value : StructuredQueriesCore.QueryRepresentable, Value == Value.QueryOutput, S : StructuredQueriesCore.Statement, Value.QueryOutput == S.QueryValue
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil) where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    public init(wrappedValue: Value = ._none, _ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil) where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load(_ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+}
+
+extension FetchOne {
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'scheduler'.")
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore._Selection, Value == Value.QueryOutput
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'scheduler'.")
+    public init(wrappedValue: sending Value = Value._none, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore._OptionalProtocol, Value : StructuredQueriesCore._Selection, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore.Table, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore.Table, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<V>(wrappedValue: Value, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<V>(wrappedValue: Value = nil, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore.QueryRepresentable, Value == Value.QueryOutput, S : StructuredQueriesCore.Statement, Value.QueryOutput == S.QueryValue
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    public init(wrappedValue: Value = ._none, _ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - scheduler: The scheduler to observe from. By default, database observation is performed
+    ///     asynchronously on the main queue.
+    /// - Returns: A subscription associated with the observation.
+    @discardableResult
+    public func load(_ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil, scheduler: some GRDB.ValueObservationScheduler & Hashable) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+}
+
+extension FetchOne : CustomReflectable {
+
+    /// The custom mirror for this instance.
+    ///
+    /// If this type has value semantics, the mirror should be unaffected by
+    /// subsequent mutations of the instance.
+    public var customMirror: Mirror { get }
+}
+
+extension FetchOne : Equatable where Value : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SQLiteData.FetchOne<Value>, rhs: SQLiteData.FetchOne<Value>) -> Bool
+}
+
+extension FetchOne : DynamicProperty {
+
+    /// Updates the underlying value of the stored value.
+    ///
+    /// SwiftUI calls this function before rendering a view's
+    /// ``View/body-swift.property`` to ensure the view has the most recent
+    /// value.
+    public func update()
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'animation'.")
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore._Selection, Value == Value.QueryOutput
+
+    @available(*, deprecated, message: "Remove unused parameters: 'database', 'animation'.")
+    public init(wrappedValue: sending Value = Value._none, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore._OptionalProtocol, Value : StructuredQueriesCore._Selection, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore.Table, Value == Value.QueryOutput
+
+    /// Initializes this property with a query that fetches the first row from a table.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init(wrappedValue: sending Value, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore.Table, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<V>(wrappedValue: Value, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<V>(wrappedValue: Value = nil, _ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with the wrapped value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: Value, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore.QueryRepresentable, Value == Value.QueryOutput, S : StructuredQueriesCore.Statement, Value.QueryOutput == S.QueryValue
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init<S>(wrappedValue: Value = ._none, _ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Initializes this property with a query associated with an optional value.
+    ///
+    /// - Parameters:
+    ///   - wrappedValue: A default value to associate with this property.
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public init(wrappedValue: Value = ._none, _ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == ()
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput, V : StructuredQueriesCore.QueryRepresentable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<V>(_ statement: some StructuredQueriesCore.Statement, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value == V.QueryOutput?, V : StructuredQueriesCore.QueryRepresentable, V.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value == S.From.QueryOutput?, S : StructuredQueriesCore.SelectStatement, S.Joins == (), S.QueryValue == (), S.From.QueryOutput : Sendable
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load<S>(_ statement: S, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore._OptionalProtocol, Value == S.QueryValue.QueryOutput, S : StructuredQueriesCore.Statement, S.QueryValue : StructuredQueriesCore.QueryRepresentable, S.QueryValue : StructuredQueriesCore._OptionalProtocol
+
+    /// Replaces the wrapped value with data from the given query.
+    ///
+    /// - Parameters:
+    ///   - statement: A query associated with the wrapped value.
+    ///   - database: The database to read from. A value of `nil` will use the default database
+    ///     (`@Dependency(\.defaultDatabase)`).
+    ///   - animation: The animation to use for user interface changes that result from changes to
+    ///     the fetched results.
+    /// - Returns: A subscription associated with the observation.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    @discardableResult
+    public func load(_ statement: some StructuredQueriesCore.Statement<Value>, database: (any GRDB.DatabaseReader)? = nil, animation: Animation) async throws -> SQLiteData.FetchSubscription where Value : StructuredQueriesCore.QueryRepresentable, Value : StructuredQueriesCore._OptionalProtocol, Value == Value.QueryOutput
+}
+
+/// A subscription associated with `@FetchAll`, `@FetchOne`, and `@Fetch` observation.
+///
+/// This value can be useful in associating the lifetime of observing a query to the lifetime of a
+/// SwiftUI view _via_ the `task` view modifier. For example, loading a query in a view's `task`
+/// will automatically cancel the observation when drilling down into a child view, and restart
+/// observation when popping back to the view:
+///
+/// ```swift
+/// .task {
+///   try? await $reminders.load(Reminder.all).task
+/// }
+/// ```
+public struct FetchSubscription : Sendable {
+
+    /// An async handle to the given fetch observation.
+    ///
+    /// This handle will suspend until the current task is cancelled, at which point it will terminate
+    /// the observation of the associated ``FetchAll``, ``FetchOne``, or ``Fetch``.
+    public var task: Void { get async throws }
+
+    /// Cancels the database observation of the associated ``FetchAll``, ``FetchOne``, or ``Fetch``.
+    public func cancel()
+}
+
+/// A type that can be represented by a string identifier.
+///
+/// A requirement of tables synchronized to CloudKit using a ``SyncEngine``. You should generally
+/// identify tables using Foundation's `UUID` type or another globally unique identifier. It is
+/// not appropriate to conform simple integer types to this protocol.
+public protocol IdentifierStringConvertible {
+
+    init?(rawIdentifier: String)
+
+    var rawIdentifier: String { get }
+}
+
+extension IdentifierStringConvertible where Self : CustomStringConvertible {
+
+    public var rawIdentifier: String { get }
+}
+
+extension IdentifierStringConvertible where Self : LosslessStringConvertible {
+
+    public init?(rawIdentifier: String)
+}
+
+public struct NotFound : Error {
+
+    public init()
+}
+
+/// A cursor of a structured query.
+///
+/// Iterates over and decodes all of the rows of a structured query.
+public class QueryCursor<Element> : GRDB.DatabaseCursor {
+
+    /// Must be initialized to false.
+    public var _isDone: Bool
+
+    /// The statement iterated by the cursor
+    public let _statement: GRDB.Statement
+
+    deinit
+
+    /// Called after one successful call to `sqlite3_step()`. Returns the
+    /// element for the current statement step.
+    public func _element(sqliteStatement _: GRDB.SQLiteStatement) throws -> Element
+}
+
+/// A shared record that can be used to present a ``CloudSharingView``.
+///
+/// See <doc:CloudKitSharing#Creating-CKShare-records> for more information.,
+@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+public struct SharedRecord : Hashable, Identifiable, Sendable {
+
+    public let share: CKShare
+
+    /// The stable identity of the entity associated with this instance.
+    public var id: CKRecord.ID { get }
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SQLiteData.SharedRecord, rhs: SQLiteData.SharedRecord) -> Bool
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+/// An object that manages the synchronization of local and remote SQLite data.
+///
+/// See <doc:CloudKit> for more information.
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+final public class SyncEngine : Observable, Sendable {
+
+    /// The error message used when a write occurs to a record for which the current user does not
+    /// have permission.
+    ///
+    /// This error is thrown from any database write to a row for which the current user does
+    /// not have permissions to write, as determined by its `CKShare` (if applicable). To catch
+    /// this error try casting it to `DatabaseError` and checking its message:
+    ///
+    /// ```swift
+    /// do {
+    ///   try await database.write { db in
+    ///     Reminder.find(id)
+    ///       .update { $0.title = "Personal" }
+    ///       .execute(db)
+    ///   }
+    /// } catch let error as DatabaseError where error.message == SyncEngine.writePermissionError {
+    ///   // User does not have permission to write to this record.
+    /// }
+    /// ```
+    public static let writePermissionError: String
+
+    public static let invalidRecordNameError: String
+
+    /// Initialize a sync engine.
+    ///
+    /// - Parameters:
+    ///   - database: The database to synchronize to CloudKit.
+    ///   - tables: A list of tables that you want to synchronize _and_ that you want to be
+    ///     shareable with other users on CloudKit.
+    ///   - privateTables: A list of tables that you want to synchronize to CloudKit but that
+    ///     you do not want to be shareable with other users.
+    ///   - containerIdentifier: The container identifier in CloudKit to synchronize to. If omitted
+    ///     the container will be determined from the entitlements of your app.
+    ///   - defaultZone: The zone for all records to be stored in.
+    ///   - startImmediately: Determines if the sync engine starts right away or requires an
+    ///     explicit call to ``start()``. By default this argument is `true`.
+    ///   - delegate: A delegate object that can be notified of events and override default sync
+    ///     engine behavior.
+    ///   - logger: The logger used to log events in the sync engine. By default a `.disabled`
+    ///     logger is used, which means logs are not printed.
+    public convenience init<each T1, each T2>(for database: any GRDB.DatabaseWriter, tables: repeat (each T1).Type, privateTables: repeat (each T2).Type, containerIdentifier: String? = nil, defaultZone: CKRecordZone = CKRecordZone(zoneName: "co.pointfree.SQLiteData.defaultZone"), startImmediately: Bool = true, delegate: (any SQLiteData.SyncEngineDelegate)? = nil, logger: Logger = isTesting
+        ? Logger(.disabled) : Logger(subsystem: "SQLiteData", category: "CloudKit")) throws where repeat each T1 : StructuredQueriesCore.PrimaryKeyedTable, repeat each T1 : SendableMetatype, repeat each T2 : StructuredQueriesCore.PrimaryKeyedTable, repeat each T2 : SendableMetatype, repeat (each T1).PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible, repeat (each T1).TableColumns.PrimaryColumn : StructuredQueriesCore.WritableTableColumnExpression, repeat (each T2).PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible, repeat (each T2).TableColumns.PrimaryColumn : StructuredQueriesCore.WritableTableColumnExpression
+
+    deinit
+
+    /// Starts the sync engine if it is stopped.
+    ///
+    /// When a sync engine is started it will upload all data stored locally that has not yet
+    /// been synchronized to CloudKit, and will download all changes from CloudKit since the
+    /// last time it synchronized.
+    ///
+    /// > Note: By default, sync engines start syncing when initialized.
+    public func start() async throws
+
+    /// Determines if the sync engine is currently sending local changes to the CloudKit server.
+    ///
+    /// It is an observable value, which means if it is accessed in a SwiftUI view, or some other
+    /// observable context, then the view will automatically re-render when the value changes. As
+    /// such, it can be useful for displaying a progress view to indicate that work is currently
+    /// being done to synchronize changes.
+    public var isSendingChanges: Bool { get }
+
+    /// Determines if the sync engine is currently processing changes being sent to the device
+    /// from CloudKit.
+    ///
+    /// It is an observable value, which means if it is accessed in a SwiftUI view, or some other
+    /// observable context, then the view will automatically re-render when the value changes. As
+    /// such, it can be useful for displaying a progress view to indicate that work is currently
+    /// being done to synchronize changes.
+    public var isFetchingChanges: Bool { get }
+
+    /// Determines if the sync engine is currently sending or receiving changes from CloudKit.
+    ///
+    /// This value is true if either of ``isSendingChanges`` or ``isFetchingChanges`` is true.
+    /// It is an observable value, which means if it is accessed in a SwiftUI view, or some other
+    /// observable context, then the view will automatically re-render when the value changes. As
+    /// such, it can be useful for displaying a progress view to indicate that work is currently
+    /// being done to synchronize changes.
+    public var isSynchronizing: Bool { get }
+
+    /// Stops the sync engine if it is running.
+    ///
+    /// All edits made after stopping the sync engine will not be synchronized to CloudKit.
+    /// You must start the sync engine again using ``start()`` to synchronize the changes.
+    public func stop()
+
+    /// Determines if the sync engine is currently running or not.
+    public var isRunning: Bool { get }
+
+    /// Fetches pending remote changes from the server.
+    ///
+    /// Use this method to ensure the sync engine immediately fetches all pending remote changes
+    /// before your app continues. This isn't necessary in normal use, as the engine automatically
+    /// syncs your app's records. It is useful, however, in scenarios where you require more control
+    /// over sync, such as pull-to-refresh.
+    ///
+    /// - Parameter options: The options to use when fetching changes.
+    public func fetchChanges(_ options: CKSyncEngine.FetchChangesOptions = CKSyncEngine.FetchChangesOptions()) async throws
+
+    /// Sends pending local changes to the server.
+    ///
+    /// Use this method to ensure the sync engine sends all pending local changes to the server
+    /// before your app continues. This isn't necessary in normal use, as the engine automatically
+    /// syncs your app's records. It is useful, however, in scenarios where you require greater
+    /// control over sync, such as a "Backup now" button.
+    ///
+    /// - Parameter options: The options to use when sending changes.
+    public func sendChanges(_ options: CKSyncEngine.SendChangesOptions = CKSyncEngine.SendChangesOptions()) async throws
+
+    /// Synchronizes local and remote pending changes.
+    ///
+    /// Use this method to ensure the sync engine immediately fetches all pending remote changes
+    /// _and_ sends all pending local changes to the server. This isn't necessary in normal use,
+    /// as the engine automatically syncs your app's records. It is useful, however, in scenarios
+    /// where you require greater control over sync.
+    ///
+    /// - Parameters:
+    ///   - fetchOptions: The options to use when fetching changes.
+    ///   - sendOptions: The options to use when sending changes.
+    public func syncChanges(fetchOptions: CKSyncEngine.FetchChangesOptions = CKSyncEngine.FetchChangesOptions(), sendOptions: CKSyncEngine.SendChangesOptions = CKSyncEngine.SendChangesOptions()) async throws
+
+    /// Deletes synchronized data locally on device and restarts the sync engine.
+    ///
+    /// This method is called automatically by the sync engine when it detects the device's iCloud
+    /// account has logged out or changed. To customize this behavior, provide a
+    /// ``SyncEngineDelegate`` to the sync engine and implement
+    /// ``SyncEngineDelegate/syncEngine(_:accountChanged:)``.
+    ///
+    /// > Important: It is only appropriate to call this method when the device's iCloud account
+    /// > logs out or changes.
+    public func deleteLocalData() async throws
+
+    /// A query expression that can be used in SQL queries to determine if the ``SyncEngine``
+    /// is currently writing changes to the database.
+    ///
+    /// See <doc:CloudKit#Updating-triggers-to-be-compatible-with-synchronization> for more info.
+    public static func isSynchronizingChanges() -> some StructuredQueriesCore.QueryExpression<Bool>
+
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncEngine {
+
+    /// Shares a record in CloudKit.
+    ///
+    /// This method will thrown an error if:
+    ///
+    /// * The table the `record` belongs to is not synchronized to CloudKit.
+    /// * The `record` has any foreign keys. Only root records are shareable in CloudKit.
+    /// * The table the `record` belongs to is a "private" table as determined by the
+    /// [`SyncEngine` initializer](<doc:SyncEngine/init(for:tables:privateTables:containerIdentifier:defaultZone:startImmediately:delegate:logger:)>).
+    /// * The `record` is being shared before it has been synchronized to CloudKit.
+    /// * Any of the CloudKit APIs invoked throw an error.
+    ///
+    /// The value returned from this method can be used to present a ``CloudSharingView`` which
+    /// allows the user to send a share URL to another user.
+    ///
+    /// - Parameters:
+    ///   - record: The record to be shared on CloudKit.
+    ///   - configure: A trailing closure that can customize the `CKShare` sent to CloudKit. See
+    ///   [Apple's documentation](https://developer.apple.com/documentation/cloudkit/ckshare/systemfieldkey)
+    ///   for more info on what can be configured.
+    public func share<T>(record: T, configure: @Sendable (CKShare) -> Void) async throws -> SQLiteData.SharedRecord where T : StructuredQueriesCore.PrimaryKeyedTable, T.PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible
+
+    public func unshare<T>(record: T) async throws where T : StructuredQueriesCore.PrimaryKeyedTable, T.PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible
+
+    /// Accepts a shared record.
+    ///
+    /// This method should be invoked from various delegate methods on the scene delegate of the
+    /// app. See <doc:CloudKitSharing#Accepting-shared-records> for more info.
+    public func acceptShare(metadata: CKShare.Metadata) async throws
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncEngine : Dependencies.TestDependencyKey {
+
+    /// The preview value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// Xcode preview, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/preview``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .preview
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "preview" value
+    /// }
+    /// ```
+    public static var previewValue: SQLiteData.SyncEngine { get }
+
+    /// The test value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// XCTest run, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/test``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .test
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "test" value
+    /// }
+    /// ```
+    public static var testValue: SQLiteData.SyncEngine { get }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncEngine {
+
+    /// Migrates integer primary-keyed tables and tables without primary keys to
+    /// CloudKit-compatible, UUID primary keys.
+    ///
+    /// To synchronize a table to CloudKit it must have a primary key, and that primary key must
+    /// be a globally unique identifier, such as a UUID. However, changing the type of a column
+    /// in SQLite is a [multi-step process] that must be followed very carefully, otherwise you run
+    /// the risk of corrupting your users' data.
+    ///
+    /// [multi-step process]: https://sqlite.org/lang_altertable.html#making_other_kinds_of_table_schema_changes
+    ///
+    /// This method is a general purpose tool that analyzes a set of tables to try to automatically
+    /// perform that migration for you. It performs the following steps:
+    ///
+    ///   * Computes a random salt to use for backfilling existing integer primary keys with UUIDs.
+    ///   * For each table passed to this method:
+    ///     * Creates a new table with essentially the same schema, but the following changes:
+    ///       * A new temporary name is given to the table.
+    ///       * If an integer primary key exists, it is changed to a "TEXT" column with a
+    ///         "NOT NULL PRIMARY KEY ON CONFLICT REPLACE DEFAULT" constraint, and a default of
+    ///         "uuid()" if no `uuid` argument is given, otherwise the argument is used.
+    ///       * If no primary key exists, one is added with the same constraints as above.
+    ///       * All integer foreign keys are changed to "TEXT" columns with no other changes.
+    ///     * All data from the existing table is copied over into the new table, but all integer
+    ///       IDs (both primary and foreign keys) are transformed into UUIDs by MD5 hashing the
+    ///       integer, the table name, and the salt mentioned above, and turning that hash into a
+    ///       UUID.
+    ///     * The existing table is dropped.
+    ///     * Thew new table is renamed to have the same name as the table just dropped.
+    ///   * Any indexes and stored triggers that were removed from dropping tables in the steps
+    ///     above are recreated.
+    ///   * Executes a "PRAGMA foreign_key_check;" query to make sure that the integrity of the data
+    ///     is preserved.
+    ///
+    /// If all of those steps are performed without throwing an error, then your schema and data
+    /// should have been successfully migrated to UUIDs. If an error is thrown for any reason,
+    /// then it means the tool was not able to safely migrate your data and so you will need to
+    /// perform the migration [manually](<doc:ManuallyMigratingPrimaryKeys>).
+    ///
+    /// - Parameters:
+    ///   - db: A database connection.
+    ///   - tables: Tables to migrate.
+    ///   - uuidFunction: A UUID function to use for the default value of primary keys in your
+    ///     tables' schemas. If `nil`, SQLite's `uuid` function will be used.
+    public static func migratePrimaryKeys<each T>(_ db: GRDB.Database, tables: repeat (each T).Type, dropUniqueConstraints: Bool = false, uuid uuidFunction: (any StructuredQueriesSQLiteCore.ScalarDatabaseFunction<(), UUID>)? = nil) throws where repeat each T : StructuredQueriesCore.PrimaryKeyedTable, repeat (each T).PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible, repeat (each T).TableColumns.PrimaryColumn : StructuredQueriesCore.TableColumnExpression
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncEngine : CKSyncEngineDelegate {
+
+    /// Called when an event occurs during the sync engine's operation.
+    ///
+    /// This is how you receive updates about local state changes, fetched changes, sent changes, and more.
+    /// See ``CKSyncEngine/Event`` for all the possible events that might be posted.
+    ///
+    /// ## Event ordering
+    ///
+    /// Events will be given to your delegate serially.
+    /// You will not receive the next event until you have returned from this function for the previous event.
+    ///
+    /// ### Recursion
+    ///
+    /// In order to maintain this serial event ordering guarantee, your delegate should not await any calls into the sync engine that might cause other events to be posted.
+    /// For example, you should not `await` a call into ``CKSyncEngine/fetchChanges(_:)`` or ``CKSyncEngine/sendChanges(_:)`` from within the `handleEvent` callback.
+    ///
+    /// This is because ``CKSyncEngine/fetchChanges(_:)`` and ``CKSyncEngine/sendChanges(_:)`` will end up posting other events (e.g. `.willFetchChanges` or `.willSendChanges`),
+    /// and ``CKSyncEngine-5sie5`` guarantees that `fetchChanges` and `sendChanges` won't return until you've handled all the relevant events.
+    /// If you await `fetchChanges` from within `handleEvent`, and if `fetchChanges` awaits its calls into `handleEvent`, then the system is in a deadlock.
+    /// If you want to fetch or send changes from within a delegate callback, you should perform that work in a detached task.
+    public func handleEvent(_ event: CKSyncEngine.Event, syncEngine: CKSyncEngine) async
+
+    /// Called to get the next batch of record zone changes to send to the server.
+    ///
+    /// The sync engine will call this function when it's about to to send changes to the server.
+    /// This might happen during an automatically scheduled sync or as a result of you calling ``CKSyncEngine/sendChanges(_:)``.
+    /// Provide the next batch of record zone changes to send by returning them from this function.
+    ///
+    /// Once the sync engine starts sending changes, it will continue until there are no more pending changes to send.
+    /// You can return `nil` to indicate that you have no more pending changes for now.
+    /// The next time the sync engine tries to sync, it will call this again to get any new pending changes.
+    ///
+    /// ## Sending changes for specific zones
+    ///
+    /// When you call ``CKSyncEngine/sendChanges(_:)`` with a specific scope, you should make sure to only return a batch for that scope.
+    /// You can do this by checking the ``CKSyncEngine/SendChangesOptions/scope`` property in ``CKSyncEngine/SendChangesContext/options``.
+    ///
+    /// For example, you might have some code like this:
+    ///
+    /// ```swift
+    /// func nextRecordZoneChangeBatchToSend(_ context: CKSyncEngine.SendChangesContext, syncEngine: CKSyncEngine) async -> CKSyncEngine.RecordZoneChangeBatch? {
+    ///
+    ///     let pendingChanges = syncEngine.state.pendingRecordZoneChanges.filter { context.options.scope.contains($0) }
+    ///
+    ///     return await CKSyncEngine.RecordZoneChangeBatch(pendingChanges: pendingChanges) { recordID in
+    ///         self.recordToSave(for: recordID)
+    ///     }
+    /// }
+    /// ```
+    public func nextRecordZoneChangeBatch(_ context: CKSyncEngine.SendChangesContext, syncEngine: CKSyncEngine) async -> CKSyncEngine.RecordZoneChangeBatch?
+}
+
+/// An interface for observing ``SyncEngine`` events and customizing ``SyncEngine`` behavior.
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+public protocol SyncEngineDelegate : AnyObject, Sendable {
+
+    /// An event indicating a change to the device's iCloud account.
+    ///
+    /// By default, a sync engine will clear out local data when detecting a logout or account
+    /// change. To override this behavior, _e.g._ if you want to prompt the user and let them decide
+    /// if they want to clear their local data or not, implement this method, and explicitly call
+    /// ``SyncEngine/deleteLocalData()`` if/when the data should be cleared.
+    ///
+    /// For example, an observable model could override this method to set up some alert state:
+    ///
+    /// ```swift
+    /// @MainActor
+    /// @Observable
+    /// class MySyncEngineDelegate: SyncEngineDelegate {
+    ///   var isResetDataAlertPresented = false
+    ///
+    ///   func syncEngine(
+    ///     _ syncEngine: SyncEngine,
+    ///     accountChanged changeType: CKSyncEngine.Event.AccountChange.ChangeType
+    ///   ) {
+    ///     switch changeType {
+    ///     case .signOut, .switchAccounts:
+    ///       isResetDataAlertPresented = true
+    ///     case .signIn:
+    ///       break
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// And then SwiftUI could drive an alert with this state:
+    ///
+    /// ```swift
+    /// struct MyApp: App {
+    ///   @State var syncEngineDelegate = MySyncEngineDelegate()
+    ///
+    ///   init() {
+    ///     prepareDependencies {
+    ///       try! $0.bootstrapDatabase(syncEngineDelegate: syncEngineDelegate)
+    ///     }
+    ///   }
+    ///
+    ///   var body: some Scene {
+    ///     WindowGroup {
+    ///       MyRootView()
+    ///         .alert(
+    ///           "Reset local data?",
+    ///           isPresented: $syncEngineDelegate.isDeleteLocalDataAlertPresented
+    ///         ) {
+    ///           Button("Reset", role: .destructive) {
+    ///             Task {
+    ///               try await syncEngine.deleteLocalData()
+    ///             }
+    ///           }
+    ///         } message: {
+    ///           Text(
+    ///             """
+    ///             You are no longer logged into iCloud. Would you like to reset your local data \
+    ///             to the defaults? This will not affect your data in iCloud.
+    ///             """
+    ///           )
+    ///         }
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - syncEngine: The sync engine that generates the event.
+    ///   - changeType: The iCloud account's change type.
+    func syncEngine(_ syncEngine: SQLiteData.SyncEngine, accountChanged changeType: CKSyncEngine.Event.AccountChange.ChangeType) async
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncEngineDelegate {
+
+    /// An event indicating a change to the device's iCloud account.
+    ///
+    /// By default, a sync engine will clear out local data when detecting a logout or account
+    /// change. To override this behavior, _e.g._ if you want to prompt the user and let them decide
+    /// if they want to clear their local data or not, implement this method, and explicitly call
+    /// ``SyncEngine/deleteLocalData()`` if/when the data should be cleared.
+    ///
+    /// For example, an observable model could override this method to set up some alert state:
+    ///
+    /// ```swift
+    /// @MainActor
+    /// @Observable
+    /// class MySyncEngineDelegate: SyncEngineDelegate {
+    ///   var isResetDataAlertPresented = false
+    ///
+    ///   func syncEngine(
+    ///     _ syncEngine: SyncEngine,
+    ///     accountChanged changeType: CKSyncEngine.Event.AccountChange.ChangeType
+    ///   ) {
+    ///     switch changeType {
+    ///     case .signOut, .switchAccounts:
+    ///       isResetDataAlertPresented = true
+    ///     case .signIn:
+    ///       break
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// And then SwiftUI could drive an alert with this state:
+    ///
+    /// ```swift
+    /// struct MyApp: App {
+    ///   @State var syncEngineDelegate = MySyncEngineDelegate()
+    ///
+    ///   init() {
+    ///     prepareDependencies {
+    ///       try! $0.bootstrapDatabase(syncEngineDelegate: syncEngineDelegate)
+    ///     }
+    ///   }
+    ///
+    ///   var body: some Scene {
+    ///     WindowGroup {
+    ///       MyRootView()
+    ///         .alert(
+    ///           "Reset local data?",
+    ///           isPresented: $syncEngineDelegate.isDeleteLocalDataAlertPresented
+    ///         ) {
+    ///           Button("Reset", role: .destructive) {
+    ///             Task {
+    ///               try await syncEngine.deleteLocalData()
+    ///             }
+    ///           }
+    ///         } message: {
+    ///           Text(
+    ///             """
+    ///             You are no longer logged into iCloud. Would you like to reset your local data \
+    ///             to the defaults? This will not affect your data in iCloud.
+    ///             """
+    ///           )
+    ///         }
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - syncEngine: The sync engine that generates the event.
+    ///   - changeType: The iCloud account's change type.
+    public func syncEngine(_ syncEngine: SQLiteData.SyncEngine, accountChanged changeType: CKSyncEngine.Event.AccountChange.ChangeType) async
+}
+
+/// A table that tracks metadata related to synchronized data.
+///
+/// Each row of this table represents a synchronized record across all tables synchronized with
+/// CloudKit. This means that the sum of the count of rows across all synchronized tables in your
+/// application is the number of rows this one single table holds. However, this table is held
+/// in a database separate from your app's database.
+///
+/// See <doc:CloudKit#Accessing-CloudKit-metadata> for more info.
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+public struct SyncMetadata : Hashable, Identifiable, Sendable {
+
+    /// A selection of columns representing a synchronized record's unique identifier and type.
+    public struct ID : Hashable, Sendable {
+
+        /// The unique identifier of the record synchronized.
+        public let recordPrimaryKey: String
+
+        /// The type of the record synchronized, _i.e._ its table name.
+        public let recordType: String
+
+        /// A type that describes this table's columns.
+        nonisolated public struct TableColumns : StructuredQueriesCore.TableDefinition {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.ID
+
+            public let recordPrimaryKey: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.ID.TableColumns.QueryValue, String>
+
+            public let recordType: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.ID.TableColumns.QueryValue, String>
+
+            /// An array of this table's columns.
+            public static var allColumns: [any StructuredQueriesCore.TableColumnExpression] { get }
+
+            /// An array of this table's writable (non-generated) columns.
+            public static var writableColumns: [any StructuredQueriesCore.WritableTableColumnExpression] { get }
+
+            /// The query fragment associated with this expression.
+            public var queryFragment: StructuredQueriesCore.QueryFragment { get }
+        }
+
+        /// A type that describes this table as a query expression.
+        nonisolated public struct Selection : StructuredQueriesCore.TableExpression {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.ID
+
+            public let allColumns: [any StructuredQueriesCore.QueryExpression]
+
+            public init(recordPrimaryKey: some StructuredQueriesCore.QueryExpression<String>, recordType: some StructuredQueriesCore.QueryExpression<String>)
+        }
+    }
+
+    /// The unique identifier and type of the record synchronized.
+    public let id: SQLiteData.SyncMetadata.ID
+
+    /// The unique identifier of the record synchronized.
+    public var recordPrimaryKey: String { get }
+
+    /// The type of the record synchronized, _i.e._ its table name.
+    public var recordType: String { get }
+
+    /// The record zone name.
+    public let zoneName: String
+
+    /// The record owner name.
+    public let ownerName: String
+
+    /// The name of the record synchronized.
+    ///
+    /// This field encodes both the table name and primary key of the record synchronized in
+    /// the format "primaryKey:tableName", for example:
+    ///
+    /// ```swift
+    /// "8c4d1e4e-49b2-4f60-b6df-3c23881b87c6:reminders"
+    /// ```
+    public let recordName: String
+
+    /// A selection of columns representing a synchronized parent record's unique identifier and
+    /// type.
+    public struct ParentID : Hashable, Sendable {
+
+        /// The unique identifier of the parent record synchronized.
+        public let parentRecordPrimaryKey: String
+
+        /// The type of the parent record synchronized, _i.e._ its table name.
+        public let parentRecordType: String
+
+        /// A type that describes this table's columns.
+        nonisolated public struct TableColumns : StructuredQueriesCore.TableDefinition {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.ParentID
+
+            public let parentRecordPrimaryKey: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.ParentID.TableColumns.QueryValue, String>
+
+            public let parentRecordType: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.ParentID.TableColumns.QueryValue, String>
+
+            /// An array of this table's columns.
+            public static var allColumns: [any StructuredQueriesCore.TableColumnExpression] { get }
+
+            /// An array of this table's writable (non-generated) columns.
+            public static var writableColumns: [any StructuredQueriesCore.WritableTableColumnExpression] { get }
+
+            /// The query fragment associated with this expression.
+            public var queryFragment: StructuredQueriesCore.QueryFragment { get }
+        }
+
+        /// A type that describes this table as a query expression.
+        nonisolated public struct Selection : StructuredQueriesCore.TableExpression {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.ParentID
+
+            public let allColumns: [any StructuredQueriesCore.QueryExpression]
+
+            public init(parentRecordPrimaryKey: some StructuredQueriesCore.QueryExpression<String>, parentRecordType: some StructuredQueriesCore.QueryExpression<String>)
+        }
+    }
+
+    /// The identifier and type of this record's parent, if any.
+    public let parentRecordID: SQLiteData.SyncMetadata.ParentID?
+
+    /// The unique identifier of this record's parent, if any.
+    public var parentRecordPrimaryKey: String? { get }
+
+    /// The type of this record's parent, _i.e._ its table name, if any.
+    public var parentRecordType: String? { get }
+
+    /// The name of this record's parent, if any.
+    ///
+    /// This field encodes both the table name and primary key of the parent record in the format
+    /// "primaryKey:tableName", for example:
+    ///
+    /// ```swift
+    /// "d35e1f81-46e4-45d1-904b-2b7df1661e3e:remindersLists"
+    /// ```
+    public let parentRecordName: String?
+
+    /// The last known `CKRecord` received from the server.
+    ///
+    /// This record holds only the fields that are archived when using `encodeSystemFields(with:)`.
+    public let lastKnownServerRecord: CKRecord?
+
+    /// The last known `CKRecord` received from the server with all fields archived.
+    public let _lastKnownServerRecordAllFields: CKRecord?
+
+    /// The `CKShare` associated with this record, if it is shared.
+    public let share: CKShare?
+
+    /// Determines if the metadata has been "soft" deleted. It will be fully deleted once the
+    /// next batch of pending changes is processed.
+    public let _isDeleted: Bool
+
+    public let hasLastKnownServerRecord: Bool
+
+    /// Determines if the record associated with this metadata is currently shared in CloudKit.
+    ///
+    /// This can only return `true` for root records. For example, the metadata associated with a
+    /// `RemindersList` can have `isShared == true`, but a `Reminder` associated with the list
+    /// will have `isShared == false`.
+    public let isShared: Bool
+
+    /// The time the user last modified the record.
+    public let userModificationTime: Int64
+
+    /// A type that describes this table's columns.
+    nonisolated public struct TableColumns : StructuredQueriesCore.TableDefinition, StructuredQueriesCore.PrimaryKeyedTableDefinition {
+
+        /// The Swift data type representation of the expression's SQL data type.
+        ///
+        /// For example, a `TEXT` expression may be represented as a `String` query value.
+        ///
+        /// This type is used to introduce type-safety at the query builder level.
+        public typealias QueryValue = SQLiteData.SyncMetadata
+
+        /// A type representing this table's primary key.
+        ///
+        /// For auto-incrementing tables, this is typically `Int`.
+        public typealias PrimaryKey = SQLiteData.SyncMetadata.ID
+
+        public let id: StructuredQueriesCore.ColumnGroup<SQLiteData.SyncMetadata.TableColumns.QueryValue, SQLiteData.SyncMetadata.ID>
+
+        /// The column representing this table's primary key.
+        public let primaryKey: StructuredQueriesCore.ColumnGroup<SQLiteData.SyncMetadata.TableColumns.QueryValue, SQLiteData.SyncMetadata.ID>
+
+        public let zoneName: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, String>
+
+        public let ownerName: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, String>
+
+        public let recordName: StructuredQueriesCore.GeneratedColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, String>
+
+        public let parentRecordID: StructuredQueriesCore.ColumnGroup<SQLiteData.SyncMetadata.TableColumns.QueryValue, SQLiteData.SyncMetadata.ParentID?>
+
+        public let parentRecordName: StructuredQueriesCore.GeneratedColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, String?>
+
+        public let lastKnownServerRecord: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Optional<CKRecord>.SystemFieldsRepresentation>
+
+        public let _lastKnownServerRecordAllFields: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Optional<CKRecord>._AllFieldsRepresentation>
+
+        public let share: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Optional<CKShare>.SystemFieldsRepresentation>
+
+        public let _isDeleted: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Bool>
+
+        public let hasLastKnownServerRecord: StructuredQueriesCore.GeneratedColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Bool>
+
+        public let isShared: StructuredQueriesCore.GeneratedColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Bool>
+
+        public let userModificationTime: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.TableColumns.QueryValue, Int64>
+
+        /// An array of this table's columns.
+        public static var allColumns: [any StructuredQueriesCore.TableColumnExpression] { get }
+
+        /// An array of this table's writable (non-generated) columns.
+        public static var writableColumns: [any StructuredQueriesCore.WritableTableColumnExpression] { get }
+
+        /// The query fragment associated with this expression.
+        public var queryFragment: StructuredQueriesCore.QueryFragment { get }
+    }
+
+    /// A type that describes this table as a query expression.
+    nonisolated public struct Selection : StructuredQueriesCore.TableExpression {
+
+        /// The Swift data type representation of the expression's SQL data type.
+        ///
+        /// For example, a `TEXT` expression may be represented as a `String` query value.
+        ///
+        /// This type is used to introduce type-safety at the query builder level.
+        public typealias QueryValue = SQLiteData.SyncMetadata
+
+        public let allColumns: [any StructuredQueriesCore.QueryExpression]
+
+        public init(id: some StructuredQueriesCore.QueryExpression<SQLiteData.SyncMetadata.ID>, zoneName: some StructuredQueriesCore.QueryExpression<String>, ownerName: some StructuredQueriesCore.QueryExpression<String>, recordName: some StructuredQueriesCore.QueryExpression<String>, parentRecordID: some StructuredQueriesCore.QueryExpression<SQLiteData.SyncMetadata.ParentID?> = ParentID?(queryOutput: nil), parentRecordName: some StructuredQueriesCore.QueryExpression<String?> = String?(queryOutput: nil), lastKnownServerRecord: some StructuredQueriesCore.QueryExpression<SQLiteData._SystemFieldsRepresentation<CKRecord>?>, _lastKnownServerRecordAllFields: some StructuredQueriesCore.QueryExpression<SQLiteData._AllFieldsRepresentation<CKRecord>?>, share: some StructuredQueriesCore.QueryExpression<SQLiteData._SystemFieldsRepresentation<CKShare>?>, _isDeleted: some StructuredQueriesCore.QueryExpression<Bool>, hasLastKnownServerRecord: some StructuredQueriesCore.QueryExpression<Bool>, isShared: some StructuredQueriesCore.QueryExpression<Bool>, userModificationTime: some StructuredQueriesCore.QueryExpression<Int64>)
+    }
+
+    /// A type that represents this type, but with an optional primary key.
+    ///
+    /// This type can be used to stage an inserted row.
+    public struct Draft : StructuredQueriesCore.TableDraft {
+
+        /// A type that represents the table with a primary key.
+        public typealias PrimaryTable = SQLiteData.SyncMetadata
+
+        public let id: SQLiteData.SyncMetadata.ID?
+
+        public let zoneName: String
+
+        public let ownerName: String
+
+        public let parentRecordID: SQLiteData.SyncMetadata.ParentID?
+
+        public let lastKnownServerRecord: CKRecord?
+
+        public let _lastKnownServerRecordAllFields: CKRecord?
+
+        public let share: CKShare?
+
+        public let _isDeleted: Bool
+
+        public let userModificationTime: Int64
+
+        /// A type that describes this table's columns.
+        nonisolated public struct TableColumns : StructuredQueriesCore.TableDefinition {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.Draft
+
+            public let id: StructuredQueriesCore.ColumnGroup<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, SQLiteData.SyncMetadata.ID?>
+
+            public let zoneName: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, String>
+
+            public let ownerName: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, String>
+
+            public let parentRecordID: StructuredQueriesCore.ColumnGroup<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, SQLiteData.SyncMetadata.ParentID?>
+
+            public let lastKnownServerRecord: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, Optional<CKRecord>.SystemFieldsRepresentation>
+
+            public let _lastKnownServerRecordAllFields: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, Optional<CKRecord>._AllFieldsRepresentation>
+
+            public let share: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, Optional<CKShare>.SystemFieldsRepresentation>
+
+            public let _isDeleted: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, Bool>
+
+            public let userModificationTime: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata.Draft.TableColumns.QueryValue, Int64>
+
+            /// An array of this table's columns.
+            public static var allColumns: [any StructuredQueriesCore.TableColumnExpression] { get }
+
+            /// An array of this table's writable (non-generated) columns.
+            public static var writableColumns: [any StructuredQueriesCore.WritableTableColumnExpression] { get }
+
+            /// The query fragment associated with this expression.
+            public var queryFragment: StructuredQueriesCore.QueryFragment { get }
+        }
+
+        /// A type that describes this table as a query expression.
+        nonisolated public struct Selection : StructuredQueriesCore.TableExpression {
+
+            /// The Swift data type representation of the expression's SQL data type.
+            ///
+            /// For example, a `TEXT` expression may be represented as a `String` query value.
+            ///
+            /// This type is used to introduce type-safety at the query builder level.
+            public typealias QueryValue = SQLiteData.SyncMetadata.Draft
+
+            public let allColumns: [any StructuredQueriesCore.QueryExpression]
+
+            public init(id: some StructuredQueriesCore.QueryExpression<SQLiteData.SyncMetadata.ID?> = ID?(queryOutput: nil), zoneName: some StructuredQueriesCore.QueryExpression<String>, ownerName: some StructuredQueriesCore.QueryExpression<String>, parentRecordID: some StructuredQueriesCore.QueryExpression<SQLiteData.SyncMetadata.ParentID?> = ParentID?(queryOutput: nil), lastKnownServerRecord: some StructuredQueriesCore.QueryExpression<SQLiteData._SystemFieldsRepresentation<CKRecord>?>, _lastKnownServerRecordAllFields: some StructuredQueriesCore.QueryExpression<SQLiteData._AllFieldsRepresentation<CKRecord>?>, share: some StructuredQueriesCore.QueryExpression<SQLiteData._SystemFieldsRepresentation<CKShare>?>, _isDeleted: some StructuredQueriesCore.QueryExpression<Bool>, userModificationTime: some StructuredQueriesCore.QueryExpression<Int64>)
+        }
+
+        /// The Swift data type representation of the expression's SQL data type.
+        ///
+        /// For example, a `TEXT` expression may be represented as a `String` query value.
+        ///
+        /// This type is used to introduce type-safety at the query builder level.
+        public typealias QueryValue = SQLiteData.SyncMetadata.Draft
+
+        /// A type representing the table being queried.
+        public typealias From = Never
+
+        /// A value that describes this table's columns.
+        nonisolated public static var columns: SQLiteData.SyncMetadata.Draft.TableColumns { get }
+
+        nonisolated public static var _columnWidth: Int { get }
+
+        /// The table's name.
+        nonisolated public static var tableName: String { get }
+
+        /// Creates a new instance by decoding from the given decoder.
+        ///
+        /// This initializer throws an error if reading from the decoder fails, or if the data read is
+        /// corrupted or otherwise invalid.
+        ///
+        /// - Parameter decoder: The decoder to read data from.
+        nonisolated public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+
+        /// Creates a draft from a primary-keyed table.
+        nonisolated public init(_ other: SQLiteData.SyncMetadata)
+
+        public init(id: SQLiteData.SyncMetadata.ID? = nil, zoneName: String, ownerName: String, parentRecordID: SQLiteData.SyncMetadata.ParentID? = nil, lastKnownServerRecord: CKRecord? = nil, _lastKnownServerRecordAllFields: CKRecord? = nil, share: CKShare? = nil, _isDeleted: Bool, userModificationTime: Int64)
+    }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+nonisolated extension SyncMetadata : StructuredQueriesCore.Table, StructuredQueriesCore.PrimaryKeyedTable, StructuredQueriesCore.PartialSelectStatement {
+
+    /// The Swift data type representation of the expression's SQL data type.
+    ///
+    /// For example, a `TEXT` expression may be represented as a `String` query value.
+    ///
+    /// This type is used to introduce type-safety at the query builder level.
+    public typealias QueryValue = SQLiteData.SyncMetadata
+
+    /// A type representing the table being queried.
+    public typealias From = Never
+
+    /// A value that describes this table's columns.
+    nonisolated public static var columns: SQLiteData.SyncMetadata.TableColumns { get }
+
+    nonisolated public static var _columnWidth: Int { get }
+
+    /// The table's name.
+    nonisolated public static var tableName: String { get }
+
+    /// Creates a new instance by decoding from the given decoder.
+    ///
+    /// This initializer throws an error if reading from the decoder fails, or if the data read is
+    /// corrupted or otherwise invalid.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    nonisolated public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+}
+
+nonisolated extension SyncMetadata.ID : StructuredQueriesCore.Table, StructuredQueriesCore._Selection, StructuredQueriesCore.PartialSelectStatement {
+
+    /// The Swift data type representation of the expression's SQL data type.
+    ///
+    /// For example, a `TEXT` expression may be represented as a `String` query value.
+    ///
+    /// This type is used to introduce type-safety at the query builder level.
+    public typealias QueryValue = SQLiteData.SyncMetadata.ID
+
+    /// A type representing the table being queried.
+    public typealias From = Never
+
+    /// A value that describes this table's columns.
+    nonisolated public static var columns: SQLiteData.SyncMetadata.ID.TableColumns { get }
+
+    nonisolated public static var _columnWidth: Int { get }
+
+    /// The table's name.
+    nonisolated public static var tableName: String { get }
+
+    /// Creates a new instance by decoding from the given decoder.
+    ///
+    /// This initializer throws an error if reading from the decoder fails, or if the data read is
+    /// corrupted or otherwise invalid.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    nonisolated public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+}
+
+nonisolated extension SyncMetadata.ParentID : StructuredQueriesCore.Table, StructuredQueriesCore._Selection, StructuredQueriesCore.PartialSelectStatement {
+
+    /// The Swift data type representation of the expression's SQL data type.
+    ///
+    /// For example, a `TEXT` expression may be represented as a `String` query value.
+    ///
+    /// This type is used to introduce type-safety at the query builder level.
+    public typealias QueryValue = SQLiteData.SyncMetadata.ParentID
+
+    /// A type representing the table being queried.
+    public typealias From = Never
+
+    /// A value that describes this table's columns.
+    nonisolated public static var columns: SQLiteData.SyncMetadata.ParentID.TableColumns { get }
+
+    nonisolated public static var _columnWidth: Int { get }
+
+    /// The table's name.
+    nonisolated public static var tableName: String { get }
+
+    /// Creates a new instance by decoding from the given decoder.
+    ///
+    /// This initializer throws an error if reading from the decoder fails, or if the data read is
+    /// corrupted or otherwise invalid.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    nonisolated public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SyncMetadata.TableColumns {
+
+    public var recordPrimaryKey: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata, String> { get }
+
+    public var recordType: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata, String> { get }
+
+    public var parentRecordPrimaryKey: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata, String?> { get }
+
+    public var parentRecordType: StructuredQueriesCore.TableColumn<SQLiteData.SyncMetadata, String?> { get }
+}
+
+public struct _AllFieldsRepresentation<Record> : StructuredQueriesCore.QueryBindable, StructuredQueriesCore.QueryRepresentable where Record : CKRecord {
+
+    /// Unwraps a value from this representation.
+    public let queryOutput: Record
+
+    /// A value that can be bound to a parameter of a SQL statement.
+    public var queryBinding: StructuredQueriesCore.QueryBinding { get }
+
+    /// Wraps a value in this representation.
+    ///
+    /// - Parameter queryOutput: The value.
+    public init(queryOutput: Record)
+
+    public init?(queryBinding: StructuredQueriesCore.QueryBinding)
+
+    /// Creates a new instance by decoding from the given decoder.
+    ///
+    /// This initializer throws an error if reading from the decoder fails, or if the data read is
+    /// corrupted or otherwise invalid.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+}
+
+@available(iOS 17, macOS 14, tvOS 17, *)
+@MainActor final public class _CloudSharingDelegate : NSObject, UICloudSharingControllerDelegate {
+
+    @MainActor public func itemThumbnailData(for csc: UICloudSharingController) -> Data?
+
+    @MainActor public func itemTitle(for csc: UICloudSharingController) -> String?
+
+    @MainActor public func cloudSharingControllerDidSaveShare(_ csc: UICloudSharingController)
+
+    @MainActor public func cloudSharingControllerDidStopSharing(_ csc: UICloudSharingController)
+
+    @MainActor public func cloudSharingController(_ csc: UICloudSharingController, failedToSaveShareWithError error: any Error)
+}
+
+public typealias _SendableMetatype = SendableMetatype
+
+public struct _SystemFieldsRepresentation<Record> : StructuredQueriesCore.QueryBindable, StructuredQueriesCore.QueryRepresentable where Record : CKRecord {
+
+    /// Unwraps a value from this representation.
+    public let queryOutput: Record
+
+    /// A value that can be bound to a parameter of a SQL statement.
+    public var queryBinding: StructuredQueriesCore.QueryBinding { get }
+
+    /// Wraps a value in this representation.
+    ///
+    /// - Parameter queryOutput: The value.
+    public init(queryOutput: Record)
+
+    public init?(queryBinding: StructuredQueriesCore.QueryBinding)
+
+    /// Creates a new instance by decoding from the given decoder.
+    ///
+    /// This initializer throws an error if reading from the decoder fails, or if the data read is
+    /// corrupted or otherwise invalid.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+}
+
+/// Prepares a context-sensitive database writer.
+///
+///   * In a live app context (e.g. simulator, device), a database pool is provisioned in the app
+///     container (unless explicitly overridden with the `path` parameter).
+///   * In an Xcode preview context, an in-memory database is provisioned.
+///   * In a test context, a database pool is provisioned at a temporary file.
+///
+/// - Parameters:
+///   - path: A path to the database. If `nil`, a path to a file in the application support
+///     directory will be used.
+///   - configuration: A database configuration.
+/// - Returns: A context-sensitive database writer.
+public func defaultDatabase(path: String? = nil, configuration: GRDB.Configuration = Configuration()) throws -> any GRDB.DatabaseWriter
+
+extension CKRecord {
+
+    public typealias _AllFieldsRepresentation = SQLiteData._AllFieldsRepresentation<CKRecord>
+
+    public typealias SystemFieldsRepresentation = SQLiteData._SystemFieldsRepresentation<CKRecord>
+}
+
+extension CKShare {
+
+    public typealias _AllFieldsRepresentation = SQLiteData._AllFieldsRepresentation<CKShare>
+
+    public typealias SystemFieldsRepresentation = SQLiteData._SystemFieldsRepresentation<CKShare>
+}
+
+extension Optional where Wrapped : CKRecord {
+
+    public typealias _AllFieldsRepresentation = SQLiteData._AllFieldsRepresentation<Wrapped>?
+
+    public typealias SystemFieldsRepresentation = SQLiteData._SystemFieldsRepresentation<Wrapped>?
+}
+
+extension CKDatabase.Scope {
+
+    public struct RawValueRepresentation : StructuredQueriesCore.QueryBindable, StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public let queryOutput: CKDatabase.Scope
+
+        /// A value that can be bound to a parameter of a SQL statement.
+        public var queryBinding: StructuredQueriesCore.QueryBinding { get }
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: CKDatabase.Scope)
+
+        public init?(queryBinding: StructuredQueriesCore.QueryBinding)
+
+        /// Creates a new instance by decoding from the given decoder.
+        ///
+        /// This initializer throws an error if reading from the decoder fails, or if the data read is
+        /// corrupted or otherwise invalid.
+        ///
+        /// - Parameter decoder: The decoder to read data from.
+        public init(decoder: inout some StructuredQueriesCore.QueryDecoder) throws
+    }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension DependencyValues {
+
+    /// The default sync engine used by the application.
+    ///
+    /// Configure this as early as possible in your app's lifetime, like the app entry point in
+    /// SwiftUI, using `prepareDependencies`:
+    ///
+    /// ```swift
+    /// import SQLiteData
+    /// import SwiftUI
+    ///
+    /// ```swift
+    /// @main
+    /// struct MyApp: App {
+    ///   init() {
+    ///     prepareDependencies {
+    ///       $0.defaultDatabase = try! appDatabase()
+    ///       $0.defaultSyncEngine = SyncEngine(
+    ///         for: $0.defaultDatabase,
+    ///         tables: Item.self
+    ///       )
+    ///     }
+    ///   }
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// > Note: You can only prepare the default sync engine a single time in the lifetime of
+    /// > your app. Attempting to do so more than once will produce a runtime warning.
+    ///
+    /// Once configured, access the default sync engine anywhere using `@Dependency`:
+    ///
+    /// ```swift
+    /// @Dependency(\.defaultSyncEngine) var syncEngine
+    ///
+    /// syncEngine.acceptShare(metadata: metadata)
+    /// ```
+    ///
+    /// See <doc:PreparingDatabase> for more info.
+    public var defaultSyncEngine: SQLiteData.SyncEngine
+}
+
+extension String : SQLiteData.IdentifierStringConvertible {
+}
+
+extension Substring : SQLiteData.IdentifierStringConvertible {
+}
+
+extension UUID : SQLiteData.IdentifierStringConvertible {
+
+    public init?(rawIdentifier: String)
+
+    public var rawIdentifier: String { get }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension Database {
+
+    /// Attaches the metadatabase to an existing database connection.
+    ///
+    /// Invoke this method when preparing your database connection in order to allow querying the
+    /// ``SyncMetadata`` table (see <doc:CloudKit#Accessing-CloudKit-metadata> for more info):
+    ///
+    /// ```swift
+    /// func appDatabase() -> any DatabaseWriter {
+    ///   var configuration = Configuration()
+    ///   configuration.prepareDatabase = { db in
+    ///     db.attachMetadatabase()
+    ///     …
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// By default this method will use the container identifier assigned in your app's
+    /// entitlements. If you wish to use a different container identifier then you can provide
+    /// the `containerIdentifier` argument.
+    ///
+    /// See <doc:PreparingDatabase> for more information on preparing your database.
+    ///
+    /// - Parameter containerIdentifier: The identifier of the CloudKit container used to
+    /// synchronize data. Defaults to the value set in the app's entitlements.
+    public func attachMetadatabase(containerIdentifier: String? = nil) throws
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension PrimaryKeyedTable where Self.PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible {
+
+    /// A query for finding the metadata associated with a record.
+    ///
+    /// - Parameter primaryKey: The primary key of the record whose metadata to look up.
+    @available(*, deprecated, message: "Use 'SyncMetadata.find(record.syncMetadataID)', instead")
+    public static func metadata(for primaryKey: Self.PrimaryKey.QueryOutput) -> StructuredQueriesCore.Where<SQLiteData.SyncMetadata>
+
+    /// An identifier representing any associated synchronization metadata.
+    public var syncMetadataID: SQLiteData.SyncMetadata.ID { get }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension PrimaryKeyedTableDefinition where Self.PrimaryKey.QueryOutput : SQLiteData.IdentifierStringConvertible {
+
+    /// A query expression for whether or not this row has associated sync metadata.
+    ///
+    /// This helper can be useful when joining your tables to the ``SyncMetadata`` table:
+    ///
+    /// ```swift
+    /// RemindersList
+    ///   .leftJoin(SyncMetadata.all) { $0.hasMetadata.in($1) }
+    /// ```
+    @available(*, deprecated, message: "Join the 'SyncMetadata' table using 'SyncMetadata.id' and 'Table.syncMetadataID', instead.")
+    public func hasMetadata(in metadata: SQLiteData.SyncMetadata.TableColumns) -> some StructuredQueriesCore.QueryExpression<Bool>
+
+
+    /// An identifier representing any associated synchronization metadata.
+    ///
+    /// This helper can be useful when joining your tables to the ``SyncMetadata`` table:
+    ///
+    /// ```swift
+    /// RemindersList
+    ///   .leftJoin(SyncMetadata.all) { $0.syncMetadataID.eq($1.id) }
+    /// ```
+    public var syncMetadataID: some StructuredQueriesCore.QueryExpression<SQLiteData.SyncMetadata.ID> { get }
+}
+
+extension Database {
+
+    /// Adds a user-defined scalar `@DatabaseFunction` to a connection.
+    ///
+    /// - Parameter function: A scalar database function to add.
+    public func add(function: some StructuredQueriesSQLiteCore.ScalarDatabaseFunction)
+
+    /// Adds a user-defined aggregate `@DatabaseFunction` to a connection.
+    ///
+    /// - Parameter function: An aggregate database function to add.
+    public func add(function: some StructuredQueriesSQLiteCore.AggregateDatabaseFunction)
+
+    /// Deletes a user-defined `@DatabaseFunction` from a connection.
+    ///
+    /// - Parameter function: A database function to delete.
+    public func remove(function: some StructuredQueriesSQLiteCore.DatabaseFunction)
+}
+
+extension DependencyValues {
+
+    /// The default database used by `fetchAll`, `fetchOne`, and `fetch`.
+    ///
+    /// Configure this as early as possible in your app's lifetime, like the app entry point in
+    /// SwiftUI, using `prepareDependencies`:
+    ///
+    /// ```swift
+    /// import SQLiteData
+    /// import SwiftUI
+    ///
+    /// @main
+    /// struct MyApp: App {
+    ///   init() {
+    ///     prepareDependencies {
+    ///       // Create database connection and run migrations...
+    ///       $0.defaultDatabase = try! DatabaseQueue(/* ... */)
+    ///     }
+    ///   }
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// > Note: You can only prepare the database a single time in the lifetime of your app.
+    /// > Attempting to do so more than once will produce a runtime warning.
+    ///
+    /// Once configured, access the database anywhere using `@Dependency`:
+    ///
+    /// ```swift
+    /// @Dependency(\.defaultDatabase) var database
+    ///
+    /// var newItem = Item(/* ... */)
+    /// try database.write { db in
+    ///   try newItem.insert(db)
+    /// }
+    /// ```
+    ///
+    /// See <doc:PreparingDatabase> for more info.
+    public var defaultDatabase: any GRDB.DatabaseWriter
+}
+
+extension Database {
+
+    /// Seeds a database with the given values.
+    ///
+    /// This function is useful for seeding a database's initial state, especially for previews and
+    /// tests. You can list out a bunch of table records and drafts and they will be inserted into the
+    /// database:
+    ///
+    /// ```swift
+    /// try db.seed {
+    ///   SyncUp(id: 1, seconds: 60, theme: .appOrange, title: "Design")
+    ///   SyncUp(id: 2, seconds: 60 * 10, theme: .periwinkle, title: "Engineering")
+    ///   SyncUp(id: 3, seconds: 60 * 30, theme: .poppy, title: "Product")
+    ///
+    ///   for name in ["Blob", "Blob Jr", "Blob Sr", "Blob Esq", "Blob III", "Blob I"] {
+    ///     Attendee.Draft(name: name, syncUpID: 1)
+    ///   }
+    ///   for name in ["Blob", "Blob Jr"] {
+    ///     Attendee.Draft(name: name, syncUpID: 2)
+    ///   }
+    ///   for name in ["Blob Sr", "Blob Jr"] {
+    ///     Attendee.Draft(name: name, syncUpID: 3)
+    ///   }
+    /// }
+    /// // INSERT INTO "syncUps"
+    /// //   ("id", "seconds", "theme", "title")
+    /// // VALUES
+    /// //   (1, 60, 'appOrange', 'Design'),
+    /// //   (2, 600, 'periwinkle', 'Engineering'),
+    /// //   (3, 1800, 'poppy', 'Product');
+    /// // INSERT INTO "attendees"
+    /// //   ("id", "name", "syncUpID")
+    /// // VALUES
+    /// //   (NULL, 'Blob', 1),
+    /// //   (NULL, 'Blob Jr', 1),
+    /// //   (NULL, 'Blob Sr', 1),
+    /// //   (NULL, 'Blob Esq', 1),
+    /// //   (NULL, 'Blob III', 1),
+    /// //   (NULL, 'Blob I', 1),
+    /// //   (NULL, 'Blob', 2),
+    /// //   (NULL, 'Blob Jr', 2),
+    /// //   (NULL, 'Blob Sr', 3),
+    /// //   (NULL, 'Blob Jr', 3);
+    /// ```
+    ///
+    /// Insertions are performed in order and in batches of consecutive records of the same table.
+    ///
+    /// - Parameter build: A result builder closure that inserts every built row.
+    public func seed(@StructuredQueriesCore.SeedsBuilder _ build: () -> [any StructuredQueriesCore.Table]) throws
+}
+
+extension Statement {
+
+    /// Executes a structured query on the given database connection.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// try database.write { db in
+    ///   try Player.insert { $0.name } values: { "Arthur" }
+    ///     .execute(db)
+    ///   // INSERT INTO "players" ("name")
+    ///   // VALUES ('Arthur');
+    /// }
+    /// ```
+    ///
+    /// - Parameter db: A database connection.
+    @inlinable public func execute(_ db: GRDB.Database) throws where Self.QueryValue == ()
+
+    /// Returns an array of all values fetched from the database.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// let players = try database.read { db in
+    ///   let lastName = "O'Reilly"
+    ///   try Player
+    ///     .where { $0.lastName == lastName }
+    ///     .fetchAll(db)
+    ///   // SELECT … FROM "players"
+    ///   // WHERE "players"."lastName" = 'O''Reilly'
+    /// }
+    /// ```
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: An array of all values decoded from the database.
+    @inlinable public func fetchAll(_ db: GRDB.Database) throws -> [Self.QueryValue.QueryOutput] where Self.QueryValue : StructuredQueriesCore.QueryRepresentable
+
+    /// Returns a single value fetched from the database.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// let player = try database.read { db in
+    ///   let lastName = "O'Reilly"
+    ///   try Player
+    ///     .where { $0.lastName == lastName }
+    ///     .limit(1)
+    ///     .fetchOne(db)
+    ///   // SELECT … FROM "players"
+    ///   // WHERE "players"."lastName" = 'O''Reilly'
+    ///   // LIMIT 1
+    /// }
+    /// ```
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public func fetchOne(_ db: GRDB.Database) throws -> Self.QueryValue.QueryOutput? where Self.QueryValue : StructuredQueriesCore.QueryRepresentable
+
+    /// Returns a cursor to all values fetched from the database.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// try database.read { db in
+    ///   let lastName = "O'Reilly"
+    ///   let query = Player.where { $0.lastName == lastName }
+    ///   let players = try query.fetchCursor(db)
+    ///   while let player = try players.next() {
+    ///     print(player.name)
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A cursor to all values decoded from the database.
+    @inlinable public func fetchCursor(_ db: GRDB.Database) throws -> SQLiteData.QueryCursor<Self.QueryValue.QueryOutput> where Self.QueryValue : StructuredQueriesCore.QueryRepresentable
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension Statement {
+
+    /// Returns an array of all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: An array of all values decoded from the database.
+    @inlinable public func fetchAll<each Value>(_ db: GRDB.Database) throws -> [(repeat (each Value).QueryOutput)] where repeat each Value : StructuredQueriesCore.QueryRepresentable, Self.QueryValue == (repeat each Value)
+
+    /// Returns a single value fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public func fetchOne<each Value>(_ db: GRDB.Database) throws -> (repeat (each Value).QueryOutput)? where repeat each Value : StructuredQueriesCore.QueryRepresentable, Self.QueryValue == (repeat each Value)
+
+    /// Returns a cursor to all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A cursor to all values decoded from the database.
+    @inlinable public func fetchCursor<each Value>(_ db: GRDB.Database) throws -> SQLiteData.QueryCursor<(repeat (each Value).QueryOutput)> where repeat each Value : StructuredQueriesCore.QueryRepresentable, Self.QueryValue == (repeat each Value)
+}
+
+extension SelectStatement where Self.Joins == (), Self.QueryValue == () {
+
+    /// Returns the number of rows fetched by the query.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: The number of rows fetched by the query.
+    @inlinable public func fetchCount(_ db: GRDB.Database) throws -> Int
+}
+
+extension SelectStatement where Self.Joins == (), Self.QueryValue == () {
+
+    /// Returns an array of all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: An array of all values decoded from the database.
+    @inlinable public func fetchAll(_ db: GRDB.Database) throws -> [Self.From.QueryOutput]
+
+    /// Returns a single value fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public func fetchOne(_ db: GRDB.Database) throws -> Self.From.QueryOutput?
+
+    /// Returns a cursor to all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A cursor to all values decoded from the database.
+    @inlinable public func fetchCursor(_ db: GRDB.Database) throws -> SQLiteData.QueryCursor<Self.From.QueryOutput>
+}
+
+extension SelectStatement where Self.From : StructuredQueriesCore.PrimaryKeyedTable, Self.Joins == (), Self.QueryValue == () {
+
+    /// Returns a single value fetched from the database for a given primary key.
+    ///
+    /// - Parameters
+    ///   - db: A database connection.
+    ///   - primaryKey: A primary key identifying a table row.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public func find(_ db: GRDB.Database, key primaryKey: some StructuredQueriesCore.QueryExpression) throws -> Self.From.QueryOutput
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension SelectStatement where Self.QueryValue == () {
+
+    /// Returns an array of all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: An array of all values decoded from the database.
+    @inlinable public func fetchAll<each J>(_ db: GRDB.Database) throws -> [(Self.From.QueryOutput, repeat (each J).QueryOutput)] where repeat each J : StructuredQueriesCore.Table, Self.Joins == (repeat each J)
+
+    /// Returns a single value fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public func fetchOne<each J>(_ db: GRDB.Database) throws -> (Self.From.QueryOutput, repeat (each J).QueryOutput)? where repeat each J : StructuredQueriesCore.Table, Self.Joins == (repeat each J)
+
+    /// Returns a cursor to all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A cursor to all values decoded from the database.
+    @inlinable public func fetchCursor<each J>(_ db: GRDB.Database) throws -> SQLiteData.QueryCursor<(Self.From.QueryOutput, repeat (each J).QueryOutput)> where repeat each J : StructuredQueriesCore.Table, Self.Joins == (repeat each J)
+}
+
+extension Table {
+
+    /// Returns an array of all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: An array of all values decoded from the database.
+    @inlinable public static func fetchAll(_ db: GRDB.Database) throws -> [Self.QueryOutput]
+
+    /// Returns a single value fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public static func fetchOne(_ db: GRDB.Database) throws -> Self.QueryOutput?
+
+    /// Returns the number of rows fetched by the query.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: The number of rows fetched by the query.
+    @inlinable public static func fetchCount(_ db: GRDB.Database) throws -> Int
+
+    /// Returns a cursor to all values fetched from the database.
+    ///
+    /// - Parameter db: A database connection.
+    /// - Returns: A cursor to all values decoded from the database.
+    @inlinable public static func fetchCursor(_ db: GRDB.Database) throws -> SQLiteData.QueryCursor<Self.QueryOutput>
+}
+
+extension PrimaryKeyedTable {
+
+    /// Returns a single value fetched from the database for a given primary key.
+    ///
+    /// - Parameters
+    ///   - db: A database connection.
+    ///   - primaryKey: A primary key identifying a table row.
+    /// - Returns: A single value decoded from the database.
+    @inlinable public static func find(_ db: GRDB.Database, key primaryKey: some StructuredQueriesCore.QueryExpression<Self.PrimaryKey>) throws -> Self.QueryOutput
+}
+

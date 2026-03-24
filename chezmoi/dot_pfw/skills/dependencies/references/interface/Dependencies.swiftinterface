@@ -1,0 +1,1553 @@
+import Clocks
+import CombineSchedulers
+import ConcurrencyExtras
+import Foundation
+import IssueReporting
+import SwiftUI
+import XCTestDynamicOverlay
+
+/// A type for creating an assertion or precondition.
+///
+/// See ``DependencyValues/assert`` or ``DependencyValues/precondition`` for more information.
+public protocol AssertionEffect : Sendable {
+
+    func callAsFunction(_ condition: @autoclosure () -> Bool, _ message: @autoclosure () -> String, file: StaticString, line: UInt)
+}
+
+extension AssertionEffect {
+
+    public func callAsFunction(_ condition: @autoclosure () -> Bool, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line)
+}
+
+public protocol AssertionFailureEffect : Sendable {
+
+    func callAsFunction(_ message: @autoclosure () -> String, file: StaticString, line: UInt)
+}
+
+extension AssertionFailureEffect {
+
+    public func callAsFunction(_ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line)
+}
+
+final public class CachedValues : @unchecked Sendable {
+
+    public struct CacheKey : Hashable, Sendable {
+    }
+
+    public struct CachedValue {
+    }
+
+    public let lock: NSRecursiveLock
+
+    public var cached: [Dependencies.CachedValues.CacheKey : Dependencies.CachedValues.CachedValue]
+
+    public func resetCache()
+}
+
+/// A dependency that generates a date.
+///
+/// See ``DependencyValues/date`` for more information.
+public struct DateGenerator : Sendable {
+
+    /// A generator that returns a constant date.
+    ///
+    /// - Parameter now: A date to return.
+    /// - Returns: A generator that always returns the given date.
+    public static func constant(_ now: Date) -> Dependencies.DateGenerator
+
+    /// The current date.
+    public var now: Date
+
+    /// Initializes a date generator that generates a date from a closure.
+    ///
+    /// - Parameter generate: A closure that returns the current date when called.
+    public init(_ generate: @escaping @Sendable () -> Date)
+
+    public func callAsFunction() -> Date
+}
+
+@propertyWrapper public struct Dependency<Value> : Sendable {
+
+    /// Creates a dependency property to read the specified key path.
+    ///
+    /// Don't call this initializer directly. Instead, declare a property with the `Dependency`
+    /// property wrapper, and provide the key path of the dependency value that the property should
+    /// reflect:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class FeatureModel {
+    ///   @ObservationIgnored
+    ///   @Dependency(\.date) var date
+    ///
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters
+    ///   - keyPath: A key path to a specific resulting value.
+    ///   - fileID: The source `#fileID` associated with the dependency.
+    ///   - filePath: The source `#filePath` associated with the dependency.
+    ///   - line: The source `#line` associated with the dependency.
+    ///   - column: The source `#column` associated with the dependency.
+    public init(_ keyPath: any KeyPath<Dependencies.DependencyValues, Value> & Sendable, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column)
+
+    /// The current value of the dependency property.
+    public var wrappedValue: Value { get }
+}
+
+extension Dependency {
+
+    /// Creates a dependency property to read a dependency object.
+    ///
+    /// Don't call this initializer directly. Instead, declare a property with the `Dependency`
+    /// property wrapper, and provide the dependency key of the value that the property should
+    /// reflect.
+    ///
+    /// For example, given a dependency key:
+    ///
+    /// ```swift
+    /// final class Settings: DependencyKey {
+    ///   static let liveValue = Settings()
+    ///
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// One can access the dependency using this property wrapper:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class FeatureModel {
+    ///   @ObservationIgnored
+    ///   @Dependency(Settings.self) var settings
+    ///
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters
+    ///   - key: A dependency key to a specific resulting value.
+    ///   - fileID: The source `#fileID` associated with the dependency.
+    ///   - filePath: The source `#filePath` associated with the dependency.
+    ///   - line: The source `#line` associated with the dependency.
+    ///   - column: The source `#column` associated with the dependency.
+    public init<Key>(_ key: Key.Type, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Value == Key.Value, Key : Dependencies.TestDependencyKey
+}
+
+/// A context for a collection of ``DependencyValues``.
+///
+/// There are three distinct contexts that dependencies can be loaded from and registered to:
+///
+///   * ``live``: The default context.
+///   * ``preview``: A context for Xcode previews.
+///   * ``test``: A context for tests.
+public enum DependencyContext : Sendable {
+
+    /// The default, "live" context for dependencies.
+    ///
+    /// This context is the default when a ``preview`` or ``test`` context is not detected.
+    ///
+    /// Dependencies accessed from a live context will use ``DependencyKey/liveValue`` to request a
+    /// default value.
+    case live
+
+    /// A "preview" context for dependencies.
+    ///
+    /// This context is automatically inferred when running code from an Xcode preview.
+    ///
+    /// Dependencies accessed from a preview context will use ``TestDependencyKey/previewValue-8u2sy``
+    /// to request a default value.
+    case preview
+
+    /// A "test" context for dependencies.
+    ///
+    /// This context is automatically inferred when running code from an XCTestCase.
+    ///
+    /// Dependencies accessed from a test context will use ``TestDependencyKey/testValue`` to request
+    /// a default value.
+    case test
+}
+
+/// A key for accessing dependencies.
+///
+/// Types conform to this protocol to extend ``DependencyValues`` with custom dependencies. It is
+/// similar to SwiftUI's `EnvironmentKey` protocol, which is used to add values to
+/// `EnvironmentValues`.
+///
+/// `DependencyKey` has one main requirement, ``liveValue``, which must return a default value for
+/// your dependency that is used when the application is run in a simulator or device. If the
+/// ``liveValue`` is accessed while your feature runs in tests a test failure will be
+/// triggered.
+///
+/// To add a `UserClient` dependency that can fetch and save user values can be done like so:
+///
+/// ```swift
+/// // The user client dependency.
+/// struct UserClient {
+///   var fetchUser: (User.ID) async throws -> User
+///   var saveUser: (User) async throws -> Void
+/// }
+/// // Conform to DependencyKey to provide a live implementation of
+/// // the interface.
+/// extension UserClient: DependencyKey {
+///   static let liveValue = Self(
+///     fetchUser: { /* Make request to fetch user */ },
+///     saveUser: { /* Make request to save user */ }
+///   )
+/// }
+/// // Register the dependency within DependencyValues.
+/// extension DependencyValues {
+///   var userClient: UserClient {
+///     get { self[UserClient.self] }
+///     set { self[UserClient.self] = newValue }
+///   }
+/// }
+/// ```
+///
+/// When a dependency is first accessed its value is cached so that it will not be requested again.
+/// This means if your `liveValue` is implemented as a computed property instead of a `static let`,
+/// then it will only be called a single time:
+///
+/// ```swift
+/// extension UserClient: DependencyKey {
+///   static var liveValue: Self {
+///     // Only called once when dependency is first accessed.
+///     return Self(/* ... */)
+///   }
+/// }
+/// ```
+///
+/// `DependencyKey` inherits from ``TestDependencyKey``, which has two other overridable
+/// requirements: ``TestDependencyKey/testValue``, which should return a default value for the
+/// purpose of testing, and ``TestDependencyKey/previewValue-8u2sy``, which can return a default
+/// value suitable for Xcode previews. When left unimplemented, these endpoints will return the
+/// ``liveValue``, instead.
+///
+/// If you plan on separating your interface from your live implementation, conform to
+/// ``TestDependencyKey`` in your interface module, and conform to `DependencyKey` in your
+/// implementation module.
+///
+/// See the <doc:LivePreviewTest> article for more information.
+public protocol DependencyKey<Value> : Dependencies.TestDependencyKey {
+
+    /// The live value for the dependency key.
+    ///
+    /// This is the value used by default when running the application in a simulator or on a device.
+    /// Using a live dependency in a test context will lead to a test failure as you should mock your
+    /// dependencies for tests.
+    ///
+    /// To automatically supply a test dependency in a test context, consider implementing the
+    /// ``testValue-535kh`` requirement.
+    static var liveValue: Self.Value { get }
+
+    /// The associated type representing the type of the dependency key's value.
+    associatedtype Value = Self
+
+    /// The preview value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// Xcode preview, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/preview``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .preview
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "preview" value
+    /// }
+    /// ```
+    override static var previewValue: Self.Value { get }
+
+    /// The test value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// XCTest run, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/test``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .test
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "test" value
+    /// }
+    /// ```
+    override static var testValue: Self.Value { get }
+}
+
+extension DependencyKey {
+
+    /// A default implementation that provides the ``liveValue`` to Xcode previews.
+    ///
+    /// You may provide your own default `previewValue` in your conformance to ``TestDependencyKey``,
+    /// which will take precedence over this implementation. If you are going to provide your own
+    /// `previewValue` implementation, be sure to do it in the same module as the
+    /// ``TestDependencyKey``.
+    public static var previewValue: Self.Value { get }
+
+    /// A default implementation that provides the ``previewValue`` to test runs (or ``liveValue``,
+    /// if no preview value is implemented), but will trigger a test failure when accessed.
+    ///
+    /// To prevent test failures, explicitly override the dependency in any tests in which it is
+    /// accessed:
+    ///
+    /// ```swift
+    /// @Test
+    /// func featureThatUsesMyDependency() {
+    ///   withDependencies {
+    ///     $0.myDependency = .mock  // Override dependency
+    ///   } operation: {
+    ///     // Test feature with dependency overridden
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// You may provide your own default `testValue` in your conformance to ``TestDependencyKey``,
+    /// which will take precedence over this implementation.
+    public static var testValue: Self.Value { get }
+}
+
+/// A collection of dependencies that is globally available.
+///
+/// To access a particular dependency from the collection you use the ``Dependency`` property
+/// wrapper:
+///
+/// ```swift
+/// @Dependency(\.date) var date
+/// // ...
+/// let now = date.now
+/// ```
+///
+/// To change a dependency for a well-defined scope you can use the
+/// ``withDependencies(_:operation:)-4uz6m`` method:
+///
+/// ```swift
+/// @Dependency(\.date) var date
+/// let now = date.now
+///
+/// withDependencies {
+///   $0.date.now = Date(timeIntervalSinceReferenceDate: 1234567890)
+/// } operation: {
+///   @Dependency(\.date.now) var now: Date
+///   now.timeIntervalSinceReferenceDate  // 1234567890
+/// }
+/// ```
+///
+/// The dependencies will be changed for the lifetime of the `operation` scope, which can be
+/// synchronous or asynchronous.
+///
+/// > Note: In general, the dependency remains changed only for the duration of the `operation`
+/// > scope, and in particular if you capture the dependency in an escaping closure its changed
+/// > value will not propagate. There are exceptions though, because the collection of dependencies
+/// > held inside ``DependencyValues`` is a `@TaskLocal`. This means if you escape the `operation`
+/// > closure with a `Task`, the dependency change will propagate:
+/// >
+/// > ```
+/// > withDependencies {
+/// >   $0.date.now = Date(timeIntervalSinceReferenceDate: 1234567890)
+/// > } operation: {
+/// >   @Dependency(\.date.now) var now: Date
+/// >   now.timeIntervalSinceReferenceDate  // 1234567890
+/// >   Task {
+/// >     now.timeIntervalSinceReferenceDate  // 1234567890
+/// >   }
+/// > }
+/// > ```
+/// >
+/// > Read the article <doc:Lifetimes> for more information.
+///
+/// To register a dependency inside ``DependencyValues``, you first create a type to conform to the
+/// ``DependencyKey`` protocol in order to specify the ``DependencyKey/liveValue`` to use for the
+/// dependency when run in simulators and on devices. It can even be private:
+///
+/// ```swift
+/// private enum MyValueKey: DependencyKey {
+///   static let liveValue = 42
+/// }
+/// ```
+///
+/// And then extend ``DependencyValues`` with a computed property that uses the key to read and
+/// write to ``DependencyValues``:
+///
+/// ```swift
+/// extension DependencyValues {
+///   var myValue: Int {
+///     get { self[MyValueKey.self] }
+///     set { self[MyValueKey.self] = newValue }
+///   }
+/// }
+/// ```
+///
+/// With those steps done you can access the dependency using the ``Dependency`` property wrapper:
+///
+/// ```swift
+/// @Dependency(\.myValue) var myValue
+/// myValue  // 42
+/// ```
+///
+/// Read the article <doc:RegisteringDependencies> for more information.
+public struct DependencyValues : Sendable {
+
+    public static let $_current: TaskLocal<Dependencies.DependencyValues>
+
+    public static var _current: Dependencies.DependencyValues { get }
+
+    public var cachedValues: Dependencies.CachedValues
+
+    /// Creates a dependency values instance.
+    ///
+    /// You don't typically create an instance of ``DependencyValues`` directly. Doing so would
+    /// provide access only to default values. Instead, you rely on the dependency values' instance
+    /// that the library manages for you when you use the ``Dependency`` property wrapper.
+    public init()
+
+    public subscript<Key>(type: Key.Type) -> Key.Value where Key : Dependencies.TestDependencyKey
+
+    /// Accesses the dependency value associated with a custom key.
+    ///
+    /// This subscript is typically only used when adding a computed property to ``DependencyValues``
+    /// for registering custom dependencies:
+    ///
+    /// ```swift
+    /// private struct MyDependencyKey: DependencyKey {
+    ///   static let testValue = "Default value"
+    /// }
+    ///
+    /// extension DependencyValues {
+    ///   var myCustomValue: String {
+    ///     get { self[MyDependencyKey.self] }
+    ///     set { self[MyDependencyKey.self] = newValue }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// You use custom dependency values the same way you use system-provided values, setting a value
+    /// with ``withDependencies(_:operation:)-4uz6m``, and reading values with the ``Dependency``
+    /// property wrapper.
+    public subscript<Key>(key: Key.Type, fileID fileID: StaticString = #fileID, filePath filePath: StaticString = #filePath, line line: UInt = #line, column column: UInt = #column, function function: StaticString = #function) -> Key.Value where Key : Dependencies.TestDependencyKey
+
+    /// A collection of "live" dependencies.
+    ///
+    /// A useful starting point for working with live dependencies.
+    ///
+    /// For example, if you want to write a test that exercises your application's live dependencies
+    /// (rather than its test dependencies, which is the default), you can override the test's
+    /// dependencies with a live value:
+    ///
+    /// ```swift
+    /// func testLiveDependencies() {
+    ///   withDependencies { $0 = .live } operation: {
+    ///     // Make assertions using live dependencies...
+    ///   }
+    /// }
+    /// ```
+    public static var live: Dependencies.DependencyValues { get }
+
+    /// A collection of "preview" dependencies.
+    public static var preview: Dependencies.DependencyValues { get }
+
+    /// A collection of "test" dependencies.
+    public static var test: Dependencies.DependencyValues { get }
+
+    @available(*, deprecated, message: "'resetCache' is no longer necessary for most (unparameterized) '@Test' cases")
+    public func resetCache()
+}
+
+extension DependencyValues {
+
+    /// A dependency for handling assertions.
+    ///
+    /// Useful as a controllable and testable substitute for Swift's `assert` function that calls
+    /// `reportIssue` in tests instead of terminating the executable.
+    ///
+    /// ```swift
+    /// func operate(_ n: Int) {
+    ///   @Dependency(\.assert) var assert
+    ///   assert(n > 0, "Number must be greater than zero")
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// Tests can assert against this precondition using `XCTExpectFailure`:
+    ///
+    /// ```swift
+    /// XCTExpectFailure {
+    ///   operate(n)
+    /// } issueMatcher: {
+    ///   $0.compactDescription = "Number must be greater than zero"
+    /// }
+    /// ```
+    public var assert: any Dependencies.AssertionEffect { get }
+
+    /// A dependency for failing an assertion.
+    ///
+    /// Equivalent to passing a `false` condition to ``DependencyValues/assert``.
+    public var assertionFailure: any Dependencies.AssertionFailureEffect { get }
+
+    /// A dependency for handling preconditions.
+    ///
+    /// Useful as a controllable and testable substitute for Swift's `precondition` function that
+    /// calls `reportIssue` in tests instead of terminating the executable.
+    ///
+    /// ```swift
+    /// func operate(_ n: Int) {
+    ///   @Dependency(\.precondition) var precondition
+    ///   precondition(n > 0, "Number must be greater than zero")
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// Tests can assert against this precondition using `XCTExpectFailure`:
+    ///
+    /// ```swift
+    /// XCTExpectFailure {
+    ///   operate(n)
+    /// } issueMatcher: {
+    ///   $0.compactDescription = "Number must be greater than zero"
+    /// }
+    /// ```
+    public var precondition: any Dependencies.AssertionEffect { get }
+}
+
+extension DependencyValues {
+
+    /// The current calendar that features should use when handling dates.
+    ///
+    /// By default, the calendar returned from `Calendar.autoupdatingCurrent` is supplied. When used
+    /// in a testing context, access will call to `reportIssue` when invoked, unless explicitly
+    /// overridden using ``withDependencies(_:operation:)-4uz6m``:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.calendar = Calendar(identifier: .gregorian)
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    public var calendar: Calendar
+}
+
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+extension DependencyValues {
+
+    /// The current clock that features should use when a `ContinuousClock` would be appropriate.
+    ///
+    /// This clock is type-erased so that it can be swapped out in previews and tests for another
+    /// clock, like [`ImmediateClock`][immediate-clock] and [`TestClock`][test-clock] that come with
+    /// the [Clocks][swift-clocks] library (which is automatically imported and available when you
+    /// import this library).
+    ///
+    /// By default, a live `ContinuousClock` is supplied. When used in a testing context, an
+    /// [`UnimplementedClock`][unimplemented-clock] is provided, which generates an XCTest failure
+    /// when used, unless explicitly overridden using ``withDependencies(_:operation:)-4uz6m``:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.continuousClock = ImmediateClock()
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    ///
+    /// See ``suspendingClock`` to override a feature's `SuspendingClock`, instead.
+    ///
+    /// [immediate-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/immediateclock/
+    /// [test-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/testclock/
+    /// [swift-clocks]: https://github.com/pointfreeco/swift-clocks
+    /// [unimplemented-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/unimplementedclock/
+    public var continuousClock: any Clock<Duration>
+
+    /// The current clock that features should use when a `SuspendingClock` would be appropriate.
+    ///
+    /// This clock is type-erased so that it can be swapped out in previews and tests for another
+    /// clock, like [`ImmediateClock`][immediate-clock] and [`TestClock`][test-clock] that come with
+    /// the [Clocks][swift-clocks] library (which is automatically imported and available when you
+    /// import this library).
+    ///
+    /// By default, a live `SuspendingClock` is supplied. When used in a testing context, an
+    /// [`UnimplementedClock`][unimplemented-clock] is provided, which generates an XCTest failure
+    /// when used, unless explicitly overridden using ``withDependencies(_:operation:)-4uz6m``:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.suspendingClock = ImmediateClock()
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    ///
+    /// See ``continuousClock`` to override a feature's `ContinuousClock`, instead.
+    ///
+    /// [immediate-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/immediateclock/
+    /// [test-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/testclock/
+    /// [swift-clocks]: https://github.com/pointfreeco/swift-clocks
+    /// [unimplemented-clock]: https://pointfreeco.github.io/swift-clocks/main/documentation/clocks/unimplementedclock/
+    public var suspendingClock: any Clock<Duration>
+}
+
+extension DependencyValues {
+
+    /// The current dependency context.
+    ///
+    /// The current ``DependencyContext`` can be used to determine how dependencies are loaded by the
+    /// current runtime.
+    ///
+    /// It can also be overridden, for example via ``withDependencies(_:operation:)-4uz6m``, to
+    /// control how dependencies will be loaded by the runtime for the duration of the override.
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .preview
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "preview" value
+    /// }
+    /// ```
+    public var context: Dependencies.DependencyContext
+}
+
+extension DependencyValues {
+
+    /// A dependency that returns the current date.
+    ///
+    /// By default, a "live" generator is supplied, which returns the current system date when called
+    /// by invoking `Date.init` under the hood. When used in tests, an "unimplemented" generator that
+    /// additionally reports test failures is supplied, unless explicitly overridden.
+    ///
+    /// You can access the current date from a feature by introducing a ``Dependency`` property
+    /// wrapper to the generator's ``DateGenerator/now`` property:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class FeatureModel {
+    ///   @ObservationIgnored
+    ///   @Dependency(\.date.now) var now
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// To override the current date in tests, you can override the generator using
+    /// ``withDependencies(_:operation:)-4uz6m``:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.date.now = Date(timeIntervalSince1970: 1234567890)
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    public var date: Dependencies.DateGenerator
+}
+
+extension DependencyValues {
+
+    /// A dependency for firing off an unstructured task.
+    ///
+    /// Useful as a controllable and testable substitute for a `Task { }` that performs some work off
+    /// into the void. In tests, the operation becomes structured, and the async context that kicks
+    /// off the work will wait for it to complete before resuming.
+    ///
+    /// For example, suppose you are building a server application that has an endpoint for updating
+    /// a user's email address. To accomplish that you will first make a database request to update
+    /// the user's email, and then if that succeeds you will send an email to the new address to let
+    /// the user know their email has been updated.
+    ///
+    /// However, there is no need to tie up the server in order to send the email. That request
+    /// doesn't return any data of interest, and we just want to fire it off and then forget about it.
+    /// One way to do this is to use an unstructured `Task` like so:
+    ///
+    /// ```swift
+    /// try await self.database.updateUser(id: userID, email: newEmailAddress)
+    /// Task {
+    ///   try await self.sendEmail(
+    ///     email: newEmailAddress,
+    ///     subject: "Your email has been updated"
+    ///   )
+    /// }
+    /// ```
+    ///
+    /// However, this kind of code can be problematic for testing. In a test we would like to verify
+    /// that an email is sent, but the code inside the `Task` is executed at some later time. We
+    /// would need to add `Task.sleep` or `Task.yield` to the test to give the task enough time to
+    /// start and finish, which can be flakey and error prone.
+    ///
+    /// So, instead, you can use the ``fireAndForget`` dependency, which creates an unstructured task
+    /// when run in production, but creates a _structured_ task in tests:
+    ///
+    /// ```swift
+    /// try await self.database.updateUser(id: userID, email: newEmailAddress)
+    /// await self.fireAndForget {
+    ///   try await self.sendEmail(
+    ///     email: newEmailAddress,
+    ///     subject: "You email has been updated"
+    ///   )
+    /// }
+    /// ```
+    ///
+    /// Now this is easy to test. We just have to `await` for the code to finish, and once it does
+    /// we can verify that the email was sent.
+    public var fireAndForget: Dependencies.FireAndForget { get }
+}
+
+extension DependencyValues {
+
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.locale = Locale(identifier: "en_US")
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    public var locale: Locale
+}
+
+extension DependencyValues {
+
+    /// The "main" queue.
+    ///
+    /// Introduce controllable timing to your features by using the ``Dependency`` property wrapper
+    /// with a key path to this property. The wrapped value is a Combine scheduler with the time
+    /// type and options of a dispatch queue. By default, `DispatchQueue.main` will be provided,
+    /// with the exception of XCTest cases, in which an "unimplemented" scheduler will be provided.
+    ///
+    /// For example, you could introduce controllable timing to an observable object model that
+    /// counts the number of seconds it's onscreen:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class TimerModel {
+    ///   var elapsed = 0
+    ///
+    ///   @ObservationIgnored
+    ///   @Dependency(\.mainQueue) var mainQueue
+    ///
+    ///   @MainActor
+    ///   func onAppear() async {
+    ///     for await _ in mainQueue.timer(interval: .seconds(1)) {
+    ///       elapsed += 1
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// And you could test this model by overriding its main queue with a test scheduler:
+    ///
+    /// ```swift
+    /// @Test
+    /// func feature() {
+    ///   let mainQueue = DispatchQueue.test
+    ///   let model = withDependencies {
+    ///     $0.mainQueue = mainQueue.eraseToAnyScheduler()
+    ///   } operation: {
+    ///     TimerModel()
+    ///   }
+    ///
+    ///   Task { await model.onAppear() }
+    ///
+    ///   await mainQueue.advance(by: .seconds(1))
+    ///   XCTAssertEqual(model.elapsed, 1)
+    ///
+    ///   await mainQueue.advance(by: .seconds(4))
+    ///   XCTAssertEqual(model.elapsed, 5)
+    /// }
+    /// ```
+    public var mainQueue: CombineSchedulers.AnySchedulerOf<DispatchQueue>
+}
+
+extension DependencyValues {
+
+    /// The "main" run loop.
+    ///
+    /// Introduce controllable timing to your features by using the ``Dependency`` property wrapper
+    /// with a key path to this property. The wrapped value is a Combine scheduler with the time
+    /// type and options of a run loop. By default, `RunLoop.main` will be provided, with the
+    /// exception of XCTest cases, in which an "unimplemented" scheduler will be provided.
+    ///
+    /// For example, you could introduce controllable timing to an observable object model that
+    /// counts the number of seconds it's onscreen:
+    ///
+    /// ```swift
+    /// @Observable
+    /// struct TimerModel {
+    ///   var elapsed = 0
+    ///
+    ///   @ObservationIgnored
+    ///   @Dependency(\.mainRunLoop) var mainRunLoop
+    ///
+    ///   @MainActor
+    ///   func onAppear() async {
+    ///     for await _ in mainRunLoop.timer(interval: .seconds(1)) {
+    ///       elapsed += 1
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// And you could test this model by overriding its main run loop with a test scheduler:
+    ///
+    /// ```swift
+    /// @Test
+    /// func feature() {
+    ///   let mainRunLoop = RunLoop.test
+    ///   let model = withDependencies {
+    ///     $0.mainRunLoop = mainRunLoop.eraseToAnyScheduler()
+    ///   } operation: {
+    ///     TimerModel()
+    ///   }
+    ///
+    ///   Task { await model.onAppear() }
+    ///
+    ///   await mainRunLoop.advance(by: .seconds(1))
+    ///   XCTAssertEqual(model.elapsed, 1)
+    ///
+    ///   await mainRunLoop.advance(by: .seconds(4))
+    ///   XCTAssertEqual(model.elapsed, 5)
+    /// }
+    /// ```
+    public var mainRunLoop: CombineSchedulers.AnySchedulerOf<RunLoop>
+}
+
+extension DependencyValues {
+
+    /// The notification center that features should use.
+    ///
+    /// By default, `NotificationCenter.default` is provided. When used in tests, a task-local
+    /// center is provided, instead.
+    ///
+    /// You can access notification center from a feature by introducing a ``Dependency`` property
+    /// wrapper to the property:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class FeatureModel {
+    ///   @ObservationIgnored
+    ///   @Dependency(\.notificationCenter) var notificationCenter
+    ///   // ...
+    /// }
+    /// ```
+    public var notificationCenter: NotificationCenter
+}
+
+extension DependencyValues {
+
+    /// A dependency that opens a URL.
+    @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+    public var openURL: Dependencies.OpenURLEffect
+}
+
+extension DependencyValues {
+
+    /// The current time zone that features should use when handling dates.
+    ///
+    /// By default, the time zone returned from `TimeZone.autoupdatingCurrent` is supplied. When used
+    /// in tests, access will call to `reportIssue` when invoked, unless explicitly overridden:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   $0.timeZone = TimeZone(secondsFromGMT: 0)
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    public var timeZone: TimeZone
+}
+
+extension DependencyValues {
+
+    /// The URL session that features should use to make URL requests.
+    ///
+    /// By default, the session returned from `URLSession.shared` is supplied. When used in tests,
+    /// access will call to `reportIssue` when invoked, unless explicitly overridden:
+    ///
+    /// ```swift
+    /// // Provision model with overridden dependencies
+    /// let model = withDependencies {
+    ///   let mockConfiguration = URLSessionConfiguration.ephemeral
+    ///   mockConfiguration.protocolClasses = [MyMockURLProtocol.self]
+    ///   $0.urlSession = URLSession(configuration: mockConfiguration)
+    /// } operation: {
+    ///   FeatureModel()
+    /// }
+    ///
+    /// // Make assertions with model...
+    /// ```
+    ///
+    /// ### API client dependencies
+    ///
+    /// While it is possible to use this dependency value from more complex dependencies, like API
+    /// clients, we generally advise against _designing_ a dependency around a URL session. Mocking
+    /// a URL session's responses is a complex process that requires a lot of work that can be
+    /// avoided.
+    ///
+    /// For example, instead of defining your dependency in a way that holds directly onto a URL
+    /// session in order to invoke it from a concrete implementation:
+    ///
+    /// ```swift
+    /// struct APIClient {
+    ///   let urlSession: URLSession
+    ///
+    ///   func fetchProfile() async throws -> Profile {
+    ///     // Use URL session to make request
+    ///   }
+    ///
+    ///   func fetchTimeline() async throws -> Timeline { /* ... */ }
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// Define your dependency as a lightweight _interface_ that holds onto endpoints that can be
+    /// individually overridden in a lightweight fashion:
+    ///
+    /// ```swift
+    /// struct APIClient {
+    ///   var fetchProfile: () async throws -> Profile
+    ///   var fetchTimeline: () async throws -> Timeline
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// Then, you can extend this type with a live implementation that uses a URL session under the
+    /// hood:
+    ///
+    /// ```swift
+    /// extension APIClient: DependencyKey {
+    ///   static var liveValue: APIClient {
+    ///     @Dependency(\.urlSession) var urlSession
+    ///
+    ///     return Self(
+    ///       fetchProfile: {
+    ///         // Use URL session to make request
+    ///       }
+    ///       fetchTimeline: { /* ... */ },
+    ///       // ...
+    ///     )
+    ///   }
+    /// }
+    /// ```
+    public var urlSession: URLSession
+}
+
+extension DependencyValues {
+
+    /// A dependency that generates UUIDs.
+    ///
+    /// Introduce controllable UUID generation to your features by using the ``Dependency`` property
+    /// wrapper with a key path to this property. The wrapped value is an instance of
+    /// ``UUIDGenerator``, which can be called with a closure to create UUIDs. (It can be called
+    /// directly because it defines ``UUIDGenerator/callAsFunction()``, which is called when you
+    /// invoke the instance as you would invoke a function.)
+    ///
+    /// For example, you could introduce controllable UUID generation to an observable object model
+    /// that creates to-dos with unique identifiers:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class TodosModel {
+    ///   var todos: [Todo] = []
+    ///
+    ///   @ObservationIgnored
+    ///   @Dependency(\.uuid) var uuid
+    ///
+    ///   func addButtonTapped() {
+    ///     todos.append(Todo(id: uuid()))
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// By default, a "live" generator is supplied, which returns a random UUID when called by
+    /// invoking `UUID.init` under the hood.  When used in tests, an "unimplemented" generator that
+    /// additionally reports test failures if invoked, unless explicitly overridden.
+    ///
+    /// To test a feature that depends on UUID generation, you can override its generator using
+    /// ``withDependencies(_:operation:)-4uz6m`` to override the underlying ``UUIDGenerator``:
+    ///
+    ///   * ``UUIDGenerator/incrementing`` for reproducible UUIDs that count up from
+    ///     `00000000-0000-0000-0000-000000000000`.
+    ///
+    ///   * ``UUIDGenerator/constant(_:)`` for a generator that always returns the given UUID.
+    ///
+    /// For example, you could test the to-do-creating model by supplying an
+    /// ``UUIDGenerator/incrementing`` generator as a dependency:
+    ///
+    /// ```swift
+    /// @Test
+    /// func feature() {
+    ///   let model = withDependencies {
+    ///     $0.uuid = .incrementing
+    ///   } operation: {
+    ///     TodosModel()
+    ///   }
+    ///
+    ///   model.addButtonTapped()
+    ///   #expect(
+    ///     model.todos == [
+    ///       Todo(id: UUID(0))
+    ///     ]
+    ///   )
+    /// }
+    /// ```
+    ///
+    /// > Note: This test uses the special ``Foundation/UUID/init(_:)`` UUID initializer that comes
+    /// with this library.
+    public var uuid: Dependencies.UUIDGenerator
+}
+
+extension DependencyValues {
+
+    /// A dependency that yields a random number generator to a closure.
+    ///
+    /// Introduce controllable randomness to your features by using the ``Dependency`` property
+    /// wrapper with a key path to this property. The wrapped value is an instance of
+    /// ``WithRandomNumberGenerator``, which can be called with a closure to yield a random number
+    /// generator. (It can be called directly because it defines
+    /// ``WithRandomNumberGenerator/callAsFunction(_:)``, which is called when you invoke the instance
+    /// as you would invoke a function.)
+    ///
+    /// For example, you could introduce controllable randomness to an observable object model that
+    /// handles rolling a couple dice:
+    ///
+    /// ```swift
+    /// @Observable
+    /// final class GameModel {
+    ///   var dice = (1, 1)
+    ///
+    ///   @ObservationIgnored
+    ///   @Dependency(\.withRandomNumberGenerator) var withRandomNumberGenerator
+    ///
+    ///   func rollDice() {
+    ///     dice = withRandomNumberGenerator { generator in
+    ///       (
+    ///         .random(in: 1...6, using: &generator),
+    ///         .random(in: 1...6, using: &generator)
+    ///       )
+    ///     }
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// By default, a `SystemRandomNumberGenerator` will be provided to the closure, with the
+    /// exception of when run in tests, in which an unimplemented dependency will be provided that
+    /// calls `reportIssue`.
+    ///
+    /// To test a feature that depends on randomness, you can override its random number generator.
+    /// Inject a dependency by calling ``WithRandomNumberGenerator/init(_:)`` with a random number
+    /// generator that offers predictable randomness. For example, you could test the dice-rolling of
+    /// a game's model by supplying a seeded random number generator as a dependency:
+    ///
+    /// ```swift
+    /// @Test
+    /// func roll() {
+    ///   let model = withDependencies {
+    ///     $0.withRandomNumberGenerator = WithRandomNumberGenerator(LCRNG(seed: 0))
+    ///   } operation: {
+    ///     GameModel()
+    ///   }
+    ///
+    ///   model.rollDice()
+    ///   XCTAssert(model.dice == (1, 3))
+    /// }
+    /// ```
+    public var withRandomNumberGenerator: Dependencies.WithRandomNumberGenerator
+}
+
+extension DependencyValues {
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withValue<Value, R>(_ keyPath: WritableKeyPath<Dependencies.DependencyValues, Value>, _ value: @autoclosure () -> Value, operation: () throws -> R) rethrows -> R
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withValue<Value, R>(_ keyPath: WritableKeyPath<Dependencies.DependencyValues, Value>, _ value: @autoclosure () -> Value, operation: () async throws -> R) async rethrows -> R where R : Sendable
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withValues<R>(_ updateValuesForOperation: (inout Dependencies.DependencyValues) throws -> Void, operation: () throws -> R) rethrows -> R
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withValues<R>(_ updateValuesForOperation: (inout Dependencies.DependencyValues) throws -> Void, operation: () async throws -> R) async rethrows -> R where R : Sendable
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withTestValues<R>(_ updateValuesForOperation: (inout Dependencies.DependencyValues) throws -> Void, assert operation: () throws -> R) rethrows -> R
+
+    @available(*, deprecated, message: "Use 'withDependencies' instead.")
+    public static func withTestValues<R>(_ updateValuesForOperation: (inout Dependencies.DependencyValues) async throws -> Void, assert operation: () async throws -> R) async rethrows -> R where R : Sendable
+}
+
+extension DependencyValues {
+
+    /// A capture of dependencies to use in an escaping context.
+    ///
+    /// See the docs of ``withEscapedDependencies(_:)-5xvi3`` for more information.
+    public struct Continuation : Sendable {
+
+        /// Access the propagated dependencies in an escaping context.
+        ///
+        /// See the docs of ``withEscapedDependencies(_:)-5xvi3`` for more information.
+        /// - Parameter operation: A closure which will have access to the propagated dependencies.
+        public func yield<R>(_ operation: () throws -> R) rethrows -> R
+
+        /// Access the propagated dependencies in an escaping context.
+        ///
+        /// See the docs of ``withEscapedDependencies(_:)-5xvi3`` for more information.
+        /// - Parameter operation: A closure which will have access to the propagated dependencies.
+        public func yield<R>(_ operation: () async throws -> R) async rethrows -> R
+    }
+}
+
+/// A type for creating unstructured tasks in production and structured tasks in tests.
+///
+/// See ``DependencyValues/fireAndForget`` for more information.
+public struct FireAndForget : Sendable {
+
+    public let operation: @Sendable (TaskPriority?, @escaping @Sendable () async throws -> Void) async -> Void
+
+    public func callAsFunction(priority: TaskPriority? = nil, _ operation: @escaping @Sendable () async throws -> Void) async
+}
+
+public struct OpenURLEffect : Sendable {
+
+    public init(handler: @escaping @Sendable (URL) async -> Bool)
+
+    @available(watchOS, unavailable)
+    @discardableResult
+    public func callAsFunction(_ url: URL) async -> Bool
+
+    public func callAsFunction(_ url: URL) async
+}
+
+/// A key for accessing test dependencies.
+///
+/// This protocol lives one layer below ``DependencyKey`` and allows you to separate a dependency's
+/// interface from its live implementation.
+///
+/// ``TestDependencyKey`` has one main requirement, ``testValue``, which must return a default value
+/// for the purposes of testing, and one optional requirement, ``previewValue-8u2sy``, which can
+/// return a default value suitable for Xcode previews, or the ``testValue``, if left unimplemented.
+///
+/// See ``DependencyKey`` to define a static, default value for the live application.
+public protocol TestDependencyKey<Value> {
+
+    /// The associated type representing the type of the dependency key's value.
+    associatedtype Value : Sendable = Self
+
+    /// The preview value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// Xcode preview, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/preview``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .preview
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "preview" value
+    /// }
+    /// ```
+    static var previewValue: Self.Value { get }
+
+    /// The test value for the dependency key.
+    ///
+    /// This value is automatically used when the associated dependency value is accessed from an
+    /// XCTest run, as well as when the current ``DependencyValues/context`` is set to
+    /// ``DependencyContext/test``:
+    ///
+    /// ```swift
+    /// withDependencies {
+    ///   $0.context = .test
+    /// } operation: {
+    ///   // Dependencies accessed here default to their "test" value
+    /// }
+    /// ```
+    static var testValue: Self.Value { get }
+}
+
+extension TestDependencyKey {
+
+    /// A default implementation that provides the
+    /// <doc:/documentation/Dependencies/TestDependencyKey/testValue> to Xcode previews.
+    ///
+    /// You may provide your own default `previewValue` in your conformance to ``TestDependencyKey``,
+    /// which will take precedence over this implementation.
+    public static var previewValue: Self.Value { get }
+}
+
+extension TestDependencyKey {
+
+    /// Determines if it is appropriate to report an issue in an accessed `testValue`.
+    ///
+    /// When implementing the `testValue` requirement of ``TestDependencyKey`` you may want to report
+    /// an issue so that the user of the dependency is forced to override it in tests. However, one
+    /// cannot unconditionally report an issue because the getter of `testValue` is invoked when
+    /// setting.
+    ///
+    /// Check this value in order to determine if it is appropriate to report an issue or not:
+    ///
+    /// ```swift
+    /// private enum DefaultDatabaseKey: DependencyKey {
+    ///   static var testValue: any DatabaseWriter {
+    ///     if shouldReportUnimplemented {
+    ///       reportIssue("A blank, in-memory database is being used.")
+    ///     }
+    ///     return InMemoryDatabase()
+    ///   }
+    /// }
+    /// ```
+    public static var shouldReportUnimplemented: Bool { get }
+}
+
+/// A dependency that generates a UUID.
+///
+/// See ``DependencyValues/uuid`` for more information.
+public struct UUIDGenerator : Sendable {
+
+    /// A generator that returns a constant UUID.
+    ///
+    /// - Parameter uuid: A UUID to return.
+    /// - Returns: A generator that always returns the given UUID.
+    public static func constant(_ uuid: UUID) -> Dependencies.UUIDGenerator
+
+    /// A generator that generates UUIDs in incrementing order.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// let generate = UUIDGenerator.incrementing
+    /// generate()  // UUID(00000000-0000-0000-0000-000000000000)
+    /// generate()  // UUID(00000000-0000-0000-0000-000000000001)
+    /// generate()  // UUID(00000000-0000-0000-0000-000000000002)
+    /// ```
+    public static var incrementing: Dependencies.UUIDGenerator { get }
+
+    /// Initializes a UUID generator that generates a UUID from a closure.
+    ///
+    /// - Parameter generate: A closure that returns the current date when called.
+    public init(_ generate: @escaping @Sendable () -> UUID)
+
+    public func callAsFunction() -> UUID
+}
+
+/// A dependency that yields a random number generator to a closure.
+///
+/// See ``DependencyValues/withRandomNumberGenerator`` for more information.
+public struct WithRandomNumberGenerator : Sendable {
+
+    public init(_ generator: some RandomNumberGenerator & Sendable)
+
+    public func callAsFunction<R>(_ work: @Sendable (inout any RandomNumberGenerator & Sendable) throws -> R) rethrows -> R where R : Sendable
+}
+
+/// Prepares global dependencies for the lifetime of your application.
+///
+/// This can be used to set up the initial dependencies for your application in the entry point
+/// of your app, or for Xcode previews. It is best to call this as early as possible in the lifetime
+/// of your app.
+///
+/// For example, in a SwiftUI entry point, it is appropriate to call this in the initializer of
+/// your `App` conformance:
+///
+/// ```swift
+/// @main
+/// struct MyApp: App {
+///   init() {
+///     prepareDependencies {
+///       $0.defaultDatabase = try! DatabaseQueue(/* ... */)
+///     }
+///   }
+///
+///   // ...
+/// }
+/// ```
+///
+/// Or in an app delegate entry point, you can invoke it from `didFinishLaunchingWithOptions`:
+///
+/// ```swift
+/// @main
+/// class AppDelegate: UIResponder, UIApplicationDelegate {
+///   func application(
+///     _ application: UIApplication,
+///     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+///   ) -> Bool {
+///     prepareDependencies {
+///       $0.defaultDatabase = try! DatabaseQueue(/* ... */)
+///     }
+///     // Override point for customization after application launch.
+///     return true
+///   }
+///
+///   // ...
+/// }
+/// ```
+///
+/// > Important: A dependency key can be prepared at most a single time, and _must_ be prepared
+/// > before it has been accessed. If you attempt to prepare a dependency that has previously been
+/// > overridden or accessed, a runtime warning will be emitted.
+///
+/// You can also use ``prepareDependencies(_:)`` in Xcode previews, but you do have to use
+/// `let _` in order to play nicely with result builders:
+///
+/// ```swift
+/// #Preview {
+///   let _ = prepareDependencies {
+///     $0.defaultDatabase = try! DatabaseQueue(/* ... */)
+///   }
+///   FeatureView()
+/// }
+/// ```
+///
+/// > Note: It is technically possible to use ``prepareDependencies(_:)`` in tests:
+/// >
+/// >```swift
+/// >@Suite struct FeatureTests {
+/// >  init() {
+/// >    prepareDependencies {
+/// >      $0.defaultDatabase = try! DatabaseQueue(/* ... */)
+/// >    }
+/// >  }
+/// >
+/// >  // ...
+/// >}
+/// >```
+/// >
+/// > However, ``prepareDependencies(_:)`` is not compatible with running tests repeatedly or
+/// > parameterized tests, and so you may not want to use it for testing.
+///
+/// - Parameter updateValues: A closure for updating the current dependency values for the
+///   lifetime of your application.
+public func prepareDependencies<R>(_ updateValues: (inout Dependencies.DependencyValues) throws -> R) rethrows -> R
+
+/// Updates the current dependencies for the duration of a synchronous operation.
+///
+/// Any mutations made to ``DependencyValues`` inside `updateValuesForOperation` will be visible to
+/// everything executed in the operation. For example, if you wanted to force the
+/// ``DependencyValues/date`` dependency to be a particular date, you can do:
+///
+/// ```swift
+/// withDependencies {
+///   $0.date.now = Date(timeIntervalSince1970: 1234567890)
+/// } operation: {
+///   // References to date in here are pinned to 1234567890.
+/// }
+/// ```
+///
+/// - Parameters:
+///   - updateValuesForOperation: A closure for updating the current dependency values for the
+///     duration of the operation.
+///   - operation: An operation to perform wherein dependencies have been overridden.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<R>(_ updateValuesForOperation: (inout Dependencies.DependencyValues) throws -> Void, operation: () throws -> R) rethrows -> R
+
+/// Updates the current dependencies for the duration of an asynchronous operation.
+///
+/// Any mutations made to ``DependencyValues`` inside `updateValuesForOperation` will be visible
+/// to everything executed in the operation. For example, if you wanted to force the
+/// ``DependencyValues/date`` dependency to be a particular date, you can do:
+///
+/// ```swift
+/// await withDependencies {
+///   $0.date.now = Date(timeIntervalSince1970: 1234567890)
+/// } operation: {
+///   // References to date in here are pinned to 1234567890.
+/// }
+/// ```
+///
+/// - Parameters:
+///   - isolation: The isolation associated with the operation.
+///   - updateValuesForOperation: A closure for updating the current dependency values for the
+///     duration of the operation.
+///   - operation: An operation to perform wherein dependencies have been overridden.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<R>(isolation: isolated (any Actor)? = #isolation, _ updateValuesForOperation: (inout Dependencies.DependencyValues) async throws -> Void, operation: () async throws -> R) async rethrows -> R
+
+/// Updates the current dependencies for the duration of a synchronous operation by taking the
+/// dependencies tied to a given object.
+///
+/// - Parameters:
+///   - model: An object with dependencies. The given model should have at least one `@Dependency`
+///     property, or should have been initialized and returned from a `withDependencies` operation.
+///   - updateValuesForOperation: A closure for updating the current dependency values for the
+///     duration of the operation.
+///   - operation: The operation to run with the updated dependencies.
+///   - fileID: The source `#fileID` associated with the operation.
+///   - filePath: The source `#filePath` associated with the operation.
+///   - line: The source `#line` associated with the operation.
+///   - column: The source `#column` associated with the operation.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<Model, R>(from model: Model, _ updateValuesForOperation: (inout Dependencies.DependencyValues) throws -> Void, operation: () throws -> R, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) rethrows -> R where Model : AnyObject
+
+/// Updates the current dependencies for the duration of a synchronous operation by taking the
+/// dependencies tied to a given object.
+///
+/// - Parameters:
+///   - model: An object with dependencies. The given model should have at least one `@Dependency`
+///     property, or should have been initialized and returned from a `withDependencies` operation.
+///   - operation: The operation to run with the updated dependencies.
+///   - fileID: The source `#fileID` associated with the operation.
+///   - filePath: The source `#filePath` associated with the operation.
+///   - line: The source `#line` associated with the operation.
+///   - column: The source `#column` associated with the operation.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<Model, R>(from model: Model, operation: () throws -> R, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) rethrows -> R where Model : AnyObject
+
+/// Updates the current dependencies for the duration of an asynchronous operation by taking the
+/// dependencies tied to a given object.
+///
+/// - Parameters:
+///   - model: An object with dependencies. The given model should have at least one `@Dependency`
+///     property, or should have been initialized and returned from a `withDependencies`
+///       operation.
+///   - isolation: The isolation associated with the operation.
+///   - updateValuesForOperation: A closure for updating the current dependency values for the
+///     duration of the operation.
+///   - operation: The operation to run with the updated dependencies.
+///   - fileID: The source `#fileID` associated with the operation.
+///   - filePath: The source `#filePath` associated with the operation.
+///   - line: The source `#line` associated with the operation.
+///   - column: The source `#column` associated with the operation.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<Model, R>(from model: Model, isolation: (any Actor)? = #isolation, _ updateValuesForOperation: (inout Dependencies.DependencyValues) async throws -> Void, operation: () async throws -> R, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) async rethrows -> R where Model : AnyObject
+
+/// Updates the current dependencies for the duration of an asynchronous operation by taking the
+/// dependencies tied to a given object.
+///
+/// - Parameters:
+///   - model: An object with dependencies. The given model should have at least one `@Dependency`
+///     property, or should have been initialized and returned from a `withDependencies`
+///     operation.
+///   - isolation: The isolation associated with the operation.
+///   - operation: The operation to run with the updated dependencies.
+///   - fileID: The source `#fileID` associated with the operation.
+///   - filePath: The source `#filePath` associated with the operation.
+///   - line: The source `#line` associated with the operation.
+///   - column: The source `#column` associated with the operation.
+/// - Returns: The result returned from `operation`.
+@discardableResult
+public func withDependencies<Model, R>(from model: Model, isolation: (any Actor)? = #isolation, operation: () async throws -> R, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) async rethrows -> R where Model : AnyObject
+
+/// Propagates the current dependencies to an escaping context.
+///
+/// This helper takes a trailing closure that is provided an ``DependencyValues/Continuation``
+/// value, which can be used to access dependencies in an escaped context. It is useful in
+/// situations where you cannot leverage structured concurrency and must use escaping closures.
+/// Dependencies do not automatically propagate across escaping boundaries like they do in
+/// structured contexts and in `Task`s.
+///
+/// For example, suppose you want to use `DispatchQueue.main.asyncAfter` to execute some logic after
+/// a delay, and that logic needs to make use of dependencies. In order to guarantee that
+/// dependencies used in the escaping closure of `asyncAfter` reflect the correct values, you should
+/// use `withEscapedDependencies`:
+///
+/// ```swift
+/// withEscapedDependencies { dependencies in
+///   DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+///     dependencies.yield {
+///       // All code in here will use dependencies at the time of calling withEscapedDependencies.
+///     }
+///   }
+/// }
+/// ```
+///
+/// As a general rule, you should surround _all_ escaping code that may access dependencies with
+/// this helper, and you should use ``DependencyValues/Continuation/yield(_:)-42ttb`` _immediately_
+/// inside the escaping closure. Otherwise you run the risk of the escaped code using the wrong
+/// dependencies. But, you should also try your hardest to keep your code in the structured world
+/// using Swift's tools of structured concurrency, and should avoid using escaping closures.
+///
+/// If you need to further override dependencies in the escaped closure, do so inside the
+/// ``DependencyValues/Continuation/yield(_:)-42ttb`` and not outside:
+///
+/// ```swift
+/// withEscapedDependencies { dependencies in
+///   DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+///     dependencies.yield {
+///       withDependencies {
+///         $0.apiClient = .mock
+///       } operation: {
+///         // All code in here will use dependencies at the time of calling
+///         // withEscapedDependencies except the API client will be mocked.
+///       }
+///     }
+///   }
+/// }
+/// ```
+///
+/// - Parameter operation: A closure that takes a ``DependencyValues/Continuation`` value for
+///   propagating dependencies past an escaping closure boundary.
+public func withEscapedDependencies<R>(_ operation: (Dependencies.DependencyValues.Continuation) throws -> R) rethrows -> R
+
+/// Propagates the current dependencies to an escaping context.
+///
+/// See the documentation of ``withEscapedDependencies(_:)-5xvi3`` for more information.
+///
+/// - Parameter operation: A closure that takes a ``DependencyValues/Continuation`` value for
+///   propagating dependencies past an escaping closure boundary.
+public func withEscapedDependencies<R>(_ operation: (Dependencies.DependencyValues.Continuation) async throws -> R) async rethrows -> R
+
+extension UUID {
+
+    public init(_ intValue: Int)
+}
+
+@available(iOS 18, macOS 15, tvOS 18, watchOS 11, visionOS 2, *)
+extension PreviewTrait where T == Preview.ViewTraits {
+
+    @available(*, deprecated, message: "Use 'withDependencies' or 'prepareDependencies' from the body of the preview, instead.")
+    @MainActor public static func dependency<Value>(_ keyPath: any WritableKeyPath<Dependencies.DependencyValues, Value> & Sendable, _ value: @autoclosure @escaping @Sendable () throws -> Value) -> PreviewTrait<T>
+
+    @available(*, deprecated, message: "Use 'withDependencies' or 'prepareDependencies' from the body of the preview, instead.")
+    @MainActor public static func dependency<Value>(_ value: @autoclosure @escaping @Sendable () throws -> Value) -> PreviewTrait<T> where Value : Dependencies.TestDependencyKey, Value == Value.Value
+
+    @available(*, deprecated, message: "Use 'withDependencies' or 'prepareDependencies' from the body of the preview, instead.")
+    @MainActor public static func dependencies(_ updateValuesForPreview: @escaping @Sendable (inout Dependencies.DependencyValues) throws -> Void) -> PreviewTrait<T>
+}
+
+extension AsyncStream {
+
+    @available(*, deprecated, renamed: "makeStream(of:bufferingPolicy:)")
+    public static func streamWithContinuation(_ elementType: Element.Type = Element.self, bufferingPolicy limit: AsyncStream<Element>.Continuation.BufferingPolicy = .unbounded) -> (stream: AsyncStream<Element>, continuation: AsyncStream<Element>.Continuation)
+}
+
+extension AsyncThrowingStream where Failure == any Error {
+
+    @available(*, deprecated, renamed: "makeStream(of:throwing:bufferingPolicy:)")
+    public static func streamWithContinuation(_ elementType: Element.Type = Element.self, bufferingPolicy limit: AsyncThrowingStream<Element, Failure>.Continuation.BufferingPolicy = .unbounded) -> (stream: AsyncThrowingStream<Element, Failure>, continuation: AsyncThrowingStream<Element, Failure>.Continuation)
+}
+
+@available(*, deprecated)
+extension ActorIsolated {
+
+    @available(*, deprecated, message: "Use the non-async version of 'withValue'.")
+    public func withValue<T>(_ operation: @Sendable (inout Value) async throws -> T) async rethrows -> T where Value : Sendable, T : Sendable
+}
+
+extension AsyncStream where Element : Sendable {
+
+    @available(*, deprecated, message: "Do not configure streams with a buffering policy 'limit' parameter.")
+    public init<S>(_ sequence: S, bufferingPolicy limit: AsyncStream<Element>.Continuation.BufferingPolicy) where Element == S.Element, S : Sendable, S : AsyncSequence
+}
+
+extension AsyncThrowingStream where Element : Sendable, Failure == any Error {
+
+    @available(*, deprecated, message: "Do not configure streams with a buffering policy 'limit' parameter.")
+    public init<S>(_ sequence: S, bufferingPolicy limit: AsyncThrowingStream<Element, Failure>.Continuation.BufferingPolicy) where Element == S.Element, S : Sendable, S : AsyncSequence
+}
+

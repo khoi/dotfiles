@@ -1,0 +1,604 @@
+import Foundation
+import IssueReporting
+
+/// A type-erased case path that supports embedding a value in a root and attempting to extract a
+/// root's embedded value.
+///
+/// This type defines key path-like semantics for enum cases, and is used to derive ``CaseKeyPath``s
+/// from types that conform to ``CasePathable``.
+@dynamicMemberLookup public struct AnyCasePath<Root, Value> : Sendable {
+
+    /// Creates a type-erased case path from a pair of functions.
+    ///
+    /// - Parameters:
+    ///   - embed: A function that always succeeds in embedding a value in a root.
+    ///   - extract: A function that can optionally fail in extracting a value from a root.
+    public init(embed: @escaping @Sendable (Value) -> Root, extract: @escaping @Sendable (Root) -> Value?)
+
+    public static func _$embed(_ embed: @escaping (Value) -> Root, extract: @escaping @Sendable (Root) -> Value?) -> CasePathsCore.AnyCasePath<Root, Value>
+
+    /// Returns a root by embedding a value.
+    ///
+    /// - Parameter value: A value to embed.
+    /// - Returns: A root that embeds `value`.
+    public func embed(_ value: Value) -> Root
+
+    /// Attempts to extract a value from a root.
+    ///
+    /// - Parameter root: A root to extract from.
+    /// - Returns: A value if it can be extracted from the given root, otherwise `nil`.
+    public func extract(from root: Root) -> Value?
+}
+
+extension AnyCasePath where Root == Value {
+
+    /// The identity case path.
+    ///
+    /// A case path that:
+    ///
+    ///   * Given a value to embed, returns the given value.
+    ///   * Given a value to extract, returns the given value.
+    public init()
+}
+
+extension AnyCasePath : CustomDebugStringConvertible {
+
+    /// A textual representation of this instance, suitable for debugging.
+    ///
+    /// Calling this property directly is discouraged. Instead, convert an
+    /// instance of any type to a string by using the `String(reflecting:)`
+    /// initializer. This initializer works with any type, and uses the custom
+    /// `debugDescription` property for types that conform to
+    /// `CustomDebugStringConvertible`:
+    ///
+    ///     struct Point: CustomDebugStringConvertible {
+    ///         let x: Int, y: Int
+    ///
+    ///         var debugDescription: String {
+    ///             return "(\(x), \(y))"
+    ///         }
+    ///     }
+    ///
+    ///     let p = Point(x: 21, y: 30)
+    ///     let s = String(reflecting: p)
+    ///     print(s)
+    ///     // Prints "(21, 30)"
+    ///
+    /// The conversion of `p` to a string in the assignment to `s` uses the
+    /// `Point` type's `debugDescription` property.
+    public var debugDescription: String { get }
+}
+
+extension AnyCasePath {
+
+    /// Creates a type-erased case path for given case key path.
+    ///
+    /// - Parameter keyPath: A case key path.
+    public init(_ keyPath: CasePathsCore.CaseKeyPath<Root, Value>)
+}
+
+extension AnyCasePath where Value : CasePathsCore.CasePathable {
+
+    /// Returns a new case path created by appending the case path at the given key path to this one.
+    ///
+    /// This subscript is automatically invoked by case key path expressions via dynamic member
+    /// lookup, and should not be invoked directly.
+    ///
+    /// - Parameter keyPath: A key path to a case-pathable case path.
+    public subscript<AppendedValue>(dynamicMember keyPath: KeyPath<Value.AllCasePaths, CasePathsCore.AnyCasePath<Value, AppendedValue>>) -> CasePathsCore.AnyCasePath<Root, AppendedValue> { get }
+}
+
+/// A type that is used to distinguish case key paths from key paths by wrapping the enum and
+/// associated value types.
+@dynamicMemberLookup public struct Case<Value> : Sendable {
+}
+
+extension Case {
+
+    public init<Root>(embed: @escaping @Sendable (Value) -> Root, extract: @escaping @Sendable (Root) -> Value?)
+
+    public init()
+
+    public init<Root>(_ keyPath: CasePathsCore.CaseKeyPath<Root, Value>)
+
+    public subscript<AppendedValue>(dynamicMember keyPath: KeyPath<Value.AllCasePaths, CasePathsCore.AnyCasePath<Value, AppendedValue>>) -> CasePathsCore.Case<AppendedValue> where Value : CasePathsCore.CasePathable { get }
+
+    public func _embed(_ value: Value) -> Any
+
+    public func _extract(from root: Any) -> Value?
+}
+
+extension Case where Value : CasePathsCore.CasePathable {
+
+    /// A case path that can never embed or extract a value.
+    ///
+    /// This property can chain any case path into a `Never` value, which, as an uninhabited type,
+    /// cannot be embedded nor extracted from an enum.
+    public var never: CasePathsCore.Case<Never> { get }
+}
+
+extension Case {
+
+    @available(*, deprecated, message: "This enum must be '@CasePathable' to enable key path syntax")
+    public var never: CasePathsCore.Case<Never> { get }
+}
+
+extension Case {
+
+    /// A case path to the presence of a nested value.
+    ///
+    /// This subscript can chain into an optional's wrapped value without explicitly specifying each
+    /// `some` component.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value.AllCasePaths, CasePathsCore.AnyCasePath<Value, Member?>>) -> CasePathsCore.Case<Member> where Value : CasePathsCore.CasePathable { get }
+}
+
+/// A key path to the associated value of an enum case.
+///
+/// The most common way to make an instance of this type is by applying the `@CasePathable` macro
+/// to an enum and using a key path expression like `\SomeEnum.Cases.someCase`, or simply
+/// `\.someCase` where the type can be inferred.
+///
+/// To extract an associated value from an enum using a case key path, pass the key path to the
+/// ``CasePathable/subscript(case:)-3yqx3``. For example:
+///
+/// ```swift
+/// @CasePathable
+/// enum SomeEnum {
+///   case someCase(Int)
+///   case anotherCase(String)
+/// }
+///
+/// let e = SomeEnum.someCase(12)
+/// let pathToCase = \SomeEnum.Cases.someCase
+///
+/// let value = e[case: pathToCase]
+/// // value is Optional(12)
+///
+/// let anotherValue = e[case: \.anotherCase]
+/// // anotherValue is nil
+/// ```
+///
+/// To replace an associated value, assign it through ``CasePathable/subscript(case:)-2t4f8``. If
+/// the given path does not match the given enum case, the replacement will fail. For
+/// example:
+///
+/// ```swift
+/// var e = SomeEnum.someCase(12)
+///
+/// e[case: \.someCase] = 24
+/// // e is SomeEnum.someCase(24)
+///
+/// e[case: \.anotherCase] = "Hello!"
+/// // Assignment fails: e is still SomeEnum.someCase(24)
+/// ```
+///
+/// To produce a whole instance from a case key path, call the key path directly with the associated
+/// value you'd like to embed (via ``Swift/KeyPath/callAsFunction(_:)``):
+///
+/// ```swift
+/// let pathToCase = \SomeEnum.Cases.someCase
+///
+/// let e = pathToCase(12)
+/// // e is SomeEnum.someCase(12)
+/// ```
+///
+/// The path can contain multiple case names, separated by periods, to refer to a case of a case's
+/// value. This code uses the key path expression `\OuterEnum.Cases.outer.someCase` to access the
+/// `someCase` associated value of the `OuterEnum` type's `outer` case:
+///
+/// ```swift
+/// @CasePathable
+/// enum OuterEnum {
+///   case outer(SomeEnum)
+/// }
+///
+/// var nested = OuterEnum.outer(.someCase(24))
+/// let nestedCaseKeyPath = \OuterEnum.Cases.outer.someCase
+///
+/// let nestedValue = nested[case: nestedCaseKeyPath]
+/// // nestedValue is Optional(24)
+///
+/// nested[case: \.outer.someCase] = 42
+/// // nested is now OuterEnum.outer(.someCase(42))
+/// ```
+///
+/// Key paths have the identity key path `\SomeStructure.self`, and so case key paths have the
+/// identity case key path `\SomeEnum.Cases.self`. It refers to the whole enum and can be passed to
+/// a function that takes case key paths when you want to extract, change, or replace all of the
+/// data stored in an enum in a single step.
+public typealias CaseKeyPath<Root, Value> = KeyPath<CasePathsCore.Case<Root>, CasePathsCore.Case<Value>>
+
+/// A type that provides a collection of all of its case paths.
+///
+/// The `@CasePathable` macro automatically generates a conformance to this protocol.
+///
+/// You can iterate over ``CasePathable/allCasePaths`` to get access to each individual case path:
+///
+/// ```swift
+/// @CasePathable enum Field {
+///   case title(String)
+///   case body(String
+///   case isLive
+/// }
+///
+/// Array(Field.allCasePaths)  // [\.title, \.body, \.isLive]
+/// ```
+public protocol CasePathIterable : CasePathsCore.CasePathable where Self.AllCasePaths : Sequence, Self.AllCasePaths.Element == PartialKeyPath<CasePathsCore.Case<Self>> {
+}
+
+/// A type that can reflect a case path from a given case.
+///
+/// The `@CasePathable` macro automatically generates a conformance to this protocol on the enum's
+/// ``CasePathable/AllCasePaths`` type.
+///
+/// You can look up an enum's case path by passing it to ``CasePathReflectable/subscript(_:)``:
+///
+/// ```swift
+/// @CasePathable
+/// enum Field {
+///   case title(String)
+///   case body(String)
+///   case isLive
+/// }
+///
+/// Field.allCasePaths[.title("Hello, Blob!")]  // \.title
+/// ```
+public protocol CasePathReflectable<Root> {
+
+    /// The enum type that can be reflected.
+    associatedtype Root : CasePathsCore.CasePathable
+
+    /// Returns the case key path for a given root value.
+    ///
+    /// - Parameter root: An root value.
+    /// - Returns: A case path to the root value.
+    subscript(root: Self.Root) -> CasePathsCore.PartialCaseKeyPath<Self.Root> { get }
+}
+
+/// A type that provides a collection of all of its case paths.
+///
+/// Use the `@CasePathable` macro to automatically add case paths, and this conformance, to an enum.
+///
+/// It is also possible, though less common, to manually conform a type to `CasePathable`. For
+/// example, the `Result` type is extended to be case-pathable with the following extension:
+///
+/// ```swift
+/// extension Result: CasePathable {
+///   public struct AllCasePaths {
+///     var success: AnyCasePath<Result, Success> {
+///       AnyCasePath(
+///         embed: { .success($0) },
+///         extract: {
+///           guard case let .success(value) = $0 else { return nil }
+///           return value
+///         }
+///       )
+///     }
+///
+///     var failure: AnyCasePath<Result, Failure> {
+///       AnyCasePath(
+///         embed: { .failure($0) },
+///         extract: {
+///           guard case let .failure(value) = $0 else { return nil }
+///           return value
+///         }
+///       )
+///     }
+///   }
+///
+///   public static var allCasePaths: AllCasePaths { AllCasePaths() }
+/// }
+/// ```
+public protocol CasePathable {
+
+    /// A type that can represent a collection of all case paths of this type.
+    associatedtype AllCasePaths
+
+    /// A collection of all case paths of this type.
+    static var allCasePaths: Self.AllCasePaths { get }
+}
+
+extension CasePathable {
+
+    /// A namespace that can be used to derive case key paths from case-pathable enums.
+    ///
+    /// One can fully-qualify a ``CaseKeyPath`` for a type conforming to ``CasePathable`` through this
+    /// namespace. For example:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum SomeEnum {
+    ///   case someCase(Int)
+    /// }
+    ///
+    /// \SomeEnum.Cases.someCase  // CaseKeyPath<SomeEnum, Int>
+    /// ```
+    public typealias Cases = CasePathsCore.Case<Self>
+
+    /// Attempts to extract the associated value from a root enum using a case key path.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum SomeEnum {
+    ///   case someCase(Int)
+    ///   case anotherCase(String)
+    /// }
+    ///
+    /// let e = SomeEnum.someCase(12)
+    ///
+    /// e[case: \.someCase]     // Optional(12)
+    /// e[case: \.anotherCase]  // nil
+    /// ```
+    ///
+    /// See ``CasePathable/subscript(case:)-2t4f8`` for replacing an associated value in a root
+    /// enum, and see ``Swift/KeyPath/callAsFunction(_:)`` for embedding an associated value in a
+    /// brand new root enum.
+    public subscript<Value>(case keyPath: CasePathsCore.CaseKeyPath<Self, Value>) -> Value? { get }
+
+    /// Attempts to extract the associated value from a root enum using a partial case key path.
+    public subscript(case keyPath: CasePathsCore.PartialCaseKeyPath<Self>) -> Any? { get }
+
+    /// Replaces the associated value of a root enum at a case key path when the case matches.
+    ///
+    /// For example:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum SomeEnum {
+    ///   case someCase(Int)
+    ///   case anotherCase(String)
+    /// }
+    ///
+    /// var e = SomeEnum.someCase(12)
+    ///
+    /// e[case: \.someCase] = 24
+    /// // e is SomeEnum.someCase(24)
+    ///
+    /// e[case: \.anotherCase] = "Hello!"
+    /// // e is still SomeEnum.someCase(24)
+    /// ```
+    ///
+    /// See ``CasePathable/subscript(case:)-3yqx3`` for extracting an associated value from a root
+    /// enum, and see ``Swift/KeyPath/callAsFunction(_:)`` for embedding an associated value in a
+    /// brand new root enum.
+    public subscript<Value>(case keyPath: CasePathsCore.CaseKeyPath<Self, Value>) -> Value
+
+    /// Extracts the associated value of a case via dynamic member lookup.
+    ///
+    /// Simply annotate the base type with `@dynamicMemberLookup` to enable this functionality:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// @dynamicMemberLookup
+    /// enum UserAction {
+    ///   case home(HomeAction)
+    ///   case settings(SettingsAction)
+    /// }
+    ///
+    /// let userAction: UserAction = .home(.onAppear)
+    /// userAction.home      // Optional(HomeAction.onAppear)
+    /// userAction.settings  // nil
+    ///
+    /// let userActions: [UserAction] = [.home(.onAppear), .settings(.subscribeButtonTapped)]
+    /// userActions.compactMap(\.home)      // [HomeAction.onAppear]
+    /// userActions.compactMap(\.settings)  // [SettingsAction.subscribeButtonTapped]
+    /// ```
+    public subscript<Value>(dynamicMember keyPath: KeyPath<Self.AllCasePaths, CasePathsCore.AnyCasePath<Self, Value>>) -> Value?
+
+    /// Embeds the associated value of a case via dynamic member lookup.
+    public subscript<Value>(dynamicMember keyPath: KeyPath<Self.AllCasePaths, CasePathsCore.AnyCasePath<Self, Value>>) -> Value
+
+    /// Tests the associated value of a case.
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum UserAction {
+    ///   case home(HomeAction)
+    ///   case settings(SettingsAction)
+    /// }
+    ///
+    /// let userAction: UserAction = .home(.onAppear)
+    /// userAction.is(\.home)      // true
+    /// userAction.is(\.settings)  // false
+    ///
+    /// let userActions: [UserAction] = [.home(.onAppear), .settings(.subscribeButtonTapped)]
+    /// userActions.filter { $0.is(\.home) }      // [UserAction.home(.onAppear)]
+    /// userActions.filter { $0.is(\.settings) }  // [UserAction.settings(.subscribeButtonTapped)]
+    /// ```
+    public func `is`(_ keyPath: CasePathsCore.PartialCaseKeyPath<Self>) -> Bool
+
+    /// Unwraps and yields a mutable associated value to a closure.
+    ///
+    /// > Warning: If the enum's case does not match the given case key path, the mutation will not be
+    /// > applied, and a runtime warning will be logged. To suppress these warnings, limit calls to
+    /// > `modify` to instances in which you have already checked the enum case. For example:
+    /// >
+    /// > ```swift
+    /// > switch e {
+    /// > case .someCase:
+    /// >   e.modify(\.someCase) { int in
+    /// >     int += 1
+    /// >   }
+    /// > case .anotherCase:
+    /// >   e.modify(\.anotherCase) { string in
+    /// >     string.append("!")
+    /// >   }
+    /// > }
+    /// > ```
+    ///
+    /// - Parameters:
+    ///   - keyPath: A case key path to an associated value.
+    ///   - yield: A closure given mutable access to that associated value.
+    ///   - fileID: The fileID where the modify occurs.
+    ///   - filePath: The filePath where the modify occurs.
+    ///   - line: The line where the modify occurs.
+    ///   - column: The column where the modify occurs.
+    public mutating func modify<Value>(_ keyPath: CasePathsCore.CaseKeyPath<Self, Value>, yield: (inout Value) -> Void, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column)
+}
+
+/// A partially type-erased key path, from a concrete root enum to any resulting value type.
+public typealias PartialCaseKeyPath<Root> = PartialKeyPath<CasePathsCore.Case<Root>>
+
+public typealias _SendableKeyPath<Root, Value> = any Sendable & KeyPath<Root, Value>
+
+extension KeyPath {
+
+    /// Embeds a value in an enum at this case key path's case.
+    ///
+    /// Given a case key path to an enum case, one can produce a whole new root value to that case by
+    /// invoking the key path like a function with an associated value to embed. For example:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum SomeEnum {
+    ///   case someCase(Int)
+    /// }
+    ///
+    /// let path = \SomeEnum.Cases.someCase
+    ///
+    /// let e = path(12)
+    /// // e is SomeEnum.someCase(12)
+    /// ```
+    ///
+    /// See ``Swift/KeyPath/callAsFunction()`` for cases with no associated values.
+    ///
+    /// - Parameter value: A value to embed.
+    /// - Returns: An enum for the case of this key path that holds the given value.
+    public func callAsFunction<Enum, AssociatedValue>(_ value: AssociatedValue) -> Enum where Root == CasePathsCore.Case<Enum>, Value == CasePathsCore.Case<AssociatedValue>
+
+    /// Returns an enum for this case key path's case.
+    ///
+    /// Given a case key path to an enum case with no associated value, one can produce a whole new
+    /// root value to that case by invoking the key path like a function. For example:
+    ///
+    /// ```swift
+    /// @CasePathable
+    /// enum SomeEnum {
+    ///   case someCase
+    /// }
+    ///
+    /// let path = \SomeEnum.Cases.someCase
+    ///
+    /// let e = path()
+    /// // e is SomeEnum.someCase
+    /// ```
+    ///
+    /// See ``Swift/KeyPath/callAsFunction(_:)`` for cases with associated values.
+    ///
+    /// - Returns: An enum for the case of this key path.
+    public func callAsFunction<Enum>() -> Enum where Root == CasePathsCore.Case<Enum>, Value == CasePathsCore.Case<()>
+
+    /// Whether an argument matches the case key path's case.
+    ///
+    /// ```swift
+    /// @CasePathable enum UserAction {
+    ///   case settings(SettingsAction)
+    /// }
+    /// @CasePathable enum SettingsAction {
+    ///   case store(StoreAction)
+    /// }
+    /// @CasePathable enum StoreAction {
+    ///   case subscribeButtonTapped
+    /// }
+    ///
+    /// switch userAction {
+    /// case \.settings.store.subscribeButtonTapped:
+    /// // ...
+    /// }
+    ///
+    /// // Equivalent to:
+    ///
+    /// switch userAction {
+    /// case .settings(.store(.subscribeButtonTapped)):
+    /// // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - lhs: A case key path.
+    ///   - rhs: An enum.
+    public static func ~= <Enum, AssociatedValue>(lhs: KeyPath<Root, Value>, rhs: Enum) -> Bool where Root == CasePathsCore.Case<Enum>, Value == CasePathsCore.Case<AssociatedValue>, Enum : CasePathsCore.CasePathable
+}
+
+extension _AppendKeyPath {
+
+    /// Attempts to embeds any value in an enum at this case key path's case.
+    ///
+    /// - Parameter value: A value to embed. If the value type does not match the case path's value
+    ///   type, the operation will fail.
+    /// - Returns: An enum for the case of this key path that holds the given value, or `nil`.
+    public func callAsFunction<Enum>(_ value: Any) -> Enum? where Self == PartialKeyPath<CasePathsCore.Case<Enum>>, Enum : CasePathsCore.CasePathable
+}
+
+extension Never : CasePathsCore.CasePathable, CasePathsCore.CasePathIterable {
+
+    /// A type that can represent a collection of all case paths of this type.
+    public struct AllCasePaths : CasePathsCore.CasePathReflectable, Sendable {
+
+        /// Returns the case key path for a given root value.
+        ///
+        /// - Parameter root: An root value.
+        /// - Returns: A case path to the root value.
+        public subscript(root: Never) -> CasePathsCore.PartialCaseKeyPath<Never> { get }
+    }
+
+    /// A collection of all case paths of this type.
+    public static var allCasePaths: Never.AllCasePaths { get }
+}
+
+extension Optional : CasePathsCore.CasePathable, CasePathsCore.CasePathIterable {
+
+    /// A type that can represent a collection of all case paths of this type.
+    @dynamicMemberLookup public struct AllCasePaths : CasePathsCore.CasePathReflectable, Sendable {
+
+        /// Returns the case key path for a given root value.
+        ///
+        /// - Parameter root: An root value.
+        /// - Returns: A case path to the root value.
+        public subscript(root: Wrapped?) -> CasePathsCore.PartialCaseKeyPath<Wrapped?> { get }
+
+        /// A case path to the absence of a value.
+        public var none: CasePathsCore.AnyCasePath<Wrapped?, Void> { get }
+
+        /// A case path to the presence of a value.
+        public var some: CasePathsCore.AnyCasePath<Wrapped?, Wrapped> { get }
+
+        /// A case path to an optional-chained value.
+        public subscript<Member>(dynamicMember keyPath: KeyPath<Wrapped.AllCasePaths, CasePathsCore.AnyCasePath<Wrapped, Member>>) -> CasePathsCore.AnyCasePath<Wrapped?, Member?> where Wrapped : CasePathsCore.CasePathable { get }
+    }
+
+    /// A collection of all case paths of this type.
+    public static var allCasePaths: Optional<Wrapped>.AllCasePaths { get }
+}
+
+extension Optional where Wrapped : CasePathsCore.CasePathable {
+
+    public func `is`(_ keyPath: CasePathsCore.PartialCaseKeyPath<Wrapped>) -> Bool
+
+    public mutating func modify<Value>(_ keyPath: CasePathsCore.CaseKeyPath<Wrapped, Value>, yield: (inout Value) -> Void, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column)
+}
+
+extension Result : CasePathsCore.CasePathable, CasePathsCore.CasePathIterable {
+
+    /// A type that can represent a collection of all case paths of this type.
+    public struct AllCasePaths : CasePathsCore.CasePathReflectable, Sendable {
+
+        /// Returns the case key path for a given root value.
+        ///
+        /// - Parameter root: An root value.
+        /// - Returns: A case path to the root value.
+        public subscript(root: Result<Success, Failure>) -> CasePathsCore.PartialCaseKeyPath<Result<Success, Failure>> { get }
+
+        /// A success case path, for embedding or extracting a `Success` value.
+        public var success: CasePathsCore.AnyCasePath<Result<Success, Failure>, Success> { get }
+
+        /// A failure case path, for embedding or extracting a `Failure` value.
+        public var failure: CasePathsCore.AnyCasePath<Result<Success, Failure>, Failure> { get }
+    }
+
+    /// A collection of all case paths of this type.
+    public static var allCasePaths: Result<Success, Failure>.AllCasePaths { get }
+}
+

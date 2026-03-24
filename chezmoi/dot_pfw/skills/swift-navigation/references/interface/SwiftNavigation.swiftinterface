@@ -1,0 +1,1886 @@
+import CasePaths
+import ConcurrencyExtras
+import CustomDump
+import Dispatch
+import Foundation
+import IssueReporting
+import ObjectiveC
+import Observation
+import OrderedCollections
+import Perception
+import SwiftUI
+
+@available(iOS, introduced: 13, deprecated: 100000, renamed: "ConfirmationDialogState")
+@available(macOS, unavailable, introduced: 12)
+@available(tvOS, introduced: 13, deprecated: 100000, renamed: "ConfirmationDialogState")
+@available(watchOS, introduced: 6, deprecated: 100000, renamed: "ConfirmationDialogState")
+public typealias ActionSheetState<Action> = SwiftNavigation.ConfirmationDialogState<Action>
+
+/// A data type that describes the state of an alert that can be shown to the user. The `Action`
+/// generic is the type of actions that can be sent from tapping on a button in the alert.
+///
+/// This type can be used in your application's state in order to control the presentation and
+/// actions of alerts. This API can be used to push the logic of alert presentation and actions into
+/// your model, making it easier to test, and simplifying your view layer.
+///
+/// To use this API, you first describe all of the actions that can take place in all of your
+/// alerts as an enum:
+///
+/// ```swift
+/// @Observable
+/// class HomeScreenModel {
+///   enum AlertAction {
+///     case delete
+///     case removeFromHomeScreen
+///   }
+///   // ...
+/// }
+/// ```
+///
+/// Then you hold onto optional `AlertState` as a field in your model, which can
+/// start off as `nil`:
+///
+/// ```swift
+/// @Observable
+/// class HomeScreenModel {
+///   var alert: AlertState<AlertAction>?
+///   // ...
+/// }
+/// ```
+///
+/// And you define an endpoint for handling each alert action:
+///
+/// ```swift
+/// @Observable
+/// class HomeScreenModel {
+///   // ...
+///   func alertButtonTapped(_ action: AlertAction?) {
+///     switch action {
+///     case .delete:
+///       // ...
+///     case .removeFromHomeScreen:
+///       // ...
+///     case .none:
+///       // ...
+///     }
+///   }
+/// }
+/// ```
+///
+/// Then, whenever you need to show an alert you can simply construct an `AlertState` value to
+/// represent the alert:
+///
+/// ```swift
+/// @Observable
+/// class HomeScreenModel {
+///   // ...
+///   func deleteAppButtonTapped() {
+///     self.alert = AlertState {
+///       TextState(#"Remove "Twitter"?"#)
+///     } actions: {
+///       ButtonState(role: .destructive, action: .send(.delete)) {
+///         TextState("Delete App")
+///       }
+///       ButtonState(action: .send(.removeFromHomeScreen)) {
+///         TextState("Remove from Home Screen")
+///       }
+///     } message: {
+///       TextState(
+///         "Removing from Home Screen will keep the app in your App Library."
+///       )
+///     }
+///   }
+/// }
+/// ```
+///
+/// And in your view you can use the `.alert(_:action:)` view modifier to present the alert:
+///
+/// ```swift
+/// struct FeatureView: View {
+///   @ObservedObject var model: HomeScreenModel
+///
+///   var body: some View {
+///     VStack {
+///       Button("Delete") {
+///         self.model.deleteAppButtonTapped()
+///       }
+///     }
+///     .alert(self.$model.alert) { action in
+///       self.model.alertButtonTapped(action)
+///     }
+///   }
+/// }
+/// ```
+///
+/// This makes your model in complete control of when the alert is shown or dismissed, and makes it
+/// so that any choice made in the alert is automatically fed back into the model so that you can
+/// handle its logic.
+///
+/// Even better, because `AlertState` is equatable (when `Action` is equatable), you can instantly
+/// write tests that your alert behavior works as expected:
+///
+/// ```swift
+/// let model = HomeScreenModel()
+///
+/// model.deleteAppButtonTapped()
+/// XCTAssertEqual(
+///   model.alert,
+///   AlertState {
+///     TextState(#"Remove "Twitter"?"#)
+///   } actions: {
+///     ButtonState(role: .destructive, action: .deleteButtonTapped) {
+///       TextState("Delete App"),
+///     },
+///     ButtonState(action: .removeFromHomeScreenButtonTapped) {
+///       TextState("Remove from Home Screen"),
+///     }
+///   } message: {
+///     TextState(
+///       "Removing from Home Screen will keep the app in your App Library."
+///     )
+///   }
+/// )
+///
+/// model.alertButtonTapped(.delete) {
+///   // Also verify that delete logic executed correctly
+/// }
+/// model.alert = nil
+/// ```
+public struct AlertState<Action> : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public let id: UUID
+
+    public var buttons: [SwiftNavigation.ButtonState<Action>]
+
+    public var message: SwiftNavigation.TextState?
+
+    public var title: SwiftNavigation.TextState
+
+    /// Creates alert state.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - actions: A ``ButtonStateBuilder`` returning the alert's actions.
+    ///   - message: The message for the alert.
+    public init(title: () -> SwiftNavigation.TextState, @SwiftNavigation.ButtonStateBuilder<Action> actions: () -> [SwiftNavigation.ButtonState<Action>] = { [] }, message: (() -> SwiftNavigation.TextState)? = nil)
+
+    public func map<NewAction>(_ transform: (Action?) -> NewAction?) -> SwiftNavigation.AlertState<NewAction>
+}
+
+extension AlertState : CustomDump.CustomDumpReflectable {
+
+    /// The custom dump mirror for this instance.
+    public var customDumpMirror: Mirror { get }
+}
+
+extension AlertState : Equatable where Action : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SwiftNavigation.AlertState<Action>, rhs: SwiftNavigation.AlertState<Action>) -> Bool
+}
+
+extension AlertState : Hashable where Action : Hashable {
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+extension AlertState : Sendable where Action : Sendable {
+}
+
+extension AlertState {
+
+    @available(*, deprecated, message: "Use 'init(title:actions:message:)' instead.")
+    public init(title: SwiftNavigation.TextState, message: SwiftNavigation.TextState? = nil, buttons: [SwiftNavigation.ButtonState<Action>])
+
+    @available(*, deprecated, message: "Use 'init(title:actions:message:)' instead.")
+    public init(title: SwiftNavigation.TextState, message: SwiftNavigation.TextState? = nil, dismissButton: SwiftNavigation.ButtonState<Action>? = nil)
+
+    @available(*, deprecated, message: "Use 'init(title:actions:message:)' instead.")
+    public init(title: SwiftNavigation.TextState, message: SwiftNavigation.TextState? = nil, primaryButton: SwiftNavigation.ButtonState<Action>, secondaryButton: SwiftNavigation.ButtonState<Action>)
+}
+
+public struct ButtonState<Action> : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public let id: UUID
+
+    public let action: SwiftNavigation.ButtonStateAction<Action>
+
+    public let label: SwiftNavigation.TextState
+
+    public let role: SwiftNavigation.ButtonStateRole?
+
+    /// Creates button state.
+    ///
+    /// - Parameters:
+    ///   - role: An optional semantic role that describes the button. A value of `nil` means that the
+    ///     button doesn't have an assigned role.
+    ///   - action: The action to send when the user interacts with the button.
+    ///   - label: A view that describes the purpose of the button's `action`.
+    public init(role: SwiftNavigation.ButtonStateRole? = nil, action: SwiftNavigation.ButtonStateAction<Action> = .send(nil), label: () -> SwiftNavigation.TextState)
+
+    /// Creates button state.
+    ///
+    /// - Parameters:
+    ///   - role: An optional semantic role that describes the button. A value of `nil` means that the
+    ///     button doesn't have an assigned role.
+    ///   - action: The action to send when the user interacts with the button.
+    ///   - label: A view that describes the purpose of the button's `action`.
+    public init(role: SwiftNavigation.ButtonStateRole? = nil, action: Action, label: () -> SwiftNavigation.TextState)
+
+    /// Handle the button's action in a closure.
+    ///
+    /// - Parameter perform: Unwraps and passes a button's action to a closure to be performed. If the
+    ///   action has an associated animation, the context will be wrapped using SwiftUI's
+    ///   `withAnimation`.
+    public func withAction(_ perform: (Action?) -> Void)
+
+    /// Handle the button's action in an async closure.
+    ///
+    /// > Warning: Async closures cannot be performed with animation. If the underlying action is
+    /// > animated, a runtime warning will be emitted.
+    ///
+    /// - Parameter perform: Unwraps and passes a button's action to a closure to be performed.
+    @MainActor public func withAction(_ perform: @MainActor @Sendable (Action?) async -> Void) async
+
+    /// Transforms a button state's action into a new action.
+    ///
+    /// - Parameter transform: A closure that transforms an optional action into a new optional
+    ///   action.
+    /// - Returns: Button state over a new action.
+    public func map<NewAction>(_ transform: (Action?) -> NewAction?) -> SwiftNavigation.ButtonState<NewAction>
+}
+
+extension ButtonState : CustomDump.CustomDumpReflectable {
+
+    /// The custom dump mirror for this instance.
+    public var customDumpMirror: Mirror { get }
+}
+
+extension ButtonState : Equatable where Action : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SwiftNavigation.ButtonState<Action>, rhs: SwiftNavigation.ButtonState<Action>) -> Bool
+}
+
+extension ButtonState : Hashable where Action : Hashable {
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+extension ButtonState : Sendable where Action : Sendable {
+}
+
+extension ButtonState {
+
+    @available(*, deprecated, message: "Use 'ButtonState(role: .cancel, action:label:)' instead.")
+    public static func cancel(_ label: SwiftNavigation.TextState, action: SwiftNavigation.ButtonStateAction<Action> = .send(nil)) -> SwiftNavigation.ButtonState<Action>
+
+    @available(*, deprecated, message: "Use 'ButtonState(action:label:)' instead.")
+    public static func `default`(_ label: SwiftNavigation.TextState, action: SwiftNavigation.ButtonStateAction<Action> = .send(nil)) -> SwiftNavigation.ButtonState<Action>
+
+    @available(*, deprecated, message: "Use 'ButtonState(role: .destructive, action:label:)' instead.")
+    public static func destructive(_ label: SwiftNavigation.TextState, action: SwiftNavigation.ButtonStateAction<Action> = .send(nil)) -> SwiftNavigation.ButtonState<Action>
+}
+
+/// A type that wraps an action with additional context, _e.g._ for animation.
+public struct ButtonStateAction<Action> {
+
+    public let type: SwiftNavigation.ButtonStateAction<Action>._ActionType
+
+    public static func send(_ action: Action?) -> SwiftNavigation.ButtonStateAction<Action>
+
+    public static func send(_ action: Action?, animation: Animation?) -> SwiftNavigation.ButtonStateAction<Action>
+
+    public var action: Action? { get }
+
+    public func map<NewAction>(_ transform: (Action?) -> NewAction?) -> SwiftNavigation.ButtonStateAction<NewAction>
+
+    public enum _ActionType {
+
+        case send(Action?)
+
+        case animatedSend(Action?, animation: Animation?)
+    }
+}
+
+extension ButtonStateAction : CustomDump.CustomDumpReflectable {
+
+    /// The custom dump mirror for this instance.
+    public var customDumpMirror: Mirror { get }
+}
+
+extension ButtonStateAction : Equatable where Action : Equatable {
+}
+
+extension ButtonStateAction : Hashable where Action : Hashable {
+}
+
+extension ButtonStateAction : Sendable where Action : Sendable {
+}
+
+extension ButtonStateAction._ActionType : Equatable where Action : Equatable {
+}
+
+extension ButtonStateAction._ActionType : Hashable where Action : Hashable {
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+extension ButtonStateAction._ActionType : Sendable where Action : Sendable {
+}
+
+@resultBuilder public enum ButtonStateBuilder<Action> {
+
+    public static func buildArray(_ components: [[SwiftNavigation.ButtonState<Action>]]) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildBlock(_ components: [SwiftNavigation.ButtonState<Action>]...) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildLimitedAvailability(_ component: [SwiftNavigation.ButtonState<Action>]) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildEither(first component: [SwiftNavigation.ButtonState<Action>]) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildEither(second component: [SwiftNavigation.ButtonState<Action>]) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildExpression(_ expression: SwiftNavigation.ButtonState<Action>) -> [SwiftNavigation.ButtonState<Action>]
+
+    public static func buildOptional(_ component: [SwiftNavigation.ButtonState<Action>]?) -> [SwiftNavigation.ButtonState<Action>]
+}
+
+/// A value that describes the purpose of a button.
+///
+/// See `SwiftUI.ButtonRole` for more information.
+public enum ButtonStateRole : Sendable {
+
+    /// A role that indicates a cancel button.
+    ///
+    /// See `SwiftUI.ButtonRole.cancel` for more information.
+    case cancel
+
+    /// A role that indicates a destructive button.
+    ///
+    /// See `SwiftUI.ButtonRole.destructive` for more information.
+    case destructive
+}
+
+extension ButtonStateRole : Equatable {
+}
+
+extension ButtonStateRole : Hashable {
+}
+
+/// A data type that describes the state of a confirmation dialog that can be shown to the user. The
+/// `Action` generic is the type of actions that can be sent from tapping on a button in the sheet.
+///
+/// This type can be used in your application's state in order to control the presentation and
+/// actions of dialogs. This API can be used to push the logic of alert presentation and action into
+/// your model, making it easier to test, and simplifying your view layer.
+///
+/// To use this API, you describe all of a dialog's actions as cases in an enum:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   enum ConfirmationDialogAction {
+///     case delete
+///     case favorite
+///   }
+///   // ...
+/// }
+/// ```
+///
+/// You model the state for showing the alert in as a published field, which can start off `nil`:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   // ...
+///   var dialog: ConfirmationDialogState<ConfirmationDialogAction>?
+///   // ...
+/// }
+/// ```
+///
+/// And you define an endpoint for handling each alert action:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   // ...
+///   func dialogButtonTapped(_ action: ConfirmationDialogAction) {
+///     switch action {
+///     case .delete:
+///       // ...
+///     case .favorite:
+///       // ...
+///     }
+///   }
+/// }
+/// ```
+///
+/// Then, in an endpoint that should display an alert, you can construct a
+/// ``ConfirmationDialogState`` value to represent it:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   // ...
+///   func infoButtonTapped() {
+///     self.dialog = ConfirmationDialogState(
+///       title: "What would you like to do?",
+///       buttons: [
+///         .default(TextState("Favorite"), action: .send(.favorite)),
+///         .destructive(TextState("Delete"), action: .send(.delete)),
+///         .cancel(TextState("Cancel")),
+///       ]
+///     )
+///   }
+/// }
+/// ```
+///
+/// And in your view you can use the `.confirmationDialog(_:action:)` view modifier to
+/// present the dialog:
+///
+/// ```swift
+/// struct ItemView: View {
+///   @ObservedObject var model: FeatureModel
+///
+///   var body: some View {
+///     VStack {
+///       Button("Info") {
+///         self.model.infoButtonTapped()
+///       }
+///     }
+///     .confirmationDialog($model.dialog) { action in
+///       self.model.dialogButtonTapped(action)
+///     }
+///   }
+/// }
+/// ```
+///
+/// This makes your model in complete control of when the alert is shown or dismissed, and makes it
+/// so that any choice made in the alert is automatically fed back into the model so that you can
+/// handle its logic.
+///
+/// Even better, you can instantly write tests that your alert behavior works as expected:
+///
+/// ```swift
+/// let model = FeatureModel()
+///
+/// model.infoButtonTapped()
+/// XCTAssertEqual(
+///   model.dialog,
+///   ConfirmationDialogState(
+///     title: "What would you like to do?",
+///     buttons: [
+///       .default(TextState("Favorite"), action: .send(.favorite)),
+///       .destructive(TextState("Delete"), action: .send(.delete)),
+///       .cancel(TextState("Cancel")),
+///     ]
+///   )
+/// )
+///
+/// model.dialogButtonTapped(.favorite)
+/// // Verify that favorite logic executed correctly
+/// model.dialog = nil
+/// ```
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+public struct ConfirmationDialogState<Action> : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public let id: UUID
+
+    public var buttons: [SwiftNavigation.ButtonState<Action>]
+
+    public var message: SwiftNavigation.TextState?
+
+    public var title: SwiftNavigation.TextState
+
+    public var titleVisibility: SwiftNavigation.ConfirmationDialogStateTitleVisibility
+
+    /// Creates confirmation dialog state.
+    ///
+    /// - Parameters:
+    ///   - titleVisibility: The visibility of the dialog's title.
+    ///   - title: The title of the dialog.
+    ///   - actions: A ``ButtonStateBuilder`` returning the dialog's actions.
+    ///   - message: The message for the dialog.
+    public init(titleVisibility: SwiftNavigation.ConfirmationDialogStateTitleVisibility, title: () -> SwiftNavigation.TextState, @SwiftNavigation.ButtonStateBuilder<Action> actions: () -> [SwiftNavigation.ButtonState<Action>] = { [] }, message: (() -> SwiftNavigation.TextState)? = nil)
+
+    /// Creates confirmation dialog state.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the dialog.
+    ///   - actions: A ``ButtonStateBuilder`` returning the dialog's actions.
+    ///   - message: The message for the dialog.
+    public init(title: () -> SwiftNavigation.TextState, @SwiftNavigation.ButtonStateBuilder<Action> actions: () -> [SwiftNavigation.ButtonState<Action>] = { [] }, message: (() -> SwiftNavigation.TextState)? = nil)
+
+    public func map<NewAction>(_ transform: (Action?) -> NewAction?) -> SwiftNavigation.ConfirmationDialogState<NewAction>
+}
+
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+extension ConfirmationDialogState : CustomDump.CustomDumpReflectable {
+
+    /// The custom dump mirror for this instance.
+    public var customDumpMirror: Mirror { get }
+}
+
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+extension ConfirmationDialogState : Equatable where Action : Equatable {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: SwiftNavigation.ConfirmationDialogState<Action>, rhs: SwiftNavigation.ConfirmationDialogState<Action>) -> Bool
+}
+
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+extension ConfirmationDialogState : Hashable where Action : Hashable {
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+extension ConfirmationDialogState : Sendable where Action : Sendable {
+}
+
+@available(iOS 13, macOS 12, tvOS 13, watchOS 6, *)
+extension ConfirmationDialogState {
+
+    @available(*, deprecated, message: "Use 'init(titleVisibility:title:actions:message:)' instead.")
+    public init(title: SwiftNavigation.TextState, titleVisibility: SwiftNavigation.ConfirmationDialogStateTitleVisibility, message: SwiftNavigation.TextState? = nil, buttons: [SwiftNavigation.ButtonState<Action>] = [])
+
+    @available(*, deprecated, message: "Use 'init(title:actions:message:)' instead.")
+    public init(title: SwiftNavigation.TextState, message: SwiftNavigation.TextState? = nil, buttons: [SwiftNavigation.ButtonState<Action>] = [])
+}
+
+/// The visibility of a confirmation dialog title element, chosen automatically based on the
+/// platform, current context, and other factors.
+///
+/// See `SwiftUI.Visibility` for more information.
+public enum ConfirmationDialogStateTitleVisibility : Sendable {
+
+    /// The element may be visible or hidden depending on the policies of the component accepting the
+    /// visibility configuration.
+    ///
+    /// See `SwiftUI.Visibility.automatic` for more information.
+    case automatic
+
+    /// The element may be hidden.
+    ///
+    /// See `SwiftUI.Visibility.hidden` for more information.
+    case hidden
+
+    /// The element may be visible.
+    ///
+    /// See `SwiftUI.Visibility.visible` for more information.
+    case visible
+}
+
+/// A protocol that adds a default implementation of `Hashable` to an object based off its object
+/// identity.
+///
+/// SwiftUI's navigation tools requires `Identifiable` and `Hashable` conformances throughout its
+/// APIs, for example `sheet(item:)` requires `Identifiable`, while `navigationDestination(item:)`
+/// and `NavigationLink.init(value:)` require `Hashable`. While `Identifiable` conformances come for
+/// free on objects based on object identity, there is no such mechanism for `Hashable`. This
+/// protocol addresses this shortcoming by providing default implementations of `==` and
+/// `hash(into:)`.
+public protocol HashableObject : AnyObject, Hashable {
+}
+
+extension HashableObject {
+
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func == (lhs: Self, rhs: Self) -> Bool
+
+    /// Hashes the essential components of this value by feeding them into the
+    /// given hasher.
+    ///
+    /// Implement this method to conform to the `Hashable` protocol. The
+    /// components used for hashing must be the same as the components compared
+    /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
+    /// with each of these components.
+    ///
+    /// - Important: In your implementation of `hash(into:)`,
+    ///   don't call `finalize()` on the `hasher` instance provided,
+    ///   or replace it with a different instance.
+    ///   Doing so may become a compile-time error in the future.
+    ///
+    /// - Parameter hasher: The hasher to use when combining the components
+    ///   of this instance.
+    public func hash(into hasher: inout Hasher)
+}
+
+@available(*, deprecated, renamed: "ObserveToken")
+public typealias ObservationToken = SwiftNavigation.ObserveToken
+
+/// A token for cancelling observation.
+///
+/// When this token is deallocated it cancels the observation it was associated with. Store this
+/// token in another object to keep the observation alive. You can do with this with a set of
+/// ``ObserveToken``s and the ``store(in:)-4bp5r`` method:
+///
+/// ```swift
+/// class Coordinator {
+///   let model = Model()
+///   var tokens: Set<ObserveToken> = []
+///
+///   func start() {
+///     observe { [weak self] in
+///       // ...
+///     }
+///     .store(in: &tokens)
+///   }
+/// }
+/// ```
+final public class ObserveToken : Sendable, SwiftNavigation.HashableObject {
+
+    public let onCancel: @Sendable () -> Void
+
+    public var isCancelled: Bool { get }
+
+    public init(onCancel: @escaping @Sendable () -> Void = {})
+
+    deinit
+
+    /// Cancels observation that was created with ``observe(isolation:_:)-9xf99``.
+    ///
+    /// > Note: This cancellation is lazy and cooperative. It does not cancel the observation
+    /// > immediately, but rather next time a change is detected by `observe` it will cease any future
+    /// > observation.
+    public func cancel()
+
+    /// Stores this observation token instance in the specified collection.
+    ///
+    /// - Parameter collection: The collection in which to store this observation token.
+    public func store(in collection: inout some RangeReplaceableCollection<SwiftNavigation.ObserveToken>)
+
+    /// Stores this observation token instance in the specified set.
+    ///
+    /// - Parameter set: The set in which to store this observation token.
+    public func store(in set: inout Set<SwiftNavigation.ObserveToken>)
+}
+
+/// An equatable description of SwiftUI `Text`. Useful for storing rich text in feature models
+/// that can still be tested for equality.
+///
+/// Although `SwiftUI.Text` and `SwiftUI.LocalizedStringKey` are value types that conform to
+/// `Equatable`, their `==` do not return `true` when used with seemingly equal values. If we were
+/// to naively store these values in state, our tests may begin to fail.
+///
+/// ``TextState`` solves this problem by providing an interface similar to `SwiftUI.Text` that can
+/// be held in state and asserted against.
+///
+/// Let's say you wanted to hold some dynamic, styled text content in your app state. You could use
+/// ``TextState``:
+///
+/// ```swift
+/// @Observable
+/// class Model {
+///   var label = TextState("")
+/// }
+/// ```
+///
+/// Your model can then assign a value to this state using an API similar to that of `SwiftUI.Text`.
+///
+/// ```swift
+/// self.label = TextState("Hello, ") + TextState(name).bold() + TextState("!")
+/// ```
+///
+/// And your view can render it by passing it to a `SwiftUI.Text` initializer:
+///
+/// ```swift
+/// var body: some View {
+///   Text(self.model.label)
+/// }
+/// ```
+///
+/// SwiftUI Navigation comes with a few convenience APIs for alerts and dialogs that wrap
+/// ``TextState`` under the hood. See ``AlertState`` and ``ConfirmationDialogState`` accordingly.
+///
+/// In the future, should `SwiftUI.Text` and `SwiftUI.LocalizedStringKey` reliably conform to
+/// `Equatable`, ``TextState`` may be deprecated.
+///
+/// - Note: ``TextState`` does not support _all_ `LocalizedStringKey` permutations at this time
+///   (interpolated `SwiftUI.Image`s, for example). ``TextState`` also uses reflection to determine
+///   `LocalizedStringKey` equatability, so be mindful of edge cases.
+public struct TextState : Equatable, Hashable, Sendable {
+
+    public enum FontWidth : String, Equatable, Hashable, Sendable {
+
+        case compressed
+
+        case condensed
+
+        case expanded
+
+        case standard
+    }
+
+    public enum LineStylePattern : String, Equatable, Hashable, Sendable {
+
+        case dash
+
+        case dashDot
+
+        case dashDotDot
+
+        case dot
+
+        case solid
+    }
+}
+
+extension TextState {
+
+    public init(verbatim content: String)
+
+    public init<S>(_ content: S) where S : StringProtocol
+
+    public init(_ key: LocalizedStringKey, tableName: String? = nil, bundle: Bundle? = nil, comment: StaticString? = nil)
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public init(_ resource: LocalizedStringResource)
+
+    public static func + (lhs: SwiftNavigation.TextState, rhs: SwiftNavigation.TextState) -> SwiftNavigation.TextState
+
+    public func baselineOffset(_ baselineOffset: CGFloat) -> SwiftNavigation.TextState
+
+    public func bold() -> SwiftNavigation.TextState
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func bold(isActive: Bool) -> SwiftNavigation.TextState
+
+    public func font(_ font: Font?) -> SwiftNavigation.TextState
+
+    public func fontDesign(_ design: Font.Design?) -> SwiftNavigation.TextState
+
+    public func fontWeight(_ weight: Font.Weight?) -> SwiftNavigation.TextState
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func fontWidth(_ width: SwiftNavigation.TextState.FontWidth?) -> SwiftNavigation.TextState
+
+    public func foregroundColor(_ color: Color?) -> SwiftNavigation.TextState
+
+    public func italic() -> SwiftNavigation.TextState
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func italic(isActive: Bool) -> SwiftNavigation.TextState
+
+    public func kerning(_ kerning: CGFloat) -> SwiftNavigation.TextState
+
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    public func monospacedDigit() -> SwiftNavigation.TextState
+
+    public func strikethrough(_ isActive: Bool = true, color: Color? = nil) -> SwiftNavigation.TextState
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func strikethrough(_ isActive: Bool = true, pattern: SwiftNavigation.TextState.LineStylePattern, color: Color? = nil) -> SwiftNavigation.TextState
+
+    public func tracking(_ tracking: CGFloat) -> SwiftNavigation.TextState
+
+    public func underline(_ isActive: Bool = true, color: Color? = nil) -> SwiftNavigation.TextState
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func underline(_ isActive: Bool = true, pattern: SwiftNavigation.TextState.LineStylePattern, color: Color? = nil) -> SwiftNavigation.TextState
+}
+
+extension TextState {
+
+    public enum AccessibilityTextContentType : String, Equatable, Hashable, Sendable {
+
+        case console
+
+        case fileSystem
+
+        case messaging
+
+        case narrative
+
+        case plain
+
+        case sourceCode
+
+        case spreadsheet
+
+        case wordProcessing
+    }
+
+    public enum AccessibilityHeadingLevel : String, Equatable, Hashable, Sendable {
+
+        case h1
+
+        case h2
+
+        case h3
+
+        case h4
+
+        case h5
+
+        case h6
+
+        case unspecified
+    }
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension TextState {
+
+    public func accessibilityHeading(_ headingLevel: SwiftNavigation.TextState.AccessibilityHeadingLevel) -> SwiftNavigation.TextState
+
+    public func accessibilityLabel(_ label: SwiftNavigation.TextState) -> SwiftNavigation.TextState
+
+    public func accessibilityLabel(_ string: String) -> SwiftNavigation.TextState
+
+    public func accessibilityLabel<S>(_ string: S) -> SwiftNavigation.TextState where S : StringProtocol
+
+    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+    public func accessibilityLabel(_ resource: LocalizedStringResource) -> SwiftNavigation.TextState
+
+    public func accessibilityLabel(_ key: LocalizedStringKey, tableName: String? = nil, bundle: Bundle? = nil, comment: StaticString? = nil) -> SwiftNavigation.TextState
+
+    public var accessibilityLabel: SwiftNavigation.TextState? { get }
+
+    public func accessibilityTextContentType(_ type: SwiftNavigation.TextState.AccessibilityTextContentType) -> SwiftNavigation.TextState
+
+    public func speechAdjustedPitch(_ value: Double) -> SwiftNavigation.TextState
+
+    public func speechAlwaysIncludesPunctuation(_ value: Bool = true) -> SwiftNavigation.TextState
+
+    public func speechAnnouncementsQueued(_ value: Bool = true) -> SwiftNavigation.TextState
+
+    public func speechSpellsOutCharacters(_ value: Bool = true) -> SwiftNavigation.TextState
+}
+
+extension TextState : CustomDump.CustomDumpRepresentable {
+
+    /// The custom dump value for this instance.
+    public var customDumpValue: Any { get }
+}
+
+/// A property wrapper type that supports creating bindings to the mutable properties of observable
+/// objects.
+///
+/// Like SwiftUI's `Bindable`, but for UIKit and other paradigms.
+///
+/// Use this property wrapper to create bindings to mutable properties of a data model object that
+/// conforms to the `Observable` or `Perceptible` protocols. For example, the following code wraps
+/// the book input with `@UIBindable`. Then it uses a `UITextField` to change the title property of
+/// a book, and a `UISwitch` to change the `isAvailable` property, using the `$` syntax to pass a
+/// binding for each property to those controls.
+///
+/// ```swift
+/// @Observable
+/// class Book: Identifiable {
+///   var title = "Sample Book Title"
+///   var isAvailable = true
+/// }
+///
+///
+/// final class BookEditViewController: UIViewController {
+///   @UIBindable var book: Book
+///
+///   // ...
+///
+///   func viewDidLoad() {
+///     super.viewDidLoad()
+///
+///     let titleTextField = UITextField(text: $book.title)
+///     let isAvailableSwitch = UISwitch(isOn: $book.isAvailable)
+///
+///     // Configure and add subviews...
+///   }
+/// }
+/// ```
+///
+/// You can use the `UIBindable` property wrapper on properties and variables to an `Observable` (or
+/// `Perceptible`) object. This includes global variables, properties that exists outside of SwiftUI
+/// types, or even local variables.
+@dynamicMemberLookup @propertyWrapper public struct UIBindable<Value> {
+
+    public var wrappedValue: Value
+
+    /// Creates a bindable object from a perceptible object.
+    ///
+    /// This initializer is equivalent to `init(wrappedValue:)`, but is more succinct when when
+    /// creating bindable objects nested within other expressions.
+    public init(_ wrappedValue: Value, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Value : AnyObject, Value : PerceptionCore.Perceptible
+
+    /// Creates a bindable object from a perceptible object.
+    ///
+    /// You should not call this initializer directly. Instead, declare a property with the
+    /// `@UIBindable` attribute, and provide an initial value.
+    public init(wrappedValue: Value, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Value : AnyObject, Value : PerceptionCore.Perceptible
+
+    /// Creates a bindable from the value of another bindable.
+    public init(projectedValue: SwiftNavigation.UIBindable<Value>)
+
+    /// The bindable wrapper for the object that creates bindings to its properties using dynamic
+    /// member lookup.
+    public var projectedValue: SwiftNavigation.UIBindable<Value> { get }
+
+    /// Returns a binding to the value of a given key path.
+    public subscript<Member>(dynamicMember keyPath: ReferenceWritableKeyPath<Value, Member>) -> SwiftNavigation.UIBinding<Member> where Value : AnyObject { get }
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension UIBindable where Value : AnyObject, Value : Observable {
+
+    /// Creates a bindable object from an observable object.
+    ///
+    /// This initializer is equivalent to `init(wrappedValue:)`, but is more succinct when when
+    /// creating bindable objects nested within other expressions.
+    public init(_ wrappedValue: Value, fileID: StaticString = #fileID, filePath: StaticString = #file, line: UInt = #line, column: UInt = #column)
+
+    /// Creates a bindable object from an observable object.
+    ///
+    /// You should not call this initializer directly. Instead, declare a property with the
+    /// `@UIBindable` attribute, and provide an initial value.
+    public init(wrappedValue: Value, fileID: StaticString = #fileID, filePath: StaticString = #file, line: UInt = #line, column: UInt = #column)
+}
+
+extension UIBindable : Identifiable where Value : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public var id: Value.ID { get }
+}
+
+/// A property wrapper type that can read and write an observable value.
+///
+/// Like SwiftUI's `Binding`, but works for UIKit, AppKit, and non-Apple platforms such as
+/// Windows, Linux, Wasm, and more.
+///
+/// ``UIBinding`` has two primary use cases: a two-way connection between a property of an
+/// observable model and a UI component (e.g. text field, toggle, etc.), and as a means to drive
+/// navigation from state.
+///
+/// ### UI component bindings
+///
+/// Use a binding to create a two-way connection between a property that stores data, and a view
+/// that displays and changes the data. A binding connects a property to a source of truth stored
+/// somewhere, either from an observable model or directly. This is in contrast to SwiftUI bindings,
+/// which always have a source of truth that is stored elsewhere.
+///
+/// For example, a button that toggles between play and pause can create a binding to a property of
+/// its parent view controller using the `UIBinding` property wrapper.
+///
+/// ```swift
+/// class PlayButton: UIControl {
+///   @UIBinding var isPlaying: Bool
+///
+///   init(frame: CGRect = .zero, isPlaying: UIBinding<Bool>) {
+///     self._isPlaying = isPlaying
+///     super.init(frame: frame)
+///
+///     // ...
+///
+///     observe { [weak self] in
+///       guard let self else { return }
+///       titleLabel.text = isPlaying ? "Pause" : "Play"
+///     }
+///     addAction(
+///       UIAction { [weak self] _ in self?.isPlaying.toggle() },
+///       for: .touchUpInside
+///     )
+///   }
+///
+///   // ...
+/// }
+/// ```
+///
+/// The parent view controller declares a property to hold the playing state, again using the
+/// `UIBinding` property wrapper, but this time with an initial value to indicate that this property
+/// is the value's source of truth.
+///
+/// ```swift
+/// final class PlayerViewController: UIViewController {
+///   private var episode: Episode
+///   @UIBinding private var isPlaying: Bool = false
+///
+///   // ...
+///
+///   func viewDidLoad() {
+///     super.viewDidLoad()
+///
+///     let playButton = PlayButton(isPlaying: $isPlaying)
+///     let episodeTitleLabel = UILabel()
+///
+///     // Configure and add subviews...
+///
+///     observe { [weak self] in
+///       guard let self else { return
+///       nowPlayingLabel.textColor = isPlaying ? .label : .secondaryLabel
+///     }
+///   }
+///
+///   // ...
+/// }
+/// ```
+///
+/// When `PlayerViewController` initializes `PlayButton`, it passes a binding of its `isPlaying`
+/// state along. Applying the `$` prefix to a property wrapped value returns its ``projectedValue``,
+/// which returns a binding to the value. Whenever the user taps the `PlayButton`, the
+///  `PlayerViewController` updates its `isPlaying` state.
+///
+/// > Note: To create bindings to properties of a type that conforms to the `Observable` or
+/// > `Perceptible` protocols, use the [`@UIBindable`](<doc:UIBindable>) property wrapper.
+///
+/// It is also possible to use bindings for UI components on other platforms beyond Apple's
+/// platforms. For example, in Wasm you can bind an HTML text field to a field of the model:
+///
+/// ```swift
+/// @UIBindable var model = Model()
+///
+/// let searchField = document.createElement("input")
+/// searchField.bind(text: $model.searchText)
+/// ```
+///
+/// This makes it so that any changes to the text field in the DOM are immediately played back
+/// to the model, and vice-versa.
+///
+/// ### State-driven navigation
+///
+/// Bindings are also useful for creating navigation APIs that are driven off of state. For example,
+/// in UIKit you can have an observable model that presents a sheet with some boolean state:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   var isPresented = false
+/// }
+/// ```
+///
+/// And then in a view controller you can drive navigation to the sheet by using a ``UIBinding``:
+///
+/// ```swift
+/// @UIBindable var model = FeatureModel()
+///
+/// present(isPresented: $model.isPresented) {
+///   SheetViewController()
+/// }
+/// ```
+///
+/// And you can also build your own navigation tools by utilizing ``UIBinding`` and
+/// ``observe(isolation:_:)-9xf99``. You can even build navigation tools for non-Apple platforms,
+/// such as Windows, Linux, Wasm and more.
+///
+/// For example, it is possible to build a tool that drives alerts in HTML from a binding of a
+/// boolean:
+///
+/// ```swift
+/// alert(isPresented: $model.isErrorAlertPresented) {
+///   "Something went wrong."
+/// }
+/// ```
+@dynamicMemberLookup @propertyWrapper public struct UIBinding<Value> : Sendable {
+
+    /// The binding's transaction.
+    ///
+    /// The transaction captures the information needed to update the view when the binding value
+    /// changes.
+    public var transaction: SwiftNavigation.UITransaction
+
+    /// Creates a binding that stores an initial wrapped value.
+    ///
+    /// You don't call this initializer directly. Instead, Swift calls it for you when you declare a
+    /// property with the `@UIBinding` attribute and provide an initial value:
+    ///
+    /// ```swift
+    /// final class MyViewController: UIViewController {
+    ///   @UIBinding private var isPlaying: Bool = false
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// > Note: SwiftUI's `Binding` type has no such initializer because a view is reinitialized many,
+    /// > many times in an application as its parent's body is recomputed, and so Swift has a separate
+    /// > `@State` property wrapper that is used to create local, mutable state for a view, and you
+    /// > can derive bindings from it.
+    /// >
+    /// > Reference types like view controllers have no such problem, and can hold onto local, mutable
+    /// > state directly. Because of this, it's also totally appropriate to create bindings to these
+    /// > properties directly.
+    ///
+    /// - Parameter value: An initial value to store in the state property.
+    public init(wrappedValue value: Value)
+
+    /// Creates a binding that stores an initial wrapped value.
+    ///
+    /// You don't call this initializer directly. Instead, Swift calls it for you when you declare a
+    /// property with the `@UIBinding` attribute and provide an initial value:
+    ///
+    /// ```swift
+    /// final class MyViewController: UIViewController {
+    ///   @UIBinding private var isPlaying: Bool = false
+    ///   // ...
+    /// }
+    /// ```
+    ///
+    /// > Note: SwiftUI's `Binding` type has no such initializer because a view is reinitialized many,
+    /// > many times in an application as its parent's body is recomputed, and so Swift has a separate
+    /// > `@State` property wrapper that is used to create local, mutable state for a view, and you
+    /// > can derive bindings from it.
+    /// >
+    /// > Reference types like view controllers have no such problem, and can hold onto local, mutable
+    /// > state directly. Because of this, it's also totally appropriate to create bindings to these
+    /// > properties directly.
+    ///
+    /// - Parameter value: An initial value to store in the state property.
+    @available(*, deprecated, renamed: "UIBindable.init", message: "A '@UIBinding' must be initialized with a value, not an observable reference. Use '@UIBindable', instead.")
+    public init(wrappedValue value: Value) where Value : AnyObject
+
+    /// Creates a binding from the value of another binding.
+    ///
+    /// You don't call this initializer directly. Instead, Swift calls it for you when you use a
+    /// property-wrapper attribute on a binding closure parameter:
+    ///
+    /// ```swift
+    /// present(item: $model.text) { $text in
+    ///   EditorViewController(text: $text)
+    /// }
+    /// ```
+    ///
+    /// - Parameter projectedValue: A binding.
+    public init(projectedValue: SwiftNavigation.UIBinding<Value>)
+
+    /// Creates a binding with an immutable value.
+    ///
+    /// Use this method to create a binding to a value that cannot change. This can be useful when
+    /// using a `#Preview` to see how a view represents different values.
+    ///
+    /// ```swift
+    /// // Example of binding to an immutable value.
+    /// PlayButton(isPlaying: .constant(true))
+    /// ```
+    ///
+    /// - Parameter value: An immutable value.
+    /// - Returns: A binding to an immutable value.
+    public static func constant(_ value: Value) -> SwiftNavigation.UIBinding<Value>
+
+    /// Creates a binding by projecting the base value to an unwrapped value.
+    ///
+    /// - Parameter base: A value to project to an unwrapped value.
+    public init?(_ base: SwiftNavigation.UIBinding<Value?>)
+
+    /// Creates a binding by projecting the base optional value to a Boolean value.
+    ///
+    /// - Parameters:
+    ///   - base: A value to project to a Boolean value.
+    ///   - fileID: The source `#fileID` associated with the binding.
+    ///   - filePath: The source `#filePath` associated with the binding.
+    ///   - line: The source `#line` associated with the binding.
+    ///   - column: The source `#column` associated with the binding.
+    public init<V>(_ base: SwiftNavigation.UIBinding<V?>, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Value == Bool
+
+    /// Creates a binding by projecting the base value to an optional value.
+    ///
+    /// - Parameter base: A value to project to an optional value.
+    public init<V>(_ base: SwiftNavigation.UIBinding<V>) where Value == V?
+
+    /// Creates a binding by projecting the base value to a hashable value.
+    ///
+    /// - Parameter base: A `Hashable` value to project to an `AnyHashable` value.
+    public init<V>(_ base: SwiftNavigation.UIBinding<V>) where Value == AnyHashable, V : Hashable
+
+    /// The underlying value referenced by the binding variable.
+    ///
+    /// This property provides primary access to the value's data. However, you don't access
+    /// `wrappedValue` directly. Instead, you use the property variable created with the ``UIBinding``
+    /// attribute. In the following code example, the binding variable `isPlaying` returns the value
+    /// of `wrappedValue`:
+    ///
+    /// ```swift
+    /// class PlayButton: UIControl {
+    ///   @UIBinding var isPlaying: Bool
+    ///
+    ///   init(frame: CGRect = .zero, isPlaying: UIBinding<Bool>) {
+    ///     self._isPlaying = isPlaying
+    ///     super.init(frame: frame)
+    ///
+    ///     // ...
+    ///
+    ///     observe { [weak self] in
+    ///       guard let self else { return }
+    ///       titleLabel.text = isPlaying ? "Pause" : "Play"
+    ///     }
+    ///     addAction(
+    ///       UIAction { [weak self] _ in self?.isPlaying.toggle() },
+    ///       for: .touchUpInside
+    ///     )
+    ///   }
+    ///
+    ///   // ...
+    /// }
+    /// ```
+    public var wrappedValue: Value { get nonmutating set }
+
+    /// A projection of the binding value that returns a binding.
+    ///
+    /// Use the projected value to pass a binding value down a view hierarchy. To get the
+    /// `projectedValue`, prefix the property variable with `$`. For example, in the following code
+    /// example `PlayerViewController` projects a binding of the property `isPlaying` to the
+    /// `PlayButton` view using `$isPlaying`.
+    ///
+    /// ```swift
+    /// final class PlayerViewController: UIViewController {
+    ///   private var episode: Episode
+    ///   @UIBinding private var isPlaying: Bool = false
+    ///
+    ///   // ...
+    ///
+    ///   func viewDidLoad() {
+    ///     super.viewDidLoad()
+    ///
+    ///     let playButton = PlayButton(isPlaying: $isPlaying)
+    ///     let episodeTitleLabel = UILabel()
+    ///
+    ///     // Configure and add subviews...
+    ///
+    ///     observe { [weak self] in
+    ///       guard let self else { return
+    ///       nowPlayingLabel.textColor = isPlaying ? .label : .secondaryLabel
+    ///     }
+    ///   }
+    ///
+    ///   // ...
+    /// }
+    /// ```
+    public var projectedValue: SwiftNavigation.UIBinding<Value> { get }
+
+    /// Returns a binding to the resulting value of a given key path.
+    ///
+    /// - Parameter keyPath: A key path to a specific resulting value.
+    /// - Returns: A new binding.
+    public subscript<Member>(dynamicMember keyPath: WritableKeyPath<Value, Member>) -> SwiftNavigation.UIBinding<Member> { get }
+
+    /// Returns a binding to the associated value of a given case key path.
+    ///
+    /// - Parameter keyPath: A case key path to a specific associated value.
+    /// - Returns: A new binding.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value.AllCasePaths, CasePathsCore.AnyCasePath<Value, Member>>) -> SwiftNavigation.UIBinding<Member>? where Value : CasePathsCore.CasePathable { get }
+
+    /// Returns an optional binding to the associated value of a given key path.
+    ///
+    /// - Parameter keyPath: A key path to a specific value.
+    /// - Returns: A new binding.
+    public subscript<Wrapped, Member>(dynamicMember keyPath: WritableKeyPath<Wrapped, Member>) -> SwiftNavigation.UIBinding<Member?> where Value == Wrapped? { get }
+
+    /// Returns an optional binding to the associated value of a given case key path.
+    ///
+    /// - Parameter keyPath: A case key path to a specific associated value.
+    /// - Returns: A new binding.
+    public subscript<V, Member>(dynamicMember keyPath: KeyPath<V.AllCasePaths, CasePathsCore.AnyCasePath<V, Member>>) -> SwiftNavigation.UIBinding<Member?> where Value == V?, V : CasePathsCore.CasePathable { get }
+
+    /// Returns a Boolean binding to a case of a given case key path with no associated value.
+    ///
+    /// - Parameter keyPath: A case key path to a case with no associated value.
+    /// - Returns: A new binding.
+    public subscript<V>(dynamicMember keyPath: KeyPath<V.AllCasePaths, CasePathsCore.AnyCasePath<V, Void>>) -> SwiftNavigation.UIBinding<Bool> where Value == V?, V : CasePathsCore.CasePathable { get }
+
+    /// Specifies a transaction for the binding.
+    ///
+    /// - Parameter transaction: An instance of a ``UITransaction``.
+    /// - Returns: A new binding.
+    public func transaction(_ transaction: SwiftNavigation.UITransaction) -> SwiftNavigation.UIBinding<Value>
+
+    public func _printChanges(_ prefix: String = "", fileID: StaticString = #fileID, line: UInt = #line) -> SwiftNavigation.UIBinding<Value>
+}
+
+extension UIBinding : Identifiable where Value : Identifiable {
+
+    /// The stable identity of the entity associated with this instance.
+    public var id: Value.ID { get }
+}
+
+/// A unique identifier for a binding.
+public struct UIBindingIdentifier : Hashable, Sendable {
+
+    /// Creates an instance that uniquely identifies the given binding.
+    ///
+    /// - Parameter binding: An instance of a binding.
+    public init<Value>(_ binding: SwiftNavigation.UIBinding<Value>)
+}
+
+/// A type-erased list of data representing the content of a navigation stack.
+///
+/// Like SwiftUI's `NavigationPath`, but for UIKit and other paradigms.
+public struct UINavigationPath : Equatable {
+
+    public var elements: [SwiftNavigation.UINavigationPath.Element]
+
+    public enum Element : Equatable {
+
+        case eager(AnyHashable)
+
+        case lazy(SwiftNavigation.UINavigationPath.Element.Lazy)
+
+        public enum Lazy : Equatable {
+
+            case codable(SwiftNavigation.UINavigationPath.CodableRepresentation.Element)
+
+            case element(AnyHashable)
+        }
+
+        /// Returns a Boolean value indicating whether two values are equal.
+        ///
+        /// Equality is the inverse of inequality. For any values `a` and `b`,
+        /// `a == b` implies that `a != b` is `false`.
+        ///
+        /// - Parameters:
+        ///   - lhs: A value to compare.
+        ///   - rhs: Another value to compare.
+        public static func == (lhs: SwiftNavigation.UINavigationPath.Element, rhs: SwiftNavigation.UINavigationPath.Element) -> Bool
+    }
+
+    /// The number of elements in this path.
+    public var count: Int { get }
+
+    /// A Boolean that indicates whether this path is empty.
+    public var isEmpty: Bool { get }
+
+    /// A value that describes the contents of this path in a serializable format.
+    ///
+    /// This value is `nil` if any of the type-erased elements of the path don't conform to the
+    /// `Codable` protocol.
+    @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+    public var codable: SwiftNavigation.UINavigationPath.CodableRepresentation? { get }
+
+    /// Creates a new, empty navigation path.
+    public init()
+
+    /// Creates a new navigation path from the contents of a sequence.
+    ///
+    /// - Parameter elements: A sequence used to create the navigation path.
+    public init<S>(_ elements: S) where S : Sequence, S.Element : Hashable
+
+    /// Creates a new navigation path from a serializable version.
+    ///
+    /// - Parameter codable: A value describing the contents of the new path in a serializable format.
+    @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+    public init(_ codable: SwiftNavigation.UINavigationPath.CodableRepresentation)
+
+    /// Appends a new value to the end of this path.
+    public mutating func append<V>(_ value: V) where V : Hashable
+
+    /// Removes values from the end of this path.
+    ///
+    /// - Parameter k: The number of values to remove. The default value is `1`.
+    /// - Precondition: The input parameter `k` must be greater than or equal to zero, and must be
+    ///   less than or equal to the number of elements in the path.
+    public mutating func removeLast(_ k: Int = 1)
+
+    /// A serializable representation of a navigation path.
+    ///
+    /// When a navigation path contains elements the conform to the `Codable` protocol, you can use
+    /// the path's `CodableRepresentation` to convert the path to an external representation and to
+    /// convert an external representation back into a navigation path.
+    public struct CodableRepresentation : Codable, Equatable {
+
+        public struct Element : Hashable {
+
+            /// Returns a Boolean value indicating whether two values are equal.
+            ///
+            /// Equality is the inverse of inequality. For any values `a` and `b`,
+            /// `a == b` implies that `a != b` is `false`.
+            ///
+            /// - Parameters:
+            ///   - lhs: A value to compare.
+            ///   - rhs: Another value to compare.
+            public static func == (lhs: SwiftNavigation.UINavigationPath.CodableRepresentation.Element, rhs: SwiftNavigation.UINavigationPath.CodableRepresentation.Element) -> Bool
+
+            public init(tag: String, item: String)
+        }
+
+        /// Creates a new instance by decoding from the given decoder.
+        ///
+        /// This initializer throws an error if reading from the decoder fails, or
+        /// if the data read is corrupted or otherwise invalid.
+        ///
+        /// - Parameter decoder: The decoder to read data from.
+        public init(from decoder: any Decoder) throws
+
+        /// Encodes this value into the given encoder.
+        ///
+        /// If the value fails to encode anything, `encoder` will encode an empty
+        /// keyed container in its place.
+        ///
+        /// This function throws an error if any values are invalid for the given
+        /// encoder's format.
+        ///
+        /// - Parameter encoder: The encoder to write data to.
+        public func encode(to encoder: any Encoder) throws
+    }
+}
+
+/// Use a transaction to pass an animation between views in a view hierarchy.
+///
+/// The root transaction for a state change comes from the binding that changed, plus any global
+/// values set by calling ``withUITransaction(_:_:)``.
+public struct UITransaction : Sendable {
+
+    /// Creates a transaction.
+    public init()
+
+    /// Accesses the transaction value associated with a custom key.
+    ///
+    /// Create custom transaction values by defining a key that conforms to the ``UITransactionKey``
+    /// protocol, and then using that key with the subscript operator of the ``UITransaction``
+    /// structure to get and set a value for that key:
+    ///
+    /// ```swift
+    /// private struct MyTransactionKey: UITransactionKey {
+    ///   static let defaultValue = false
+    /// }
+    ///
+    /// extension UITransaction {
+    ///   var myCustomValue: Bool {
+    ///     get { self[MyTransactionKey.self] }
+    ///     set { self[MyTransactionKey.self] = newValue }
+    ///   }
+    /// }
+    /// ```
+    public subscript<K>(key: K.Type) -> K.Value where K : SwiftNavigation.UITransactionKey
+}
+
+/// A key for accessing values in a transaction.
+///
+/// Like SwiftUI's `TransactionKey` but for UIKit and other paradigms.
+public protocol UITransactionKey {
+
+    /// The associated type representing the type of the transaction key's value.
+    associatedtype Value : Sendable
+
+    /// The default value for the transaction key.
+    static var defaultValue: Self.Value { get }
+}
+
+public protocol _Bindable {
+
+    associatedtype Value
+
+    var wrappedValue: Self.Value { get nonmutating set }
+}
+
+public typealias _SendableKeyPath<Root, Value> = any KeyPath<Root, Value> & Sendable
+
+public typealias _SendableWritableKeyPath<Root, Value> = any WritableKeyPath<Root, Value> & Sendable
+
+public protocol _UICustomTransactionKey : Sendable, SwiftNavigation.UITransactionKey {
+
+    static func perform(value: Self.Value, operation: @Sendable () -> Void)
+}
+
+/// Tracks access to properties of an observable model.
+///
+/// This function allows one to minimally observe changes in a model in order to
+/// react to those changes. For example, if you had an observable model like so:
+///
+/// ```swift
+/// @Observable
+/// class FeatureModel {
+///   var count = 0
+/// }
+/// ```
+///
+/// Then you can use `observe` to observe changes in the model. For example, in UIKit you can
+/// update a `UILabel`:
+///
+/// ```swift
+/// observe { [weak self] in
+///   guard let self else { return }
+///
+///   countLabel.text = "Count: \(model.count)"
+/// }
+/// ```
+///
+/// Anytime the `count` property of the model changes the trailing closure will be invoked again,
+/// allowing you to update the view. Further, only changes to properties accessed in the trailing
+/// closure will be observed.
+///
+/// > Note: If you are targeting Apple's older platforms (anything before iOS 17, macOS 14,
+/// > tvOS 17, watchOS 10), then you can use our
+/// > [Perception](http://github.com/pointfreeco/swift-perception) library to replace Swift's
+/// > Observation framework.
+///
+/// This function also works on non-Apple platforms, such as Windows, Linux, Wasm, and more. For
+/// example, in a Wasm app you could observe changes to the `count` property to update the inner
+/// HTML of a tag:
+///
+/// ```swift
+/// import JavaScriptKit
+///
+/// var countLabel = document.createElement("span")
+/// _ = document.body.appendChild(countLabel)
+///
+/// let token = observe {
+///   countLabel.innerText = .string("Count: \(model.count)")
+/// }
+/// ```
+///
+/// And you can also build your own tools on top of `observe`.
+///
+/// - Parameters:
+///   - isolation: The isolation of the observation.
+///   - apply: A closure that contains properties to track.
+/// - Returns: A token that keeps the subscription alive. Observation is cancelled when the token
+///   is deallocated.
+public func observe(_ apply: @escaping @isolated(any) @Sendable () -> Void) -> SwiftNavigation.ObserveToken
+
+/// Tracks access to properties of an observable model.
+///
+/// A version of ``observe(isolation:_:)`` that is handed the current ``UITransaction``.
+///
+/// - Parameters:
+///   - isolation: The isolation of the observation.
+///   - apply: A closure that contains properties to track.
+/// - Returns: A token that keeps the subscription alive. Observation is cancelled when the token
+///   is deallocated.
+public func observe(_ apply: @escaping @isolated(any) @Sendable (_ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken
+
+/// Executes a closure with the specified transaction and returns the result.
+///
+/// - Parameters:
+///   - transaction: An instance of a transaction, set as the thread's current transaction.
+///   - body: A closure to execute.
+/// - Returns: The result of executing the closure with the specified transaction.
+public func withUITransaction<Result>(_ transaction: SwiftNavigation.UITransaction, _ body: () throws -> Result) rethrows -> Result
+
+/// Executes a closure with the specified transaction key path and value and returns the result.
+///
+/// - Parameters:
+///   - keyPath: A key path that indicates the property of the ``UITransaction`` structure to
+///     update.
+///   - value: The new value to set for the item specified by `keyPath`.
+///   - body: A closure to execute.
+/// - Returns: The result of executing the closure with the specified transaction value.
+public func withUITransaction<R, V>(_ keyPath: WritableKeyPath<SwiftNavigation.UITransaction, V>, _ value: V, _ body: () throws -> R) rethrows -> R
+
+extension View {
+
+    /// Synchronizes model state to view state via two-way bindings.
+    ///
+    /// SwiftUI comes with many property wrappers that can be used in views to drive view state,
+    /// like field focus. Unfortunately, these property wrappers _must_ be used in views. It's not
+    /// possible to extract this logic to an `@Observable` class and integrate it with the rest of
+    /// the model's business logic, and be in a better position to test this state.
+    ///
+    /// We can work around these limitations by introducing a published field to your observable
+    /// object and synchronizing it to view state with this view modifier.
+    ///
+    /// - Parameters:
+    ///   - modelValue: A binding from model state. _E.g._, a binding derived from a field
+    ///     on an observable class.
+    ///   - viewValue: A binding from view state. _E.g._, a focus binding.
+    @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+    @MainActor public func bind<ModelValue, ViewValue>(_ modelValue: ModelValue, to viewValue: ViewValue) -> some View where ModelValue : SwiftNavigation._Bindable, ViewValue : SwiftNavigation._Bindable, ModelValue.Value : Equatable, ModelValue.Value == ViewValue.Value
+
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension AccessibilityFocusState : SwiftNavigation._Bindable {
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension AccessibilityFocusState.Binding : SwiftNavigation._Bindable {
+}
+
+@available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+extension AppStorage : SwiftNavigation._Bindable {
+}
+
+extension Binding : SwiftNavigation._Bindable {
+}
+
+@available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+extension FocusedBinding : SwiftNavigation._Bindable {
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension FocusState : SwiftNavigation._Bindable {
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension FocusState.Binding : SwiftNavigation._Bindable {
+}
+
+@available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
+extension SceneStorage : SwiftNavigation._Bindable {
+}
+
+extension State : SwiftNavigation._Bindable {
+}
+
+extension Binding {
+
+    /// Creates a binding by projecting the base optional value to a Boolean value.
+    ///
+    /// Writing `false` to the binding will `nil` out the base value. Writing `true` produces a
+    /// runtime warning.
+    ///
+    /// - Parameter base: A value to project to a Boolean value.
+    public init<V>(_ base: Binding<V?>, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Value == Bool
+}
+
+extension Alert.Button {
+
+    /// Initializes a `SwiftUI.Alert.Button` from `ButtonState` and an action handler.
+    ///
+    /// - Parameters:
+    ///   - button: Button state.
+    ///   - action: An action closure that is invoked when the button is tapped.
+    public init<Action>(_ button: SwiftNavigation.ButtonState<Action>, action: @escaping (Action?) -> Void)
+
+    /// Initializes a `SwiftUI.Alert.Button` from `ButtonState` and an async action handler.
+    ///
+    /// > Warning: Async closures cannot be performed with animation. If the underlying action is
+    /// > animated, a runtime warning will be emitted.
+    ///
+    /// - Parameters:
+    ///   - button: Button state.
+    ///   - action: An action closure that is invoked when the button is tapped.
+    public init<Action>(_ button: SwiftNavigation.ButtonState<Action>, action: @escaping @Sendable (Action?) async -> Void) where Action : Sendable
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension ButtonRole {
+
+    public init(_ role: SwiftNavigation.ButtonStateRole)
+}
+
+extension Button where Label == Text {
+
+    /// Initializes a `SwiftUI.Button` from `ButtonState` and an async action handler.
+    ///
+    /// - Parameters:
+    ///   - button: Button state.
+    ///   - action: An action closure that is invoked when the button is tapped.
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    @MainActor public init<Action>(_ button: SwiftNavigation.ButtonState<Action>, action: @escaping (Action?) -> Void)
+
+    /// Initializes a `SwiftUI.Button` from `ButtonState` and an action handler.
+    ///
+    /// > Warning: Async closures cannot be performed with animation. If the underlying action is
+    /// > animated, a runtime warning will be emitted.
+    ///
+    /// - Parameters:
+    ///   - button: Button state.
+    ///   - action: An action closure that is invoked when the button is tapped.
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    public init<Action>(_ button: SwiftNavigation.ButtonState<Action>, action: @escaping @Sendable (Action?) async -> Void) where Action : Sendable
+}
+
+@MainActor extension NSObject {
+
+    /// Observe access to properties of an observable (or perceptible) object.
+    ///
+    /// This tool allows you to set up an observation loop so that you can access fields from an
+    /// observable model in order to populate your view, and also automatically track changes to
+    /// any accessed fields so that the view is always up-to-date.
+    ///
+    /// It is most useful when dealing with non-SwiftUI views, such as UIKit views and controller.
+    /// You can invoke the ``observe(_:)`` method a single time in the `viewDidLoad` and update all
+    /// the view elements:
+    ///
+    /// ```swift
+    /// override func viewDidLoad() {
+    ///   super.viewDidLoad()
+    ///
+    ///   let countLabel = UILabel()
+    ///   let incrementButton = UIButton(primaryAction: UIAction { [weak self] _ in
+    ///     self?.model.incrementButtonTapped()
+    ///   })
+    ///
+    ///   observe { [weak self] in
+    ///     guard let self
+    ///     else { return }
+    ///
+    ///     countLabel.text = "\(model.count)"
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// This closure is immediately called, allowing you to set the initial state of your UI
+    /// components from the feature's state. And if the `count` property in the feature's state is
+    /// ever mutated, this trailing closure will be called again, allowing us to update the view
+    /// again.
+    ///
+    /// Generally speaking you can usually have a single ``observe(_:)`` in the entry point of your
+    /// view, such as `viewDidLoad` for `UIViewController`. This works even if you have many UI
+    /// components to update:
+    ///
+    /// ```swift
+    /// override func viewDidLoad() {
+    ///   super.viewDidLoad()
+    ///
+    ///   observe { [weak self] in
+    ///     guard let self
+    ///     else { return }
+    ///
+    ///     countLabel.isHidden = model.isObservingCount
+    ///     if !countLabel.isHidden {
+    ///       countLabel.text = "\(model.count)"
+    ///     }
+    ///     factLabel.text = model.fact
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// This does mean that you may execute the line `factLabel.text = model.fact` even when
+    /// something unrelated changes, such as `store.model`, but that is typically OK for simple
+    /// properties of UI components. It is not a performance problem to repeatedly set the `text` of
+    /// a label or the `isHidden` of a button.
+    ///
+    /// However, if there is heavy work you need to perform when state changes, then it is best to
+    /// put that in its own ``observe(_:)``. For example, if you needed to reload a table view or
+    /// collection view when a collection changes:
+    ///
+    /// ```swift
+    /// override func viewDidLoad() {
+    ///   super.viewDidLoad()
+    ///
+    ///   observe { [weak self] in
+    ///     guard let self
+    ///     else { return }
+    ///
+    ///     dataSource = model.items
+    ///     tableView.reloadData()
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// ## Cancellation
+    ///
+    /// The method returns an ``ObserveToken`` that can be used to cancel observation. For
+    /// example, if you only want to observe while a view controller is visible, you can start
+    /// observation in the `viewWillAppear` and then cancel observation in the `viewWillDisappear`:
+    ///
+    /// ```swift
+    /// var observation: ObserveToken?
+    ///
+    /// func viewWillAppear() {
+    ///   super.viewWillAppear()
+    ///   observation = observe { [weak self] in
+    ///     // ...
+    ///   }
+    /// }
+    /// func viewWillDisappear() {
+    ///   super.viewWillDisappear()
+    ///   observation?.cancel()
+    /// }
+    /// ```
+    ///
+    /// - Parameter apply: A closure that contains properties to track and is invoked when the value
+    ///   of a property changes.
+    /// - Returns: A cancellation token.
+    @discardableResult
+    @MainActor public func observe(_ apply: @escaping @MainActor @Sendable () -> Void) -> SwiftNavigation.ObserveToken
+
+    /// Observe access to properties of an observable (or perceptible) object.
+    ///
+    /// A version of ``observe(_:)`` that is passed the current transaction.
+    ///
+    /// - Parameter apply: A closure that contains properties to track and is invoked when the value
+    ///   of a property changes.
+    /// - Returns: A cancellation token.
+    @discardableResult
+    @MainActor public func observe(_ apply: @escaping @MainActor @Sendable (_ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken
+}
+
+extension Text {
+
+    public init(_ state: SwiftNavigation.TextState)
+}
+
+extension String {
+
+    public init(state: SwiftNavigation.TextState, locale: Locale? = nil)
+}
+

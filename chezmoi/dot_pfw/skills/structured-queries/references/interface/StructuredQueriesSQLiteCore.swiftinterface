@@ -1,0 +1,1136 @@
+import Foundation
+import IssueReporting
+import StructuredQueriesCore
+
+/// A type representing an aggregate database function.
+///
+/// Don't conform to this protocol directly. Instead, use the
+/// [`@DatabaseFunction`](<doc:CustomFunctions#Aggregate-functions>) macro to generate a
+/// conformance.
+public protocol AggregateDatabaseFunction<Input, Output> : StructuredQueriesSQLiteCore.DatabaseFunction {
+
+    /// A type representing one row of input to the aggregate function.
+    associatedtype Element = Self.Input
+
+    /// Decodes a row into an element to aggregate a result from.
+    ///
+    /// - Parameter decoder: A query decoder.
+    /// - Returns: An element to append to the sequence sent to the aggregate function.
+    func step(_ decoder: inout some StructuredQueriesCore.QueryDecoder) throws -> Self.Element
+
+    /// Aggregates elements into a bindable value.
+    ///
+    /// - Parameter arguments: A sequence of elements to aggregate from.
+    /// - Returns: A binding returned from the aggregate function.
+    func invoke(_ arguments: some Sequence<Self.Element>) throws -> StructuredQueriesCore.QueryBinding
+}
+
+extension AggregateDatabaseFunction {
+
+    /// An aggregate function call expression.
+    ///
+    /// - Parameters
+    ///   - input: Expressions representing the arguments of the function.
+    ///   - isDistinct: Whether or not to include a `DISTINCT` clause, which filters duplicates from
+    ///     the aggregation.
+    ///   - order: An `ORDER BY` clause to apply to the aggregation.
+    ///   - filter: A `FILTER` clause to apply to the aggregation.
+    /// - Returns: An expression representing the function call.
+    public func callAsFunction(_ input: some StructuredQueriesCore.QueryExpression<Self.Input>, distinct isDistinct: Bool = false, order: (some StructuredQueriesCore.QueryExpression)? = Bool?.none, filter: (some StructuredQueriesCore.QueryExpression<Bool>)? = Bool?.none) -> some StructuredQueriesCore.QueryExpression<Self.Output> where Self.Input : StructuredQueriesCore.QueryBindable
+
+
+    /// An aggregate function call expression.
+    ///
+    /// - Parameters
+    ///   - input: Expressions representing the arguments of the function.
+    ///   - order: An `ORDER BY` clause to apply to the aggregation.
+    ///   - filter: A `FILTER` clause to apply to the aggregation.
+    /// - Returns: An expression representing the function call.
+    public func callAsFunction<each T>(_ input: repeat each T, order: (some StructuredQueriesCore.QueryExpression)? = Bool?.none, filter: (some StructuredQueriesCore.QueryExpression<Bool>)? = Bool?.none) -> some StructuredQueriesCore.QueryExpression<Self.Output> where repeat each T : StructuredQueriesCore.QueryExpression, Self.Input == (repeat (each T).QueryValue)
+
+}
+
+/// A type representing a database function.
+///
+/// Don't conform to this protocol directly. Instead, use the
+/// [`@DatabaseFunction`](<doc:CustomFunctions>) macro to generate a conformance.
+public protocol DatabaseFunction<Input, Output> {
+
+    /// A type representing the function's arguments.
+    associatedtype Input
+
+    /// A type representing the function's return value.
+    associatedtype Output
+
+    /// The name of the function.
+    var name: String { get }
+
+    /// The number of arguments the function accepts.
+    var argumentCount: Int? { get }
+
+    /// Whether or not the function is deterministic (or "pure" or "referentially transparent"),
+    /// _i.e._ given an input it will always return the same output.
+    var isDeterministic: Bool { get }
+}
+
+/// A virtual table using the FTS5 extension.
+///
+/// Apply this protocol to a `@Table` declaration to introduce [FTS5] helpers.
+///
+/// [FTS5]: https://www.sqlite.org/fts5.html
+public protocol FTS5 : StructuredQueriesCore.Table {
+}
+
+public protocol SQLiteType : StructuredQueriesCore.QueryBindable {
+
+    static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension SQLiteType where Self : BinaryInteger {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension SQLiteType where Self : FloatingPoint {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+public struct SQLiteTypeAffinity : RawRepresentable, Sendable {
+
+    public static let blob: StructuredQueriesSQLiteCore.SQLiteTypeAffinity
+
+    public static let integer: StructuredQueriesSQLiteCore.SQLiteTypeAffinity
+
+    public static let numeric: StructuredQueriesSQLiteCore.SQLiteTypeAffinity
+
+    public static let real: StructuredQueriesSQLiteCore.SQLiteTypeAffinity
+
+    public static let text: StructuredQueriesSQLiteCore.SQLiteTypeAffinity
+
+    /// The corresponding value of the raw type.
+    ///
+    /// A new instance initialized with `rawValue` will be equivalent to this
+    /// instance. For example:
+    ///
+    ///     enum PaperSize: String {
+    ///         case A4, A5, Letter, Legal
+    ///     }
+    ///
+    ///     let selectedSize = PaperSize.Letter
+    ///     print(selectedSize.rawValue)
+    ///     // Prints "Letter"
+    ///
+    ///     print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
+    ///     // Prints "true"
+    public let rawValue: StructuredQueriesCore.QueryFragment
+
+    /// Creates a new instance with the specified raw value.
+    ///
+    /// If there is no value of the type that corresponds with the specified raw
+    /// value, this initializer returns `nil`. For example:
+    ///
+    ///     enum PaperSize: String {
+    ///         case A4, A5, Letter, Legal
+    ///     }
+    ///
+    ///     print(PaperSize(rawValue: "Legal"))
+    ///     // Prints "Optional(PaperSize.Legal)"
+    ///
+    ///     print(PaperSize(rawValue: "Tabloid"))
+    ///     // Prints "nil"
+    ///
+    /// - Parameter rawValue: The raw value to use for the new instance.
+    public init(rawValue: StructuredQueriesCore.QueryFragment)
+}
+
+/// A type representing a scalar database function.
+///
+/// Don't conform to this protocol directly. Instead, use the
+/// [`@DatabaseFunction`](<doc:CustomFunctions#Scalar-functions>) macro to generate a conformance.
+public protocol ScalarDatabaseFunction<Input, Output> : StructuredQueriesSQLiteCore.DatabaseFunction {
+
+    /// The function body. Uses a query decoder to process the input of a database function into a
+    /// bindable value.
+    ///
+    /// - Parameter decoder: A query decoder.
+    /// - Returns: A binding returned from the database function.
+    func invoke(_ decoder: inout some StructuredQueriesCore.QueryDecoder) throws -> StructuredQueriesCore.QueryBinding
+}
+
+extension ScalarDatabaseFunction {
+
+    /// A function call expression.
+    ///
+    /// - Parameter input: Expressions representing the arguments of the function.
+    /// - Returns: An expression representing the function call.
+    public func callAsFunction<each T>(_ input: repeat each T) -> some StructuredQueriesCore.QueryExpression<Self.Output> where repeat each T : StructuredQueriesCore.QueryExpression, Self.Input == (repeat (each T).QueryValue)
+
+}
+
+/// A `CREATE TEMPORARY TRIGGER` statement.
+///
+/// This type of statement is returned from the
+/// `[Table.createTemporaryTrigger]<doc:Table/createTemporaryTrigger(_:ifNotExists:after:fileID:line:column:)>`
+/// family of functions.
+///
+/// To learn more, see <doc:Triggers>.
+public struct TemporaryTrigger<On> : Sendable, StructuredQueriesCore.Statement where On : StructuredQueriesCore.Table {
+
+    /// A type representing the table being queried.
+    public typealias From = Never
+
+    /// A type representing tables joined to the ``From`` table.
+    public typealias Joins = ()
+
+    /// The Swift data type representation of the expression's SQL data type.
+    ///
+    /// For example, a `TEXT` expression may be represented as a `String` query value.
+    ///
+    /// This type is used to introduce type-safety at the query builder level.
+    public typealias QueryValue = ()
+
+    /// The database event used in a trigger.
+    ///
+    /// To learn more, see <doc:Triggers>.
+    public struct Operation : Sendable, StructuredQueriesCore.QueryExpression {
+
+        /// The Swift data type representation of the expression's SQL data type.
+        ///
+        /// For example, a `TEXT` expression may be represented as a `String` query value.
+        ///
+        /// This type is used to introduce type-safety at the query builder level.
+        public typealias QueryValue = ()
+
+        public enum _Old : StructuredQueriesCore.AliasName {
+
+            /// The string used to alias a table, _e.g._ `"tableName" AS "aliasName"`.
+            public static var aliasName: String { get }
+        }
+
+        public enum _New : StructuredQueriesCore.AliasName {
+
+            /// The string used to alias a table, _e.g._ `"tableName" AS "aliasName"`.
+            public static var aliasName: String { get }
+        }
+
+        public typealias Old = StructuredQueriesCore.TableAlias<On, StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation._Old>.TableColumns
+
+        public typealias New = StructuredQueriesCore.TableAlias<On, StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation._New>.TableColumns
+
+        /// An `INSERT` trigger operation.
+        ///
+        /// - Parameters:
+        ///   - perform: A statement to perform for each triggered row.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `INSERT` trigger operation.
+        public static func insert(@StructuredQueriesCore.QueryFragmentBuilder<any StructuredQueriesCore.Statement> forEachRow perform: (_ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> [StructuredQueriesCore.QueryFragment], when condition: ((_ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation
+
+        /// An `INSERT` trigger operation that applies additional updates to the associated rows.
+        ///
+        /// - Parameters:
+        ///   - updates: The updates to apply to associated rows.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `INSERT` trigger operation.
+        public static func insert(touch updates: (inout StructuredQueriesCore.Updates<On>) -> Void, when condition: ((_ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation
+
+        /// An `INSERT` trigger operation that updates a datetime column for the associated rows.
+        ///
+        /// - Parameters:
+        ///   - dateColumn: A key path to a datetime column.
+        ///   - dateFunction: A database function that returns the current datetime, _e.g._,
+        ///     `#sql("datetime('subsec'))"`.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func insert<D>(touch dateColumn: KeyPath<On.TableColumns, StructuredQueriesCore.TableColumn<On, D>>, date dateFunction: any StructuredQueriesCore.QueryExpression<D> = SQLQueryExpression<D>("datetime('subsec')"), when condition: ((_ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation where D : StructuredQueriesCore.QueryBindable, D._Optionalized == Date?
+
+        /// An `UPDATE` trigger operation.
+        ///
+        /// - Parameters:
+        ///   - perform: A statement to perform for each triggered row.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update(@StructuredQueriesCore.QueryFragmentBuilder<any StructuredQueriesCore.Statement> forEachRow perform: (_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> [StructuredQueriesCore.QueryFragment], when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation
+
+        /// An `UPDATE` trigger operation.
+        ///
+        /// - Parameters:
+        ///   - columns: Updated columns to scope the operation to.
+        ///   - perform: A statement to perform for each triggered row.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update<each Column>(of columns: (On.TableColumns) -> (repeat each Column), @StructuredQueriesCore.QueryFragmentBuilder<any StructuredQueriesCore.Statement> forEachRow perform: (_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> [StructuredQueriesCore.QueryFragment], when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation where repeat each Column : StructuredQueriesCore._TableColumnExpression
+
+        /// An `UPDATE` trigger operation that applies additional updates to the associated rows.
+        ///
+        /// - Parameters:
+        ///   - updates: The updates to apply to associated rows.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update(touch updates: (inout StructuredQueriesCore.Updates<On>) -> Void, when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation
+
+        /// An `UPDATE` trigger operation that updates a datetime column for the associated rows.
+        ///
+        /// - Parameters:
+        ///   - dateColumn: A key path to a datetime column.
+        ///   - dateFunction: A database function that returns the current datetime, _e.g._,
+        ///     `#sql("datetime('subsec'))"`.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update<D>(touch dateColumn: KeyPath<On.TableColumns, StructuredQueriesCore.TableColumn<On, D>>, date dateFunction: any StructuredQueriesCore.QueryExpression<D> = SQLQueryExpression<D>("datetime('subsec')"), when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation where D : StructuredQueriesCore.QueryBindable, D._Optionalized == Date?
+
+        /// An `UPDATE` trigger operation that applies additional updates to the associated rows.
+        ///
+        /// - Parameters:
+        ///   - columns: Updated columns to scope the operation to.
+        ///   - updates: The updates to apply to associated rows.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update<each Column>(of columns: (On.TableColumns) -> (repeat each Column), touch updates: (inout StructuredQueriesCore.Updates<On>) -> Void, when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation where repeat each Column : StructuredQueriesCore._TableColumnExpression
+
+        /// An `UPDATE` trigger operation that updates a datetime column for the associated rows.
+        ///
+        /// - Parameters:
+        ///   - columns: Updated columns to scope the operation to.
+        ///   - dateColumn: A key path to a datetime column.
+        ///   - dateFunction: A database function that returns the current datetime, _e.g._,
+        ///     `#sql("datetime('subsec'))"`.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: An `UPDATE` trigger operation.
+        public static func update<each Column, D>(of columns: (On.TableColumns) -> (repeat each Column), touch dateColumn: KeyPath<On.TableColumns, StructuredQueriesCore.TableColumn<On, D>>, date dateFunction: any StructuredQueriesCore.QueryExpression<D> = SQLQueryExpression<D>("datetime('subsec')"), when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old, _ new: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.New) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation where repeat each Column : StructuredQueriesCore._TableColumnExpression, D : StructuredQueriesCore.QueryBindable, D._Optionalized == Date?
+
+        /// A `DELETE` trigger operation.
+        ///
+        /// - Parameters:
+        ///   - perform: A statement to perform for each triggered row.
+        ///   - condition: A predicate that must be satisfied to perform the given statement.
+        /// - Returns: A `DELETE` trigger operation.
+        public static func delete(@StructuredQueriesCore.QueryFragmentBuilder<any StructuredQueriesCore.Statement> forEachRow perform: (_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old) -> [StructuredQueriesCore.QueryFragment], when condition: ((_ old: StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation.Old) -> any StructuredQueriesCore.QueryExpression<Bool>)? = nil) -> StructuredQueriesSQLiteCore.TemporaryTrigger<On>.Operation
+
+        /// The query fragment associated with this expression.
+        public var queryFragment: StructuredQueriesCore.QueryFragment { get }
+    }
+
+    /// Returns a `DROP TRIGGER` statement for this trigger.
+    ///
+    /// - Parameter ifExists: Adds an `IF EXISTS` condition to the `DROP TRIGGER`.
+    /// - Returns: A `DROP TRIGGER` statement for this trigger.
+    public func drop(ifExists: Bool = false) -> some StructuredQueriesCore.Statement<()>
+
+
+    /// A fragment representing the full query of this statement.
+    public var query: StructuredQueriesCore.QueryFragment { get }
+}
+
+/// A `CREATE TEMPORARY VIEW` statement.
+///
+/// This type of statement is returned from ``Table/createTemporaryView(ifNotExists:as:)``.
+///
+/// To learn more, see <doc:Views>.
+public struct TemporaryView<View, Selection> : StructuredQueriesCore.Statement where View : StructuredQueriesCore.Table, View == Selection.QueryValue, Selection : StructuredQueriesCore.PartialSelectStatement {
+
+    /// The Swift data type representation of the expression's SQL data type.
+    ///
+    /// For example, a `TEXT` expression may be represented as a `String` query value.
+    ///
+    /// This type is used to introduce type-safety at the query builder level.
+    public typealias QueryValue = ()
+
+    /// A type representing the table being queried.
+    public typealias From = Never
+
+    /// Returns a `DROP VIEW` statement for this trigger.
+    ///
+    /// - Parameter ifExists: Adds an `IF EXISTS` condition to the `DROP VIEW`.
+    /// - Returns: A `DROP VIEW` statement for this trigger.
+    public func drop(ifExists: Bool = false) -> some StructuredQueriesCore.Statement<()>
+
+
+    /// A fragment representing the full query of this statement.
+    public var query: StructuredQueriesCore.QueryFragment { get }
+}
+
+public func _columnWidth<T>(_: T.Type) -> Int where T : StructuredQueriesCore.QueryExpression
+
+public func _requireQueryRepresentable<T>(_: T.Type) -> T.Type where T : StructuredQueriesCore.QueryRepresentable
+
+extension QueryExpression where Self.QueryValue : StructuredQueriesCore.QueryBindable {
+
+    public func cast<Other>(as _: Other.Type = Other.self) -> some StructuredQueriesCore.QueryExpression<Other> where Other : StructuredQueriesSQLiteCore.SQLiteType
+
+}
+
+extension QueryExpression where Self.QueryValue : StructuredQueriesCore.QueryBindable, Self.QueryValue : StructuredQueriesCore._OptionalProtocol {
+
+    public func cast<Other>(as _: Other.Type = Other.self) -> some StructuredQueriesCore.QueryExpression<Other._Optionalized> where Other : StructuredQueriesSQLiteCore.SQLiteType, Other._Optionalized : StructuredQueriesSQLiteCore.SQLiteType
+
+
+    @available(*, deprecated, message: "Cast optional to non-optional produces invalid query expression")
+    public func cast<Other>(as _: Other.Type = Other.self) -> some StructuredQueriesCore.QueryExpression<Other> where Other : StructuredQueriesSQLiteCore.SQLiteType
+
+}
+
+extension QueryExpression where Self.QueryValue : StructuredQueriesSQLiteCore.SQLiteType {
+
+    @available(*, deprecated, message: "Cast to same query value type always succeeds")
+    public func cast(as _: Self.QueryValue.Type = QueryValue.self) -> some StructuredQueriesCore.QueryExpression<Self.QueryValue>
+
+}
+
+extension Int : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Int8 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Int16 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Int32 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Int64 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension UInt8 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension UInt16 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension UInt32 : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Double : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Float : StructuredQueriesSQLiteCore.SQLiteType {
+}
+
+extension Bool : StructuredQueriesSQLiteCore.SQLiteType {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension String : StructuredQueriesSQLiteCore.SQLiteType {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension Array : StructuredQueriesSQLiteCore.SQLiteType where Element == UInt8 {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension Optional : StructuredQueriesSQLiteCore.SQLiteType where Wrapped : StructuredQueriesSQLiteCore.SQLiteType {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension RawRepresentable where Self.RawValue : StructuredQueriesSQLiteCore.SQLiteType {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension _CodableJSONRepresentation : StructuredQueriesSQLiteCore.SQLiteType {
+
+    public static var typeAffinity: StructuredQueriesSQLiteCore.SQLiteTypeAffinity { get }
+}
+
+extension Collation {
+
+    /// The `BINARY` collating sequence that compares text based off its underlying bytes.
+    public static let binary: StructuredQueriesCore.Collation
+
+    /// The `NOCASE` collating sequence that compares text after first folding uppercase ASCII
+    /// characters into their lowercase equivalent.
+    public static let nocase: StructuredQueriesCore.Collation
+
+    /// THE `RTRIM` collating sequence that compares text by ignoring trailing whitespace.
+    public static let rtrim: StructuredQueriesCore.Collation
+}
+
+extension TableDefinition where Self.QueryValue : StructuredQueriesSQLiteCore.FTS5 {
+
+    /// A BM25 ranking function for the given column-accuracy mapping.
+    ///
+    /// - Parameter rankings: A dictionary mapping columns to accuracy of a match.
+    /// - Returns: A BM25 ranking function.
+    public func bm25(_ rankings: KeyValuePairs<PartialKeyPath<Self>, Double> = [:]) -> some StructuredQueriesCore.QueryExpression<Double>
+
+
+    /// A predicate expression from this table matched against another _via_ the `MATCH` operator.
+    ///
+    /// ```swift
+    /// ReminderText.where { $0.match("get") }
+    /// // SELECT … FROM "reminderTexts" WHERE ("reminderTexts" MATCH 'get')
+    /// ```
+    ///
+    /// > Important: Avoid passing a string entered by the user directly to this operator. FTS5
+    /// > queries have a distinct [syntax] that can specify particular columns and refine a search in
+    /// > various ways. If FTS5 is given a query with invalid syntax, it can even throw SQL errors at
+    /// > runtime.
+    /// >
+    /// > Instead, consider transforming the user's input into a query by quoting, prefixing, and/or
+    /// > combining inputs from your UI into a valid query before handing it off to SQLite.
+    ///
+    /// [syntax]: https://www.sqlite.org/fts5.html#full_text_query_syntax
+    ///
+    /// - Parameter pattern: A string expression describing the `MATCH` pattern.
+    /// - Returns: A predicate expression.
+    public func match(_ pattern: some StringProtocol) -> some StructuredQueriesCore.QueryExpression<Bool>
+
+
+    /// An expression representing the search result's rank.
+    public var rank: some StructuredQueriesCore.QueryExpression<Double?> { get }
+}
+
+extension TableColumnExpression where Self.Root : StructuredQueriesSQLiteCore.FTS5, Self.QueryValue.QueryOutput : StructuredQueriesCore._OptionalPromotable, Self.QueryValue.QueryOutput._Optionalized.Wrapped : StringProtocol {
+
+    /// A string expression highlighting matches in this column using the given delimiters.
+    ///
+    /// - Parameters:
+    ///   - open: An opening delimiter denoting the beginning of a match, _e.g._ `"<b>"`.
+    ///   - close: A closing delimiter denoting the end of a match, _e.g._, `"</b>"`.
+    /// - Returns: A string expression highlighting matches in this column.
+    public func highlight(_ open: some StringProtocol, _ close: some StringProtocol) -> some StructuredQueriesCore.QueryExpression<Self.QueryValue>
+
+
+    /// A predicate expression from this column matched against another _via_ the `MATCH` operator.
+    ///
+    /// ```swift
+    /// ReminderText.where { $0.title.match("get") }
+    /// // SELECT … FROM "reminderTexts" WHERE ("reminderTexts" MATCH 'title:"get"')
+    /// ```
+    ///
+    /// - Parameter pattern: A string expression describing the `MATCH` pattern.
+    /// - Returns: A predicate expression.
+    public func match(_ pattern: some StringProtocol) -> some StructuredQueriesCore.QueryExpression<Bool>
+
+
+    /// A string expression highlighting matches in text fragments of this column using the given
+    /// delimiters.
+    ///
+    /// - Parameters:
+    ///   - open: An opening delimiter denoting the beginning of a match, _e.g._ `"<b>"`.
+    ///   - close: A closing delimiter denoting the end of a match, _e.g._, `"</b>"`.
+    ///   - ellipsis: Text indicating a truncation of text in the column.
+    ///   - tokens: The maximum number of tokens in the returned text.
+    /// - Returns: A string expression highlighting matches in this column.
+    public func snippet(_ open: some StringProtocol, _ close: some StringProtocol, _ ellipsis: some StringProtocol, _ tokens: Int) -> some StructuredQueriesCore.QueryExpression<Self.QueryValue>
+
+}
+
+extension Optional : StructuredQueriesSQLiteCore.FTS5 where Wrapped : StructuredQueriesSQLiteCore.FTS5 {
+}
+
+extension TableAlias : StructuredQueriesSQLiteCore.FTS5 where Base : StructuredQueriesSQLiteCore.FTS5 {
+}
+
+extension Table {
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflictDoUpdate:where:)")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> Self.TableColumns = { $0 }, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void)? = nil, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflictDoUpdate:where:)")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> Self.TableColumns = { $0 }, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflict:where:doUpdate:where:)")
+    public static func insert<T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> Self.TableColumns = { $0 }, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void = { _, _ in }, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflict:where:doUpdate:where:)")
+    public static func insert<T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> Self.TableColumns = { $0 }, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>) -> Void, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflictDoUpdate:where:)")
+    public static func insert<V1, each V2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), @StructuredQueriesCore.InsertValuesBuilder<(V1, repeat each V2)> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void)? = nil, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflictDoUpdate:where:)")
+    public static func insert<V1, each V2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), @StructuredQueriesCore.InsertValuesBuilder<(V1, repeat each V2)> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflict:where:doUpdate:where:)")
+    public static func insert<V1, each V2, T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), @StructuredQueriesCore.InsertValuesBuilder<(V1, repeat each V2)> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void = { _, _ in }, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable, T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:values:onConflict:where:doUpdate:where:)")
+    public static func insert<V1, each V2, T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), @StructuredQueriesCore.InsertValuesBuilder<(V1, repeat each V2)> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>) -> Void, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable, T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:select:onConflictDoUpdate:where:)")
+    public static func insert<V1, each V2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), select selection: () -> some StructuredQueriesCore.PartialSelectStatement, onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void)? = nil, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable
+
+    public static func insert<V1, each V2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), select selection: () -> some StructuredQueriesCore.PartialSelectStatement, onConflictDoUpdate updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:select:onConflict:where:doUpdate:where:)")
+    public static func insert<V1, each V2, T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), select selection: () -> some StructuredQueriesCore.PartialSelectStatement, onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>, Self.Excluded) -> Void = { _, _ in }, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable, T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(_:select:onConflict:where:doUpdate:where:)")
+    public static func insert<V1, each V2, T1, each T2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), select selection: () -> some StructuredQueriesCore.PartialSelectStatement, onConflict conflictTargets: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, T1>, repeat StructuredQueriesCore.TableColumn<Self, each T2>), @StructuredQueriesCore.QueryFragmentBuilder<Bool> where targetFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }, doUpdate updates: (inout StructuredQueriesCore.Updates<Self>) -> Void, @StructuredQueriesCore.QueryFragmentBuilder<Bool> where updateFilter: (Self.TableColumns) -> [StructuredQueriesCore.QueryFragment] = { _ in [] }) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable, T1 : StructuredQueriesCore.QueryBindable, repeat each T2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert()")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution) -> StructuredQueriesCore.InsertOf<Self>
+}
+
+extension PrimaryKeyedTable {
+
+    @available(*, deprecated, renamed: "upsert(value:)")
+    public static func upsert(or conflictResolution: StructuredQueriesCore.ConflictResolution, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]]) -> StructuredQueriesCore.InsertOf<Self>
+}
+
+extension Table {
+
+    @available(*, deprecated, renamed: "update(set:)")
+    public static func update(or conflictResolution: StructuredQueriesCore.ConflictResolution, set updates: (inout StructuredQueriesCore.Updates<Self>) -> Void) -> StructuredQueriesCore.UpdateOf<Self>
+}
+
+extension PrimaryKeyedTable {
+
+    @available(*, deprecated, renamed: "update(_:)")
+    public static func update(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ row: Self) -> StructuredQueriesCore.UpdateOf<Self>
+}
+
+extension Where {
+
+    @available(*, deprecated, renamed: "update(set:)")
+    public func update(or conflictResolution: StructuredQueriesCore.ConflictResolution, set updates: (inout StructuredQueriesCore.Updates<From>) -> Void) -> StructuredQueriesCore.UpdateOf<From>
+}
+
+extension Table {
+
+    @available(*, deprecated, message: "Prefer 'createTemporaryTrigger(after: .update(touch:))', instead")
+    public static func createTemporaryTrigger(_ name: String? = nil, ifNotExists: Bool = false, afterUpdateTouch updates: (inout StructuredQueriesCore.Updates<Self>) -> Void, fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self>
+
+    @available(*, deprecated, message: "Prefer 'createTemporaryTrigger(after: .update(touch:))', instead")
+    public static func createTemporaryTrigger<D>(_ name: String? = nil, ifNotExists: Bool = false, afterUpdateTouch dateColumn: KeyPath<Self.TableColumns, StructuredQueriesCore.TableColumn<Self, D>>, date dateFunction: any StructuredQueriesCore.QueryExpression<D> = SQLQueryExpression<D>("datetime('subsec')"), fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self> where D : StructuredQueriesCore.QueryBindable, D._Optionalized == Date?
+
+    @available(*, deprecated, message: "Prefer 'createTemporaryTrigger(after: .insert(touch:))', instead")
+    public static func createTemporaryTrigger(_ name: String? = nil, ifNotExists: Bool = false, afterInsertTouch updates: (inout StructuredQueriesCore.Updates<Self>) -> Void, fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self>
+
+    @available(*, deprecated, message: "Prefer 'createTemporaryTrigger(after: .insert(touch:))', instead")
+    public static func createTemporaryTrigger<D>(_ name: String? = nil, ifNotExists: Bool = false, afterInsertTouch dateColumn: KeyPath<Self.TableColumns, StructuredQueriesCore.TableColumn<Self, D>>, date dateFunction: any StructuredQueriesCore.QueryExpression<D> = SQLQueryExpression<D>("datetime('subsec')"), fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self> where D : StructuredQueriesCore.QueryBindable, D._Optionalized == Date?
+}
+
+extension Table {
+
+    @available(*, deprecated, message: "Use a trailing closure, instead: 'Table.insert { row }'")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ row: Self, onConflict doUpdate: ((inout StructuredQueriesCore.Updates<Self>) -> Void)? = nil) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, message: "Use a trailing closure, instead: 'Table.insert { rows }'")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ rows: [Self], onConflict doUpdate: ((inout StructuredQueriesCore.Updates<Self>) -> Void)? = nil) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, renamed: "insert(or:_:values:onConflictDoUpdate:)")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> Self.TableColumns = { $0 }, @StructuredQueriesCore.InsertValuesBuilder<Self> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, renamed: "insert(or:_:values:onConflictDoUpdate:)")
+    public static func insert<V1, each V2>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), @StructuredQueriesCore.InsertValuesBuilder<(V1, repeat each V2)> values: () -> [[StructuredQueriesCore.QueryFragment]], onConflict updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable
+
+    @available(*, deprecated, renamed: "insert(or:_:select:onConflictDoUpdate:)")
+    public static func insert<V1, each V2, From, Joins>(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ columns: (Self.TableColumns) -> (StructuredQueriesCore.TableColumn<Self, V1>, repeat StructuredQueriesCore.TableColumn<Self, each V2>), select selection: () -> StructuredQueriesCore.Select<(V1, repeat each V2), From, Joins>, onConflict updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)?) -> StructuredQueriesCore.InsertOf<Self> where V1 : StructuredQueriesCore.QueryBindable, repeat each V2 : StructuredQueriesCore.QueryBindable, From : StructuredQueriesCore.Table
+}
+
+extension PrimaryKeyedTable {
+
+    @available(*, deprecated, message: "Use a trailing closure, instead: 'Table.insert { draft }'")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ row: Self.Draft, onConflict updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)? = nil) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, message: "Use a trailing closure, instead: 'Table.insert { drafts }'")
+    public static func insert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ rows: [Self.Draft], onConflict updates: ((inout StructuredQueriesCore.Updates<Self>) -> Void)? = nil) -> StructuredQueriesCore.InsertOf<Self>
+
+    @available(*, deprecated, message: "Use a trailing closure, instead: 'Table.upsert { draft }'")
+    public static func upsert(or conflictResolution: StructuredQueriesCore.ConflictResolution, _ row: Self.Draft) -> StructuredQueriesCore.InsertOf<Self>
+}
+
+extension Date {
+
+    @available(*, deprecated, message: "ISO-8601 text is the default representation and is no longer explicitly needed.")
+    public struct ISO8601Representation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: Date
+
+        public var iso8601String: String { get }
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: Date)
+
+        public init(iso8601String: String) throws
+    }
+}
+
+@available(*, deprecated, message: "ISO-8601 text is the default representation and is no longer explicitly needed.")
+extension Optional where Wrapped == Date {
+
+    public typealias ISO8601Representation = Date.ISO8601Representation?
+}
+
+@available(*, deprecated, message: "Lowercased text is the default representation and is no longer explicitly needed.")
+extension UUID {
+
+    public struct LowercasedRepresentation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: UUID
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: UUID)
+    }
+}
+
+@available(*, deprecated, message: "Lowercased text is the default representation and is no longer explicitly needed.")
+extension Optional where Wrapped == UUID {
+
+    public typealias LowercasedRepresentation = UUID.LowercasedRepresentation?
+}
+
+extension QueryExpression {
+
+    /// Passes this expression and the given one to the `json_patch` function.
+    ///
+    /// - Parameter other: A JSON object to patch this object with.
+    /// - Returns: A JSON expression of the result of the invoking the `json_patch` function.
+    public func jsonPatch<QueryOutput>(_ other: some StructuredQueriesCore.QueryExpression) -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<QueryOutput>> where QueryOutput : Decodable, QueryOutput : Encodable, Self.QueryValue == StructuredQueriesCore._CodableJSONRepresentation<QueryOutput>
+
+
+    /// Wraps this expression with the `json_array_length` function.
+    ///
+    /// ```swift
+    /// Reminder.select { $0.tags.jsonArrayLength() }
+    /// // SELECT json_array_length("reminders"."tags") FROM "reminders"
+    /// ```
+    ///
+    /// - Returns: An integer expression of the `json_array_length` function wrapping this expression.
+    public func jsonArrayLength<Element>() -> some StructuredQueriesCore.QueryExpression<Int> where Element : Decodable, Element : Encodable, Self.QueryValue == StructuredQueriesCore._CodableJSONRepresentation<[Element]>
+
+}
+
+extension QueryExpression where Self.QueryValue : StructuredQueriesCore.QueryBindable, Self.QueryValue : Decodable, Self.QueryValue : Encodable {
+
+    /// A JSON array aggregate of this expression
+    ///
+    /// Concatenates all of the values in a group.
+    ///
+    /// ```swift
+    /// Reminder.select { $0.title.jsonGroupArray() }
+    /// // SELECT json_group_array("reminders"."title") FROM "reminders"
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - isDistinct: An boolean to enable the `DISTINCT` clause to apply to the aggregation.
+    ///   - order: An `ORDER BY` clause to apply to the aggregation.
+    ///   - filter: A `FILTER` clause to apply to the aggregation.
+    /// - Returns: A JSON array aggregate of this expression.
+    public func jsonGroupArray(distinct isDistinct: Bool = false, order: (some StructuredQueriesCore.QueryExpression)? = Bool?.none, filter: (some StructuredQueriesCore.QueryExpression<Bool>)? = Bool?.none) -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<[Self.QueryValue]>>
+
+}
+
+extension PrimaryKeyedTableDefinition where Self.QueryValue : Decodable, Self.QueryValue : Encodable {
+
+    /// A JSON array representation of the aggregation of a table's columns.
+    ///
+    /// Constructs a JSON array of JSON objects with a field for each column of the table. This can be
+    /// useful for loading many associated values in a single query. For example, to query for every
+    /// reminders list, along with the array of reminders it is associated with, one can define a
+    /// custom data type for that data and query as follows:
+    ///
+    /// @Row {
+    ///   @Column {
+    ///     ```swift
+    ///     @Selection struct Row {
+    ///       let remindersList: RemindersList
+    ///       @Column(as: [Reminder].JSONRepresentation.self)
+    ///       let reminders: [Reminder]
+    ///     }
+    ///     RemindersList
+    ///       .join(Reminder.all) { $0.id.eq($1.remindersListID) }
+    ///       .select {
+    ///         Row.Columns(
+    ///           remindersList: $0,
+    ///           reminders: $1.jsonGroupArray()
+    ///         )
+    ///       }
+    ///     ```
+    ///   }
+    ///   @Column {
+    ///     ```sql
+    ///      SELECT
+    ///       "remindersLists".…,
+    ///       CASE WHEN
+    ///         ("reminders"."id" IS NOT NULL)
+    ///       THEN
+    ///         json_object(
+    ///           'id', json_quote("id"),
+    ///           'title', json_quote("title"),
+    ///           'priority', json_quote("priority")
+    ///         )
+    ///       END AS "reminders"
+    ///     FROM "remindersLists"
+    ///     JOIN "reminders"
+    ///       ON ("remindersLists"."id" = "reminders"."remindersListID")
+    ///     ```
+    ///   }
+    /// }
+    ///
+    /// - Parameters:
+    ///   - isDistinct: An boolean to enable the `DISTINCT` clause to apply to the aggregation.
+    ///   - order: An `ORDER BY` clause to apply to the aggregation.
+    ///   - filter: A `FILTER` clause to apply to the aggregation.
+    /// - Returns: A JSON array aggregate of this table.
+    public func jsonGroupArray(distinct isDistinct: Bool = false, order: (some StructuredQueriesCore.QueryExpression)? = Bool?.none, filter: (some StructuredQueriesCore.QueryExpression<Bool>)? = Bool?.none) -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<[Self.QueryValue]>>
+
+}
+
+extension PrimaryKeyedTableDefinition where Self.QueryValue : StructuredQueriesCore._OptionalProtocol, Self.QueryValue : Decodable, Self.QueryValue : Encodable {
+
+    /// A JSON array representation of the aggregation of a table's columns.
+    ///
+    /// Constructs a JSON array of JSON objects with a field for each column of the table. This can be
+    /// useful for loading many associated values in a single query. For example, to query for every
+    /// reminders list, along with the array of reminders it is associated with, one can define a
+    /// custom data type for that data and query as follows:
+    ///
+    /// @Row {
+    ///   @Column {
+    ///     ```swift
+    ///     @Selection struct Row {
+    ///       let remindersList: RemindersList
+    ///       @Column(as: [Reminder].JSONRepresentation.self)
+    ///       let reminders: [Reminder]
+    ///     }
+    ///     RemindersList
+    ///       .leftJoin(Reminder.all) { $0.id.eq($1.remindersListID) }
+    ///       .select {
+    ///         Row.Columns(
+    ///           remindersList: $0,
+    ///           reminders: $1.jsonGroupArray()
+    ///         )
+    ///       }
+    ///     ```
+    ///   }
+    ///   @Column {
+    ///     ```sql
+    ///      SELECT
+    ///       "remindersLists".…,
+    ///       CASE WHEN
+    ///         ("reminders"."id" IS NOT NULL)
+    ///       THEN
+    ///         json_object(
+    ///           'id', json_quote("id"),
+    ///           'title', json_quote("title"),
+    ///           'priority', json_quote("priority")
+    ///         )
+    ///       END AS "reminders"
+    ///     FROM "remindersLists"
+    ///     JOIN "reminders"
+    ///       ON ("remindersLists"."id" = "reminders"."remindersListID")
+    ///     ```
+    ///   }
+    /// }
+    ///
+    /// - Parameters:
+    ///   - isDistinct: An boolean to enable the `DISTINCT` clause to apply to the aggregation.
+    ///   - order: An `ORDER BY` clause to apply to the aggregation.
+    ///   - filter: A `FILTER` clause to apply to the aggregation.
+    /// - Returns: A JSON array aggregate of this table.
+    public func jsonGroupArray<Wrapped>(distinct isDistinct: Bool = false, order: (some StructuredQueriesCore.QueryExpression)? = Bool?.none, filter: (some StructuredQueriesCore.QueryExpression<Bool>)? = Bool?.none) -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<[Wrapped]>> where Wrapped : StructuredQueriesCore.PrimaryKeyedTable, Wrapped : Decodable, Wrapped : Encodable, Self.QueryValue == Wrapped?
+
+}
+
+extension TableDefinition where Self.QueryValue : Decodable, Self.QueryValue : Encodable {
+
+    /// A JSON representation of a table's columns.
+    ///
+    /// Useful for referencing a table row in a larger JSON selection.
+    public func jsonObject() -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<Self.QueryValue>>
+
+}
+
+extension Optional.TableColumns where Wrapped : Decodable, Wrapped : Encodable {
+
+    /// A JSON representation of a table's columns.
+    ///
+    /// Useful for referencing a table row in a larger JSON selection.
+    public func jsonObject() -> some StructuredQueriesCore.QueryExpression<StructuredQueriesCore._CodableJSONRepresentation<Wrapped>?>
+
+}
+
+extension Date {
+
+    /// A query expression representing a date as double Julian day number.
+    ///
+    /// ```swift
+    /// @Table
+    /// struct Item {
+    ///   @Column(as: Date.JulianDayRepresentation.self)
+    ///   var date: Date
+    /// }
+    ///
+    /// Item.insert { $0.date } values: { Date() }
+    /// // INSERT INTO "items" ("date") VALUES (2458147.5)
+    /// ```
+    public struct JulianDayRepresentation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: Date
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: Date)
+    }
+}
+
+extension Optional where Wrapped == Date {
+
+    public typealias JulianDayRepresentation = Date.JulianDayRepresentation?
+}
+
+extension Date {
+
+    /// A query expression representing a date as the integer number of seconds past the unix epoch.
+    ///
+    /// ```swift
+    /// @Table
+    /// struct Item {
+    ///   @Column(as: Date.UnixTimeRepresentation.self)
+    ///   var date: Date
+    /// }
+    ///
+    /// Item.insert { $0.date } values: { Date() }
+    /// // INSERT INTO "items" ("date") VALUES (1517212800)
+    /// ```
+    public struct UnixTimeRepresentation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: Date
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: Date)
+    }
+}
+
+extension Optional where Wrapped == Date {
+
+    public typealias UnixTimeRepresentation = Date.UnixTimeRepresentation?
+}
+
+extension UUID {
+
+    /// A query expression representing a UUID as bytes.
+    ///
+    /// ```swift
+    /// @Table
+    /// struct Item {
+    ///   @Column(as: UUID.BytesRepresentation.self)
+    ///   let id: UUID
+    /// }
+    ///
+    /// Item.insert { $0.id } values: { UUID() }
+    /// // INSERT INTO "items" ("id") VALUES (<blob>)
+    /// ```
+    public struct BytesRepresentation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: UUID
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: UUID)
+    }
+}
+
+extension Optional where Wrapped == UUID {
+
+    public typealias BytesRepresentation = UUID.BytesRepresentation?
+}
+
+extension UUID {
+
+    /// A query expression representing a UUID as an uppercased string.
+    ///
+    /// ```swift
+    /// @Table
+    /// struct Item {
+    ///   @Column(as: UUID.UppercasedRepresentation.self)
+    ///   let id: UUID
+    /// }
+    ///
+    /// Item.insert { $0.id } values: { UUID() }
+    /// // INSERT INTO "items" ("id") VALUES ('DEADBEEF-DEAD-BEEF-DEAD-DEADBEEFDEAD')
+    /// ```
+    public struct UppercasedRepresentation : StructuredQueriesCore.QueryRepresentable {
+
+        /// Unwraps a value from this representation.
+        public var queryOutput: UUID
+
+        /// Wraps a value in this representation.
+        ///
+        /// - Parameter queryOutput: The value.
+        public init(queryOutput: UUID)
+    }
+}
+
+extension Optional where Wrapped == UUID {
+
+    public typealias UppercasedRepresentation = UUID.UppercasedRepresentation?
+}
+
+extension TableDefinition {
+
+    /// An expression representing the table's rowid.
+    ///
+    /// > Note: The associated table must be a [rowid table](https://sqlite.org/rowidtable.html) or
+    /// > else the query will fail.
+    public var rowid: some StructuredQueriesCore.QueryExpression<Int> { get }
+}
+
+extension QueryExpression where Self.QueryValue == Bool {
+
+    /// Wraps this expression with the `likelihood` function given a probability.
+    ///
+    /// ```swift
+    /// Reminder.where { ($0.probability == .high).likelihood(0.75) }
+    /// // SELECT … FROM "reminders"
+    /// // WHERE likelihood("reminders"."probability" = 3, 0.75)
+    /// ```
+    ///
+    /// - Parameter probability: A probability hint for the given expression.
+    /// - Returns: A predicate expression of the given likelihood.
+    public func likelihood(_ probability: some StructuredQueriesCore.QueryExpression) -> some StructuredQueriesCore.QueryExpression<Bool>
+
+
+    /// Wraps this expression with the `likely` function.
+    ///
+    /// ```swift
+    /// Reminder.where { ($0.probability == .high).likely() }
+    /// // SELECT … FROM "reminders"
+    /// // WHERE likely("reminders"."probability" = 3)
+    /// ```
+    ///
+    /// - Returns: A likely predicate expression.
+    public func likely() -> some StructuredQueriesCore.QueryExpression<Bool>
+
+
+    /// Wraps this expression with the `unlikely` function.
+    ///
+    /// ```swift
+    /// Reminder.where { ($0.probability == .high).unlikely() }
+    /// // SELECT … FROM "reminders"
+    /// // WHERE unlikely("reminders"."probability" = 3)
+    /// ```
+    ///
+    /// - Returns: An unlikely predicate expression.
+    public func unlikely() -> some StructuredQueriesCore.QueryExpression<Bool>
+
+}
+
+extension QueryExpression where Self.QueryValue : BinaryInteger {
+
+    /// Creates an expression invoking the `randomblob` function with the given integer expression.
+    ///
+    /// ```swift
+    /// Asset.insert { $0.bytes } values: { 1_024.randomblob() }
+    /// // INSERT INTO "assets" ("bytes") VALUES (randomblob(1024))
+    /// ```
+    ///
+    /// - Returns: A blob expression of the `randomblob` function wrapping the given integer.
+    public func randomblob() -> some StructuredQueriesCore.QueryExpression<[UInt8]>
+
+
+    /// Creates an expression invoking the `zeroblob` function with the given integer expression.
+    ///
+    /// ```swift
+    /// Asset.insert { $0.bytes } values: { 1_024.zeroblob() }
+    /// // INSERT INTO "assets" ("bytes") VALUES (zeroblob(1024))
+    /// ```
+    ///
+    /// - Returns: A blob expression of the `zeroblob` function wrapping the given integer.
+    public func zeroblob() -> some StructuredQueriesCore.QueryExpression<[UInt8]>
+
+}
+
+extension QueryExpression where Self.QueryValue : StructuredQueriesCore._OptionalPromotable, Self.QueryValue._Optionalized == String? {
+
+    /// Wraps this string query expression with the `unicode` function.
+    ///
+    /// - Returns: An optional integer expression of the `unicode` function wrapping this expression.
+    public func unicode() -> some StructuredQueriesCore.QueryExpression<Int?>
+
+}
+
+extension Table {
+
+    /// A `CREATE TEMPORARY TRIGGER` statement that executes after a database event.
+    ///
+    /// See <doc:Triggers> for more information.
+    ///
+    /// > Important: A name for the trigger is automatically derived from the arguments if one is not
+    /// > provided. If you build your own trigger helper that call this function, then your helper
+    /// > should also take `fileID`, `line` and `column` arguments and pass them to this function.
+    ///
+    /// - Parameters:
+    ///   - name: The trigger's name. By default a unique name is generated depending using the table,
+    ///     operation, and source location.
+    ///   - ifNotExists: Adds an `IF NOT EXISTS` clause to the `CREATE TRIGGER` statement.
+    ///   - operation: The trigger's operation.
+    ///   - fileID: The source `#fileID` associated with the trigger.
+    ///   - line: The source `#line` associated with the trigger.
+    ///   - column: The source `#column` associated with the trigger.
+    /// - Returns: A temporary trigger.
+    public static func createTemporaryTrigger(_ name: String? = nil, ifNotExists: Bool = false, after operation: StructuredQueriesSQLiteCore.TemporaryTrigger<Self>.Operation, fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self>
+
+    /// A `CREATE TEMPORARY TRIGGER` statement that executes before a database event.
+    ///
+    /// See <doc:Triggers> for more information.
+    ///
+    /// > Important: A name for the trigger is automatically derived from the arguments if one is not
+    /// > provided. If you build your own trigger helper that call this function, then your helper
+    /// > should also take `fileID`, `line` and `column` arguments and pass them to this function.
+    ///
+    /// - Parameters:
+    ///   - name: The trigger's name. By default a unique name is generated depending using the table,
+    ///     operation, and source location.
+    ///   - ifNotExists: Adds an `IF NOT EXISTS` clause to the `CREATE TRIGGER` statement.
+    ///   - operation: The trigger's operation.
+    ///   - fileID: The source `#fileID` associated with the trigger.
+    ///   - line: The source `#line` associated with the trigger.
+    ///   - column: The source `#column` associated with the trigger.
+    /// - Returns: A temporary trigger.
+    public static func createTemporaryTrigger(_ name: String? = nil, ifNotExists: Bool = false, before operation: StructuredQueriesSQLiteCore.TemporaryTrigger<Self>.Operation, fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self>
+
+    /// A `CREATE TEMPORARY TRIGGER` statement that executes instead of a database view event.
+    ///
+    /// See <doc:Triggers> for more information.
+    ///
+    /// > Important: A name for the trigger is automatically derived from the arguments if one is not
+    /// > provided. If you build your own trigger helper that call this function, then your helper
+    /// > should also take `fileID`, `line` and `column` arguments and pass them to this function.
+    ///
+    /// - Parameters:
+    ///   - name: The trigger's name. By default a unique name is generated depending using the table,
+    ///     operation, and source location.
+    ///   - ifNotExists: Adds an `IF NOT EXISTS` clause to the `CREATE TRIGGER` statement.
+    ///   - operation: The trigger's operation.
+    ///   - fileID: The source `#fileID` associated with the trigger.
+    ///   - line: The source `#line` associated with the trigger.
+    ///   - column: The source `#column` associated with the trigger.
+    /// - Returns: A temporary trigger.
+    public static func createTemporaryTrigger(_ name: String? = nil, ifNotExists: Bool = false, insteadOf operation: StructuredQueriesSQLiteCore.TemporaryTrigger<Self>.Operation, fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) -> StructuredQueriesSQLiteCore.TemporaryTrigger<Self>
+}
+
+extension Table {
+
+    /// A `CREATE TEMPORARY VIEW` statement.
+    ///
+    /// See <doc:Views> for more information.
+    ///
+    /// - Parameters:
+    ///   - ifNotExists: Adds an `IF NOT EXISTS` clause to the `CREATE VIEW` statement.
+    ///   - select: A statement describing the contents of the view.
+    /// - Returns: A temporary trigger.
+    public static func createTemporaryView<Selection>(ifNotExists: Bool = false, as select: Selection) -> StructuredQueriesSQLiteCore.TemporaryView<Self, Selection> where Self == Selection.QueryValue, Selection : StructuredQueriesCore.PartialSelectStatement
+}
+

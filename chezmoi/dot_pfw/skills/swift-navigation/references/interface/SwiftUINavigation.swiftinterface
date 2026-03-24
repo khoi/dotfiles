@@ -1,0 +1,845 @@
+import CasePaths
+import IssueReporting
+import SwiftNavigation
+import SwiftUI
+import UIKit
+
+/// A container view that provides a binding to another view.
+///
+/// This view is most helpful for creating Xcode previews of views that require bindings.
+///
+/// For example, if you wanted to create a preview for a text field, you cannot simply introduce
+/// some `@State` to the preview since `previews` is static:
+///
+/// ```swift
+/// struct TextField_Previews: PreviewProvider {
+///   @State static var text = ""  // ⚠️ @State static does not work.
+///
+///   static var previews: some View {
+///     TextField("Test", text: self.$text)
+///   }
+/// }
+/// ```
+///
+/// So, instead you can use ``WithState``:
+///
+/// ```swift
+/// struct TextField_Previews: PreviewProvider {
+///   static var previews: some View {
+///     WithState(initialValue: "") { $text in
+///       TextField("Test", text: $text)
+///     }
+///   }
+/// }
+/// ```
+@available(iOS, deprecated: 18, message: "Use SwiftUI's '@Previewable' macro, instead.")
+@available(macOS, deprecated: 15, message: "Use SwiftUI's '@Previewable' macro, instead.")
+@available(tvOS, deprecated: 18, message: "Use SwiftUI's '@Previewable' macro, instead.")
+@available(visionOS, deprecated: 2, message: "Use SwiftUI's '@Previewable' macro, instead.")
+@available(watchOS, deprecated: 11, message: "Use SwiftUI's '@Previewable' macro, instead.")
+@MainActor public struct WithState<Value, Content> : View where Content : View {
+
+    @MainActor public init(initialValue value: Value, @ViewBuilder content: @escaping (Binding<Value>) -> Content)
+
+    /// The content and behavior of the view.
+    ///
+    /// When you implement a custom view, you must implement a computed
+    /// `body` property to provide the content for your view. Return a view
+    /// that's composed of built-in views that SwiftUI provides, plus other
+    /// composite views that you've already defined:
+    ///
+    ///     struct MyView: View {
+    ///         var body: some View {
+    ///             Text("Hello, World!")
+    ///         }
+    ///     }
+    ///
+    /// For more information about composing views and a view hierarchy,
+    /// see <doc:Declaring-a-Custom-View>.
+    @MainActor public var body: some View { get }
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension View {
+
+    /// Presents an alert from a binding to an optional value.
+    ///
+    /// SwiftUI's `alert` view modifiers are driven by two disconnected pieces of state: an
+    /// `isPresented` binding to a boolean that determines if the alert should be presented, and
+    /// optional alert `data` that is used to customize its actions and message.
+    ///
+    /// Modeling the domain in this way unfortunately introduces a couple invalid runtime states:
+    ///
+    ///   * `isPresented` can be `true`, but `data` can be `nil`.
+    ///   * `isPresented` can be `false`, but `data` can be non-`nil`.
+    ///
+    /// On top of that, SwiftUI's `alert` modifiers take static titles, which means the title cannot
+    /// be dynamically computed from the alert data.
+    ///
+    /// This overload addresses these shortcomings with a streamlined API. First, it eliminates the
+    /// invalid runtime states at compile time by driving the alert's presentation from a single,
+    /// optional binding. When this binding is non-`nil`, the alert will be presented. Further, the
+    /// title can be customized from the alert data.
+    ///
+    /// ```swift
+    /// struct AlertDemo: View {
+    ///   @State var randomMovie: Movie?
+    ///
+    ///   var body: some View {
+    ///     Button("Pick a random movie", action: self.getRandomMovie)
+    ///       .alert(item: self.$randomMovie) {
+    ///         Text($0.title)
+    ///       } actions: { _ in
+    ///         Button("Pick another", action: self.getRandomMovie)
+    ///         Button("I'm done", action: self.clearRandomMovie)
+    ///       } message: {
+    ///         Text($0.summary)
+    ///       }
+    ///   }
+    ///
+    ///   func getRandomMovie() {
+    ///     self.randomMovie = Movie.allCases.randomElement()
+    ///   }
+    ///
+    ///   func clearRandomMovie() {
+    ///     self.randomMovie = nil
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional value that determines whether an alert should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and passed
+    ///     to the modifier's closures. You can use this data to populate the fields of an alert
+    ///     that the system displays to the user. When the user presses or taps one of the alert's
+    ///     actions, the system sets this value to `nil` and dismisses the alert.
+    ///   - title: A closure returning the alert's title given the current alert state.
+    ///   - actions: A view builder returning the alert's actions given the current alert state.
+    ///   - message: A view builder returning the message for the alert given the current alert
+    ///     state.
+    @MainActor public func alert<Item, A, M>(item: Binding<Item?>, title: (Item) -> Text, @ViewBuilder actions: (Item) -> A, @ViewBuilder message: (Item) -> M) -> some View where A : View, M : View
+
+
+    /// Presents an alert from a binding to an optional value.
+    ///
+    /// SwiftUI's `alert` view modifiers are driven by two disconnected pieces of state: an
+    /// `isPresented` binding to a boolean that determines if the alert should be presented, and
+    /// optional alert `data` that is used to customize its actions and message.
+    ///
+    /// Modeling the domain in this way unfortunately introduces a couple invalid runtime states:
+    ///  * `isPresented` can be `true`, but `data` can be `nil`.
+    ///  * `isPresented` can be `false`, but `data` can be non-`nil`.
+    ///
+    /// On top of that, SwiftUI's `alert` modifiers take static titles, which means the title cannot
+    /// be dynamically computed from the alert data.
+    ///
+    /// This overload addresses these shortcomings with a streamlined API. First, it eliminates the
+    /// invalid runtime states at compile time by driving the alert's presentation from a single,
+    /// optional binding. When this binding is non-`nil`, the alert will be presented. Further, the
+    /// title can be customized from the alert data.
+    ///
+    /// ```swift
+    /// struct AlertDemo: View {
+    ///   @State var randomMovie: Movie?
+    ///
+    ///   var body: some View {
+    ///     Button("Pick a random movie", action: self.getRandomMovie)
+    ///       .alert(item: self.$randomMovie) {
+    ///         Text($0.title)
+    ///       } actions: { _ in
+    ///         Button("Pick another", action: self.getRandomMovie)
+    ///         Button("I'm done", action: self.clearRandomMovie)
+    ///       }
+    ///   }
+    ///
+    ///   func getRandomMovie() {
+    ///     self.randomMovie = Movie.allCases.randomElement()
+    ///   }
+    ///
+    ///   func clearRandomMovie() {
+    ///     self.randomMovie = nil
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional value that determines whether an alert should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and passed
+    ///     to the modifier's closures. You can use this data to populate the fields of an alert
+    ///     that the system displays to the user. When the user presses or taps one of the alert's
+    ///     actions, the system sets this value to `nil` and dismisses the alert.
+    ///   - title: A closure returning the alert's title given the current alert state.
+    ///   - actions: A view builder returning the alert's actions given the current alert state.
+    @MainActor public func alert<Item, A>(item: Binding<Item?>, title: (Item) -> Text, @ViewBuilder actions: (Item) -> A) -> some View where A : View
+
+
+    /// Presents an alert from a binding to optional alert state.
+    ///
+    /// See <doc:AlertsDialogs> for more information on how to use this API.
+    ///
+    /// - Parameters:
+    ///   - state: A binding to optional alert state that determines whether an alert should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and used to
+    ///     populate the fields of an alert that the system displays to the user. When the user
+    ///     presses or taps one of the alert's actions, the system sets this value to `nil` and
+    ///     dismisses the alert, and the action is fed to the `action` closure.
+    ///   - handler: A closure that is called with an action from a particular alert button when
+    ///     tapped.
+    @MainActor public func alert<Value>(_ state: Binding<SwiftNavigation.AlertState<Value>?>, action handler: @escaping (Value?) -> Void = { (_: Never?) in }) -> some View
+
+
+    /// Presents an alert from a binding to optional alert state.
+    ///
+    /// See <doc:AlertsDialogs> for more information on how to use this API.
+    ///
+    /// > Warning: Async closures cannot be performed with animation. If the underlying action is
+    /// > animated, a runtime warning will be emitted.
+    ///
+    /// - Parameters:
+    ///   - state: A binding to optional alert state that determines whether an alert should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and used to
+    ///     populate the fields of an alert that the system displays to the user. When the user
+    ///     presses or taps one of the alert's actions, the system sets this value to `nil` and
+    ///     dismisses the alert, and the action is fed to the `action` closure.
+    ///   - handler: A closure that is called with an action from a particular alert button when
+    ///     tapped.
+    @MainActor public func alert<Value>(_ state: Binding<SwiftNavigation.AlertState<Value>?>, action handler: @escaping @Sendable (Value?) async -> Void = { (_: Never?) async in }) -> some View where Value : Sendable
+
+}
+
+@available(iOS, introduced: 13, deprecated: 100000, message: "use 'View.alert(_:action:)' instead.")
+@available(macOS, introduced: 10.15, deprecated: 100000, message: "use 'View.alert(_:action:)' instead.")
+@available(tvOS, introduced: 13, deprecated: 100000, message: "use 'View.alert(_:action:)' instead.")
+@available(watchOS, introduced: 6, deprecated: 100000, message: "use 'View.alert(_:action:)' instead.")
+extension Alert {
+
+    /// Creates an alert from alert state.
+    ///
+    /// - Parameters:
+    ///   - state: Alert state used to populate the alert.
+    ///   - action: An action handler, called when a button with an action is tapped, by passing the
+    ///     action to the closure.
+    public init<Action>(_ state: SwiftNavigation.AlertState<Action>, action: @escaping (Action?) -> Void)
+
+    /// Creates an alert from alert state.
+    ///
+    /// - Parameters:
+    ///   - state: Alert state used to populate the alert.
+    ///   - action: An action handler, called when a button with an action is tapped, by passing the
+    ///     action to the closure.
+    public init<Action>(_ state: SwiftNavigation.AlertState<Action>, action: @escaping @Sendable (Action?) async -> Void) where Action : Sendable
+}
+
+extension Binding {
+
+    /// Returns a binding to the associated value of a given case key path.
+    ///
+    /// Useful for producing bindings to values held in enum state.
+    ///
+    /// - Parameter keyPath: A case key path to a specific associated value.
+    /// - Returns: A new binding.
+    public subscript<Member>(dynamicMember keyPath: KeyPath<Value.AllCasePaths, CasePathsCore.AnyCasePath<Value, Member>>) -> Binding<Member>? where Value : CasePathsCore.CasePathable { get }
+
+    /// Returns a binding to the associated value of a given case key path.
+    ///
+    /// Useful for driving navigation off an optional enumeration of destinations.
+    ///
+    /// - Parameter keyPath: A case key path to a specific associated value.
+    /// - Returns: A new binding.
+    public subscript<Enum, Member>(dynamicMember keyPath: KeyPath<Enum.AllCasePaths, CasePathsCore.AnyCasePath<Enum, Member>>) -> Binding<Member?> where Value == Enum?, Enum : CasePathsCore.CasePathable { get }
+
+    /// Returns a binding to a Boolean for a given case key path to a case without an associated
+    /// value.
+    ///
+    /// Useful for driving navigation off an optional enumeration of destinations for navigation
+    /// APIs that take a Boolean binding.
+    ///
+    /// - Parameter keyPath: A case key path to a specific associated value.
+    /// - Returns: A new binding.
+    public subscript<Enum>(dynamicMember keyPath: KeyPath<Enum.AllCasePaths, CasePathsCore.AnyCasePath<Enum, Void>>) -> Binding<Bool> where Value == Enum?, Enum : CasePathsCore.CasePathable { get }
+
+    /// Creates a binding by projecting the base value to an unwrapped value.
+    ///
+    /// Useful for producing non-optional bindings from optional ones.
+    ///
+    /// > Note: SwiftUI comes with an equivalent failable initializer, `Binding.init(_:)`, but using
+    /// > it can lead to crashes at runtime. [Feedback][FB8367784] has been filed, but in the meantime
+    /// > this initializer exists as a workaround.
+    ///
+    /// [FB8367784]: https://gist.github.com/stephencelis/3a232a1b718bab0ae1127ebd5fcf6f97
+    ///
+    /// - Parameter base: A value to project to an unwrapped value.
+    public init?(unwrapping base: Binding<Value?>)
+
+    public init(unwrapping base: Binding<Value?>, default value: Value)
+
+    /// Creates a binding that ignores writes to its wrapped value when equivalent to the new value.
+    ///
+    /// Useful to minimize writes to bindings passed to SwiftUI APIs. For example, [`NavigationLink`
+    /// may write `nil` twice][FB9404926] when dismissing its destination via the navigation bar's
+    /// back button. Logic attached to this dismissal will execute twice, which may not be desirable.
+    ///
+    /// [FB9404926]: https://gist.github.com/mbrandonw/70df235e42d505b3b1b9b7d0d006b049
+    ///
+    /// - Parameter isDuplicate: A closure to evaluate whether two elements are equivalent, for
+    ///   purposes of filtering writes. Return `true` from this closure to indicate that the second
+    ///   element is a duplicate of the first.
+    public func removeDuplicates(by isDuplicate: @escaping @Sendable (Value, Value) -> Bool) -> Binding<Value> where Value : Sendable
+}
+
+extension Binding where Value : Equatable, Value : Sendable {
+
+    /// Creates a binding that ignores writes to its wrapped value when equivalent to the new value.
+    ///
+    /// Useful to minimize writes to bindings passed to SwiftUI APIs. For example, [`NavigationLink`
+    /// may write `nil` twice][FB9404926] when dismissing its destination via the navigation bar's
+    /// back button. Logic attached to this dismissal will execute twice, which may not be desirable.
+    ///
+    /// [FB9404926]: https://gist.github.com/mbrandonw/70df235e42d505b3b1b9b7d0d006b049
+    public func removeDuplicates() -> Binding<Value>
+}
+
+extension Binding where Value : Sendable {
+
+    public func _printChanges(_ prefix: String = "", fileID: StaticString = #fileID, line: UInt = #line) -> Binding<Value>
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension Visibility {
+
+    public init(_ visibility: SwiftNavigation.ConfirmationDialogStateTitleVisibility)
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+extension View {
+
+    /// Presents a confirmation dialog from a binding to an optional value.
+    ///
+    /// SwiftUI's `confirmationDialog` view modifiers are driven by two disconnected pieces of
+    /// state: an `isPresented` binding to a boolean that determines if the dialog should be
+    /// presented, and optional dialog `data` that is used to customize its actions and message.
+    ///
+    /// Modeling the domain in this way unfortunately introduces a couple invalid runtime states:
+    ///
+    ///   * `isPresented` can be `true`, but `data` can be `nil`.
+    ///   * `isPresented` can be `false`, but `data` can be non-`nil`.
+    ///
+    /// On top of that, SwiftUI's `confirmationDialog` modifiers take static titles, which means the
+    /// title cannot be dynamically computed from the dialog data.
+    ///
+    /// This overload addresses these shortcomings with a streamlined API. First, it eliminates the
+    /// invalid runtime states at compile time by driving the dialog's presentation from a single,
+    /// optional binding. When this binding is non-`nil`, the dialog will be presented. Further, the
+    /// title can be customized from the dialog data.
+    ///
+    /// ```swift
+    /// struct DialogDemo: View {
+    ///   @State var randomMovie: Movie?
+    ///
+    ///   var body: some View {
+    ///     Button("Pick a random movie", action: self.getRandomMovie)
+    ///       .confirmationDialog(item: self.$randomMovie, titleVisibility: .always) {
+    ///         Text($0.title)
+    ///       } actions: { _ in
+    ///         Button("Pick another", action: self.getRandomMovie)
+    ///         Button("I'm done", action: self.clearRandomMovie)
+    ///       } message: {
+    ///         Text($0.summary)
+    ///       }
+    ///   }
+    ///
+    ///   func getRandomMovie() {
+    ///     self.randomMovie = Movie.allCases.randomElement()
+    ///   }
+    ///
+    ///   func clearRandomMovie() {
+    ///     self.randomMovie = nil
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional value that determines whether a dialog should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and passed
+    ///     to the modifier's closures. You can use this data to populate the fields of a dialog
+    ///     that the system displays to the user. When the user presses or taps one of the dialog's
+    ///     actions, the system sets this value to `nil` and dismisses the dialog.
+    ///   - title: A closure returning the dialog's title given the current dialog state.
+    ///   - titleVisibility: The visibility of the dialog's title. (default: .automatic)
+    ///   - actions: A view builder returning the dialog's actions given the current dialog state.
+    ///   - message: A view builder returning the message for the dialog given the current dialog
+    ///     state.
+    @MainActor public func confirmationDialog<Item, A, M>(item: Binding<Item?>, titleVisibility: Visibility = .automatic, title: (Item) -> Text, @ViewBuilder actions: (Item) -> A, @ViewBuilder message: (Item) -> M) -> some View where A : View, M : View
+
+
+    /// Presents a confirmation dialog from a binding to an optional value.
+    ///
+    /// SwiftUI's `confirmationDialog` view modifiers are driven by two disconnected pieces of
+    /// state: an `isPresented` binding to a boolean that determines if the dialog should be
+    /// presented, and optional dialog `data` that is used to customize its actions and message.
+    ///
+    /// Modeling the domain in this way unfortunately introduces a couple invalid runtime states:
+    ///
+    ///   * `isPresented` can be `true`, but `data` can be `nil`.
+    ///   * `isPresented` can be `false`, but `data` can be non-`nil`.
+    ///
+    /// On top of that, SwiftUI's `confirmationDialog` modifiers take static titles, which means the
+    /// title cannot be dynamically computed from the dialog data.
+    ///
+    /// This overload addresses these shortcomings with a streamlined API. First, it eliminates the
+    /// invalid runtime states at compile time by driving the dialog's presentation from a single,
+    /// optional binding. When this binding is non-`nil`, the dialog will be presented. Further, the
+    /// title can be customized from the dialog data.
+    ///
+    /// struct DialogDemo: View {
+    ///   @State var randomMovie: Movie?
+    ///
+    ///   var body: some View {
+    ///     Button("Pick a random movie", action: self.getRandomMovie)
+    ///       .confirmationDialog(item: self.$randomMovie, titleVisibility: .always) {
+    ///         Text($0.title)
+    ///       } actions: { _ in
+    ///         Button("Pick another", action: self.getRandomMovie)
+    ///         Button("I'm done", action: self.clearRandomMovie)
+    ///       }
+    ///   }
+    ///
+    ///   func getRandomMovie() {
+    ///     self.randomMovie = Movie.allCases.randomElement()
+    ///   }
+    ///
+    ///   func clearRandomMovie() {
+    ///     self.randomMovie = nil
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// See <doc:Dialogs> for more information on how to use this API.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional value that determines whether a dialog should be
+    ///     presented. When the binding is updated with non-`nil` value, it is unwrapped and passed
+    ///     to the modifier's closures. You can use this data to populate the fields of a dialog
+    ///     that the system displays to the user. When the user presses or taps one of the dialog's
+    ///     actions, the system sets this value to `nil` and dismisses the dialog.
+    ///   - title: A closure returning the dialog's title given the current dialog state.
+    ///   - titleVisibility: The visibility of the dialog's title. (default: .automatic)
+    ///   - actions: A view builder returning the dialog's actions given the current dialog state.
+    @MainActor public func confirmationDialog<Item, A>(item: Binding<Item?>, titleVisibility: Visibility = .automatic, title: (Item) -> Text, @ViewBuilder actions: (Item) -> A) -> some View where A : View
+
+
+    /// Presents a confirmation dialog from a binding to optional confirmation dialog state.
+    ///
+    /// See <doc:AlertsDialogs> for more information on how to use this API.
+    ///
+    /// - Parameters:
+    ///   - state: A binding to optional state that determines whether a confirmation dialog should
+    ///     be presented. When the binding is updated with non-`nil` value, it is unwrapped and used
+    ///     to populate the fields of a dialog that the system displays to the user. When the user
+    ///     presses or taps one of the dialog's actions, the system sets this value to `nil` and
+    ///     dismisses the dialog, and the action is fed to the `action` closure.
+    ///   - handler: A closure that is called with an action from a particular dialog button when
+    ///     tapped.
+    @MainActor public func confirmationDialog<Value>(_ state: Binding<SwiftNavigation.ConfirmationDialogState<Value>?>, action handler: @escaping (Value?) -> Void = { (_: Never?) in }) -> some View
+
+
+    /// Presents a confirmation dialog from a binding to optional confirmation dialog state.
+    ///
+    /// See <doc:AlertsDialogs> for more information on how to use this API.
+    ///
+    /// > Warning: Async closures cannot be performed with animation. If the underlying action is
+    /// > animated, a runtime warning will be emitted.
+    ///
+    /// - Parameters:
+    ///   - state: A binding to optional state that determines whether a confirmation dialog should
+    ///     be presented. When the binding is updated with non-`nil` value, it is unwrapped and used
+    ///     to populate the fields of a dialog that the system displays to the user. When the user
+    ///     presses or taps one of the dialog's actions, the system sets this value to `nil` and
+    ///     dismisses the dialog, and the action is fed to the `action` closure.
+    ///   - handler: A closure that is called with an action from a particular dialog button when
+    ///     tapped.
+    @MainActor public func confirmationDialog<Value>(_ state: Binding<SwiftNavigation.ConfirmationDialogState<Value>?>, action handler: @escaping @Sendable (Value?) async -> Void = { (_: Never?) async in }) -> some View where Value : Sendable
+
+}
+
+@available(iOS, introduced: 13, deprecated: 100000, message: "use 'View.confirmationDialog(title:isPresented:titleVisibility:presenting::actions:)' instead.")
+@available(macOS, unavailable, introduced: 12)
+@available(tvOS, introduced: 13, deprecated: 100000, message: "use 'View.confirmationDialog(title:isPresented:titleVisibility:presenting::actions:)' instead.")
+@available(watchOS, introduced: 6, deprecated: 100000, message: "use 'View.confirmationDialog(title:isPresented:titleVisibility:presenting::actions:)' instead.")
+extension ActionSheet {
+
+    public init<Action>(_ state: SwiftNavigation.ConfirmationDialogState<Action>, action: @escaping (Action?) -> Void)
+}
+
+@available(iOS 14, tvOS 14, watchOS 7, *)
+@available(macOS, unavailable)
+extension View {
+
+    /// Presents a full-screen cover using a binding as a data source for the sheet's content.
+    ///
+    /// SwiftUI comes with a `fullScreenCover(item:)` view modifier that is powered by a binding to
+    /// some identifiable state. When this state becomes non-`nil`, it passes an unwrapped value to
+    /// the content closure. This value, however, is completely static, which prevents the sheet
+    /// from modifying it.
+    ///
+    /// This overload differs in that it passes a _binding_ to the unwrapped value, instead. This
+    /// gives the sheet the ability to write changes back to its source of truth.
+    ///
+    /// Also unlike `fullScreenCover(item:)`, the binding's value does _not_ need to be
+    /// identifiable, and can instead specify a key path to the provided data's identifier.
+    ///
+    /// ```swift
+    /// struct TimelineView: View {
+    ///   @State var draft: Post?
+    ///
+    ///   var body: Body {
+    ///     Button("Compose") {
+    ///       self.draft = Post()
+    ///     }
+    ///     .fullScreenCover(item: $draft, id: \.id) { $draft in
+    ///       ComposeView(post: $draft, onSubmit: { ... })
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// struct ComposeView: View {
+    ///   @Binding var post: Post
+    ///   var body: some View { ... }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func fullScreenCover<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where ID : Hashable, Content : View
+
+
+    /// Presents a full-screen cover using a binding as a data source for the sheet's content.
+    ///
+    /// A version of ``SwiftUI/View/fullScreenCover(item:id:onDismiss:content:)-14to1`` that takes
+    /// an identifiable item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func fullScreenCover<Item, Content>(item: Binding<Item?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where Item : Identifiable, Content : View
+
+
+    /// Presents a full-screen cover using a binding as a data source for the sheet's content.
+    ///
+    /// A version of ``SwiftUI/View/fullScreenCover(item:id:onDismiss:content:)-14to1`` that is
+    /// passed an item and not a binding to an item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func fullScreenCover<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Item) -> Content) -> some View where ID : Hashable, Content : View
+
+}
+
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+extension View {
+
+    /// Associates a destination view with a bound value for use within a navigation stack or
+    /// navigation split view.
+    ///
+    /// See `SwiftUI.View.navigationDestination(item:destination:)` for more information.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to the data presented, or `nil` if nothing is currently presented.
+    ///   - destination: A view builder that defines a view to display when `item` is not `nil`.
+    @MainActor public func navigationDestination<D, C>(item: Binding<D?>, @ViewBuilder destination: @escaping (D) -> C) -> some View where C : View
+
+
+    /// Pushes a view onto a `NavigationStack` using a binding as a data source for the
+    /// destination's content.
+    ///
+    /// This is a version of SwiftUI's `navigationDestination(item:)` modifier that passes a
+    /// _binding_ to the unwrapped item to the destination closure.
+    ///
+    /// ```swift
+    /// struct TimelineView: View {
+    ///   @State var draft: Post?
+    ///
+    ///   var body: Body {
+    ///     Button("Compose") {
+    ///       self.draft = Post()
+    ///     }
+    ///     .navigationDestination(item: $draft) { $draft in
+    ///       ComposeView(post: $draft, onSubmit: { ... })
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// struct ComposeView: View {
+    ///   @Binding var post: Post
+    ///   var body: some View { ... }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the destination. When `item` is
+    ///     non-`nil`, a non-optional binding to the value is passed to the `destination` closure.
+    ///     You use this binding to produce content that the system pushes to the user in a
+    ///     navigation stack. Changes made to the destination's binding will be reflected back in
+    ///     the source of truth. Likewise, changes to `item` are instantly reflected in the
+    ///     destination. If `item` becomes `nil`, the destination is popped.
+    ///   - destination: A closure returning the content of the destination.
+    @MainActor public func navigationDestination<D, C>(item: Binding<D?>, @ViewBuilder destination: @escaping (Binding<D>) -> C) -> some View where C : View
+
+}
+
+extension NavigationLink {
+
+    /// Creates a navigation link that presents the destination view when a bound value is
+    /// non-`nil`.
+    ///
+    /// > Note: This interface is deprecated to match the availability of the corresponding SwiftUI
+    /// > API. If you are targeting iOS 16 or later, use
+    /// > ``SwiftUI/View/navigationDestination(item:destination:)``, instead.
+    ///
+    /// This allows you to drive navigation to a destination from an optional value. When the
+    /// optional value becomes non-`nil` a binding to an honest value is derived and passed to the
+    /// destination. Any edits made to the binding in the destination are automatically reflected
+    /// in the parent.
+    ///
+    /// ```swift
+    /// struct ContentView: View {
+    ///   @State var postToEdit: Post?
+    ///   @State var posts: [Post]
+    ///
+    ///   var body: some View {
+    ///     ForEach(self.posts) { post in
+    ///       NavigationLink(item: $postToEdit) { isActive in
+    ///         postToEdit = isActive ? post : nil
+    ///       } destination: { $draft in
+    ///         EditPostView(post: $draft)
+    ///       } label: {
+    ///         Text(post.title)
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// struct EditPostView: View {
+    ///   @Binding var post: Post
+    ///   var body: some View { ... }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the destination. When `item` is
+    ///     non-`nil`, a non-optional binding to the value is passed to the `destination` closure.
+    ///     The destination can use this binding to produce its content and write changes back to
+    ///     the source of truth. Upstream changes to `item` will also be instantly reflected in the
+    ///     destination. If `item` becomes `nil`, the destination is dismissed.
+    ///   - onNavigate: A closure that executes when the link becomes active or inactive with a
+    ///     boolean that describes if the link was activated or not. Use this closure to populate
+    ///     the source of truth when it is passed a value of `true`. When passed `false`, the system
+    ///     will automatically write `nil` to `item`.
+    ///   - destination: A view for the navigation link to present.
+    ///   - label: A view builder to produce a label describing the `destination` to present.
+    @available(iOS, introduced: 13, deprecated: 16)
+    @available(macOS, introduced: 10.15, deprecated: 13)
+    @available(tvOS, introduced: 13, deprecated: 16)
+    @available(watchOS, introduced: 6, deprecated: 9)
+    public init<Item, WrappedDestination>(item: Binding<Item?>, onNavigate: @escaping @Sendable (_ isActive: Bool) -> Void, @ViewBuilder destination: @escaping (Binding<Item>) -> WrappedDestination, @ViewBuilder label: () -> Label) where Destination == WrappedDestination?, Item : Sendable, WrappedDestination : View
+}
+
+extension View {
+
+    /// Presents a popover using a binding as a data source for the popover's content.
+    ///
+    /// SwiftUI comes with a `popover(item:)` view modifier that is powered by a binding to some
+    /// identifiable state. When this state becomes non-`nil`, it passes an unwrapped value to the
+    /// content closure. This value, however, is completely static, which prevents the popover from
+    /// modifying it.
+    ///
+    /// This overload differs in that it passes a _binding_ to the unwrapped value, instead. This
+    /// gives the popover the ability to write changes back to its source of truth.
+    ///
+    /// Also unlike `popover(item:)`, the binding's value does _not_ need to be identifiable, and
+    /// can instead specify a key path to the provided data's identifier.
+    ///
+    /// ```swift
+    /// struct TimelineView: View {
+    ///   @State var draft: Post?
+    ///
+    ///   var body: Body {
+    ///     Button("Compose") {
+    ///       self.draft = Post()
+    ///     }
+    ///     .popover(item: $draft) { $draft in
+    ///       ComposeView(post: $draft, onSubmit: { ... })
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// struct ComposeView: View {
+    ///   @Binding var post: Post
+    ///   var body: some View { ... }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the popover. When `item` is
+    ///     non-`nil`, a non-optional binding to the value is passed to the `content` closure. You
+    ///     use this binding to produce content that the system presents to the user in a popover.
+    ///     Changes made to the popover's binding will be reflected back in the source of truth.
+    ///     Likewise, changes to `item` are instantly reflected in the popover. If `item` becomes
+    ///     `nil`, the popover is dismissed.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - attachmentAnchor: The positioning anchor that defines the attachment point of the
+    ///     popover.
+    ///   - arrowEdge: The edge of the `attachmentAnchor` that defines the location of the popover's
+    ///     arrow.
+    ///   - content: A closure returning the content of the popover.
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    @MainActor public func popover<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds), arrowEdge: Edge = .top, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where ID : Hashable, Content : View
+
+
+    /// Presents a full-screen cover using a binding as a data source for the sheet's content.
+    ///
+    /// A version of ``SwiftUI/View/fullScreenCover(item:id:onDismiss:content:)-14to1`` that takes
+    /// an identifiable item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the popover. When `item` is
+    ///     non-`nil`, a non-optional binding to the value is passed to the `content` closure. You
+    ///     use this binding to produce content that the system presents to the user in a popover.
+    ///     Changes made to the popover's binding will be reflected back in the source of truth.
+    ///     Likewise, changes to `item` are instantly reflected in the popover. If `item` becomes
+    ///     `nil`, the popover is dismissed.
+    ///   - attachmentAnchor: The positioning anchor that defines the attachment point of the
+    ///     popover.
+    ///   - arrowEdge: The edge of the `attachmentAnchor` that defines the location of the popover's
+    ///     arrow.
+    ///   - content: A closure returning the content of the popover.
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    @MainActor public func popover<Item, Content>(item: Binding<Item?>, attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds), arrowEdge: Edge = .top, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where Item : Identifiable, Content : View
+
+
+    /// Presents a popover using a binding as a data source for the sheet's content based on the
+    /// identity of the underlying item.
+    ///
+    /// A version of ``SwiftUI/View/popover(item:id:attachmentAnchor:arrowEdge:content:)-3un96``
+    /// that is passed an item and not a binding to an item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the popover. When `item` is
+    ///     non-`nil`, the system passes the item's content to the modifier's closure. You display
+    ///     this content in a popover that you create that the system displays to the user. If `item`
+    ///     changes, the system dismisses the popover and replaces it with a new one using the same
+    ///     process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - attachmentAnchor: The positioning anchor that defines the attachment point of the
+    ///     popover.
+    ///   - arrowEdge: The edge of the `attachmentAnchor` that defines the location of the popover's
+    ///     arrow.
+    ///   - content: A closure returning the content of the popover.
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    @MainActor public func popover<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, attachmentAnchor: PopoverAttachmentAnchor = .rect(.bounds), arrowEdge: Edge = .top, @ViewBuilder content: @escaping (Item) -> Content) -> some View where ID : Hashable, Content : View
+
+}
+
+extension View {
+
+    /// Presents a sheet using a binding as a data source for the sheet's content.
+    ///
+    /// SwiftUI comes with a `sheet(item:)` view modifier that is powered by a binding to some
+    /// identifiable state. When this state becomes non-`nil`, it passes an unwrapped value to the
+    /// content closure. This value, however, is completely static, which prevents the sheet from
+    /// modifying it.
+    ///
+    /// This overload differs in that it passes a _binding_ to the unwrapped value, instead. This
+    /// gives the sheet the ability to write changes back to its source of truth.
+    ///
+    /// Also unlike `sheet(item:)`, the binding's value does _not_ need to be identifiable, and can
+    /// instead specify a key path to the provided data's identifier.
+    ///
+    /// ```swift
+    /// struct TimelineView: View {
+    ///   @State var draft: Post?
+    ///
+    ///   var body: Body {
+    ///     Button("Compose") {
+    ///       self.draft = Post()
+    ///     }
+    ///     .sheet(item: $draft, id: \.id) { $draft in
+    ///       ComposeView(post: $draft, onSubmit: { ... })
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// struct ComposeView: View {
+    ///   @Binding var post: Post
+    ///   var body: some View { ... }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func sheet<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where ID : Hashable, Content : View
+
+
+    /// Presents a sheet using a binding as a data source for the sheet's content.
+    ///
+    /// A version of ``SwiftUI/View/sheet(item:id:onDismiss:content:)-1hi9l`` that takes an
+    /// identifiable item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func sheet<Item, Content>(item: Binding<Item?>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Binding<Item>) -> Content) -> some View where Item : Identifiable, Content : View
+
+
+    /// Presents a sheet using a binding as a data source for the sheet's content.
+    ///
+    /// A version of ``SwiftUI/View/sheet(item:id:onDismiss:content:)-1hi9l`` that is passed an item
+    /// and not a binding to an item.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the sheet. When `item` is non-`nil`,
+    ///     the system passes the item's content to the modifier's closure. You display this content
+    ///     in a sheet that you create that the system displays to the user. If `item`'s identity
+    ///     changes, the system dismisses the sheet and replaces it with a new one using the same
+    ///     process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the sheet.
+    ///   - content: A closure returning the content of the sheet.
+    @MainActor public func sheet<Item, ID, Content>(item: Binding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, @ViewBuilder content: @escaping (Item) -> Content) -> some View where ID : Hashable, Content : View
+
+}
+

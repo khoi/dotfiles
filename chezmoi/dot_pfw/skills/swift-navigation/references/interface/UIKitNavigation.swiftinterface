@@ -1,0 +1,973 @@
+import ConcurrencyExtras
+import IssueReporting
+import SwiftNavigation
+import SwiftUI
+import UIKit
+
+@MainActor open class NavigationStackController : UINavigationController {
+
+    @MainActor override weak public var delegate: (any UINavigationControllerDelegate)?
+
+    @MainActor required public init<Data>(navigationBarClass: AnyClass? = nil, toolbarClass: AnyClass? = nil, path: SwiftNavigation.UIBinding<Data>, root: () -> UIViewController) where Data : RandomAccessCollection, Data : RangeReplaceableCollection, Data.Element : Hashable
+
+    @MainActor required public init(navigationBarClass: AnyClass? = nil, toolbarClass: AnyClass? = nil, path: SwiftNavigation.UIBinding<SwiftNavigation.UINavigationPath>, root: () -> UIViewController)
+
+    @MainActor required public init?(coder aDecoder: NSCoder)
+
+    @MainActor override open func viewDidLoad()
+}
+
+/// A protocol used to extend `UIControl`.
+@MainActor public protocol UIControlProtocol : UIControl {
+}
+
+@available(iOS 14, tvOS 14, *)
+extension UIControlProtocol {
+
+    /// Establishes a two-way connection between a source of truth and a property of this control.
+    ///
+    /// - Parameters:
+    ///   - binding: A source of truth for the control's value.
+    ///   - keyPath: A key path to the control's value.
+    ///   - event: The control-specific events for which the binding is updated.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind<Value>(_ binding: SwiftNavigation.UIBinding<Value>, to keyPath: ReferenceWritableKeyPath<Self, Value>, for event: UIControl.Event) -> SwiftNavigation.ObserveToken
+
+    /// Establishes a two-way connection between a source of truth and a property of this control.
+    ///
+    /// - Parameters:
+    ///   - binding: A source of truth for the control's value.
+    ///   - keyPath: A key path to the control's value.
+    ///   - event: The control-specific events for which the binding is updated.
+    ///   - set: A closure that is called when the binding's value changes with a weakly-captured
+    ///     control, a new value that can be used to configure the control, and a transaction, which
+    ///     can be used to determine how and if the change should be animated.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind<Value>(_ binding: SwiftNavigation.UIBinding<Value>, to keyPath: KeyPath<Self, Value>, for event: UIControl.Event, set: @escaping (_ control: Self, _ newValue: Value, _ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken
+
+    @MainActor public func unbind<Value>(_ keyPath: KeyPath<Self, Value>)
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+@MainActor public struct UIDismissAction : Sendable {
+
+    @MainActor public func callAsFunction()
+}
+
+/// The way a view changes over time to create a smooth visual transition from one state to
+/// another.
+public struct UIKitAnimation : Hashable, Sendable {
+
+    /// Delays the start of the animation by the specified number of seconds.
+    ///
+    /// - Parameter delay: The number of seconds to delay the start of the animation.
+    /// - Returns: An animation with a delayed start.
+    public func delay(_ delay: TimeInterval) -> UIKitNavigation.UIKitAnimation
+
+    /// Repeats the animation for a specific number of times.
+    ///
+    /// - Parameters:
+    ///   - repeatCount: The number of times that the animation repeats. Each repeated sequence
+    ///     starts at the beginning when `autoreverse` is `false`.
+    ///   - autoreverses: A Boolean value that indicates whether the animation sequence plays in
+    ///     reverse after playing forward. Autoreverse counts towards the `repeatCount`. For
+    ///     instance, a `repeatCount` of one plays the animation forward once, but it doesn't play
+    ///     in reverse even if `autoreverse` is `true`. When `autoreverse` is `true` and
+    ///     `repeatCount` is `2`, the animation moves forward, then reverses, then stops.
+    /// - Returns: An animation that repeats for specific number of times.
+    public func repeatCount(_ repeatCount: Int, autoreverses: Bool = true) -> UIKitNavigation.UIKitAnimation
+
+    /// Repeats the animation for the lifespan of the view containing the animation.
+    ///
+    /// - Parameter autoreverses: A Boolean value that indicates whether the animation sequence
+    ///   plays in reverse after playing forward.
+    /// - Returns: An animation that continuously repeats.
+    public func repeatForever(autoreverses: Bool = true) -> UIKitNavigation.UIKitAnimation
+
+    /// Changes the duration of an animation by adjusting its speed.
+    ///
+    /// - Parameter speed: The speed at which SwiftUI performs the animation.
+    /// - Returns: An animation with the adjusted speed.
+    public func speed(_ speed: Double) -> UIKitNavigation.UIKitAnimation
+}
+
+extension UIKitAnimation {
+
+    /// Animate changes using the specified duration, delay, and options.
+    ///
+    /// A value description of `UIView.animate(withDuration:delay:options:animations:completion:)`
+    /// that can be used with ``withUIKitAnimation(_:_:completion:)``.
+    ///
+    /// - Parameters:
+    ///   - duration: The total duration of the animations, measured in seconds. If you specify a
+    ///     negative value or `0`, the changes are made without animating them.
+    ///   - delay: The amount of time (measured in seconds) to wait before beginning the animations.
+    ///     Specify a value of `0` to begin the animations immediately.
+    ///   - options: A mask of options indicating how you want to perform the animations. For a list
+    ///     of valid constants, see `UIView.AnimationOptions`.
+    /// - Returns: An animation with the specified duration, delay, and options.
+    public static func animate(withDuration duration: TimeInterval, delay: CGFloat = 0, options: UIView.AnimationOptions = []) -> UIKitNavigation.UIKitAnimation
+
+    /// Performs am animation using a timing curve corresponding to the motion of a physical spring.
+    ///
+    /// A value description of
+    /// `UIView.animate(withDuration:delay:dampingRatio:velocity:options:animations:completion:)`
+    /// that can be used with ``withUIKitAnimation(_:_:completion:)``.
+    ///
+    /// - Parameters:
+    ///   - duration: The total duration of the animations, measured in seconds. If you specify a
+    ///     negative value or `0`, the changes are made without animating them.
+    ///   - delay: The amount of time (measured in seconds) to wait before beginning the animations.
+    ///     Specify a value of `0` to begin the animations immediately.
+    ///   - dampingRatio: The damping ratio for the spring animation as it approaches its quiescent
+    ///     state.
+    ///
+    ///     To smoothly decelerate the animation without oscillation, use a value of `1`. Employ a
+    ///     damping ratio closer to zero to increase oscillation.
+    ///   - velocity: The initial spring velocity. For smooth start to the animation, match this
+    ///     value to the view's velocity as it was prior to attachment.
+    ///
+    ///     A value of `1` corresponds to the total animation distance traversed in one second. For
+    ///     example, if the total animation distance is 200 points and you want the start of the
+    ///     animation to match a view velocity of 100 pt/s, use a value of `0.5`.
+    ///   - options: A mask of options indicating how you want to perform the animations. For a list
+    ///     of valid constants, see `UIView.AnimationOptions`.
+    /// - Returns: An animation using a timing curve corresponding to the motion of a physical
+    ///   spring.
+    public static func animate(withDuration duration: TimeInterval, delay: CGFloat = 0, usingSpringWithDamping dampingRatio: CGFloat, initialSpringVelocity velocity: CGFloat, options: UIView.AnimationOptions = []) -> UIKitNavigation.UIKitAnimation
+
+    /// Animates changes using a spring animation with the specified duration, bounce, initial
+    /// velocity, delay, and options.
+    ///
+    /// A value description of
+    /// `UIView.animate(springDuration:bounce:initialSpringVelocity:delay:options:animations:completion:)`
+    /// that can be used with ``withUIKitAnimation(_:_:completion:)``.
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    public static func animate(springDuration duration: TimeInterval = 0.5, bounce: CGFloat = 0, initialSpringVelocity: CGFloat = 0, delay: TimeInterval = 0, options: UIView.AnimationOptions = []) -> UIKitNavigation.UIKitAnimation
+
+    /// Animates changes using the specified SwiftUI animation.
+    ///
+    /// - Parameter animation: The animation to use for the changes.
+    @available(iOS 18, macOS 15, tvOS 18, visionOS 2, watchOS 11, *)
+    public init(_ animation: Animation)
+
+    /// A default animation instance.
+    public static var `default`: UIKitNavigation.UIKitAnimation { get }
+
+    /// An animation that moves at a constant speed.
+    ///
+    /// - Returns: A linear animation with the default duration.
+    public static var linear: UIKitNavigation.UIKitAnimation { get }
+
+    /// An animation that moves at a constant speed during a specified duration.
+    ///
+    /// - Parameter duration: The length of time, expressed in seconds, that the animation takes to
+    ///   complete.
+    /// - Returns: A linear animation with a specified duration.
+    public static func linear(duration: TimeInterval) -> UIKitNavigation.UIKitAnimation
+
+    /// An animation that starts slowly and then increases speed towards the end of the movement.
+    ///
+    /// - Returns: An ease-in animation with the default duration.
+    public static var easeIn: UIKitNavigation.UIKitAnimation { get }
+
+    /// An animation with a specified duration that starts slowly and then increases speed towards
+    /// the end of the movement.
+    ///
+    /// - Parameter duration: The length of time, expressed in seconds, that the animation takes to
+    ///   complete.
+    /// - Returns: An ease-in animation with a specified duration.
+    public static func easeIn(duration: TimeInterval) -> UIKitNavigation.UIKitAnimation
+
+    /// An animation that starts quickly and then slows towards the end of the movement.
+    ///
+    /// - Returns: An ease-out animation with the default duration.
+    public static var easeOut: UIKitNavigation.UIKitAnimation { get }
+
+    /// An animation with a specified duration that starts quickly and then slows towards the end of
+    /// the movement.
+    ///
+    /// - Parameter duration: The length of time, expressed in seconds, that the animation takes to
+    ///   complete.
+    /// - Returns: An ease-out animation with a specified duration.
+    public static func easeOut(duration: TimeInterval) -> UIKitNavigation.UIKitAnimation
+
+    /// An animation that combines the behaviors of in and out easing animations.
+    ///
+    /// - Returns: An ease-in ease-out animation with the default duration.
+    public static var easeInOut: UIKitNavigation.UIKitAnimation { get }
+
+    /// An animation with a specified duration that combines the behaviors of in and out easing
+    /// animations.
+    ///
+    /// - Parameter duration: The length of time, expressed in seconds, that the animation takes to
+    ///   complete.
+    /// - Returns: An ease-in ease-out animation with a specified duration.
+    public static func easeInOut(duration: TimeInterval) -> UIKitNavigation.UIKitAnimation
+}
+
+/// A type that can push a value onto a navigation stack controller.
+///
+/// You will not typically refer to this type directly. Instead you will invoke the
+/// ``UIKit/UITraitCollection/push`` trait's
+/// ``callAsFunction(value:fileID:filePath:line:column:)``.
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+@MainActor public struct UIPushAction : Sendable {
+
+    /// Pushes a value onto a navigation stack controller's stack.
+    ///
+    /// - Parameters:
+    ///   - value: A value to present. A copy of this value will be pushed onto the current
+    ///     ``NavigationStackController``.
+    ///   - fileID: The source `#fileID` associated with the push.
+    ///   - filePath: The source `#filePath` associated with the push.
+    ///   - line: The source `#line` associated with the push.
+    ///   - column: The source `#column` associated with the push.
+    @MainActor public func callAsFunction<Element>(value: Element, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) where Element : Hashable
+}
+
+/// Represents a selection of text.
+///
+/// Like SwiftUI's `TextSelection`, but for UIKit.
+public struct UITextSelection : Hashable, Sendable {
+
+    public var range: Range<String.Index>
+
+    public init(range: Range<String.Index>)
+
+    public init(insertionPoint: String.Index)
+
+    public var isInsertion: Bool { get }
+}
+
+/// Wraps a UIKit view controller in a SwiftUI view.
+///
+/// Useful for rendering previews of view controllers in iOS 16 and earlier, where the `#Preview`
+/// macro is unavailable.
+@available(iOS 13, tvOS 13, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+@MainActor public struct UIViewControllerRepresenting<UIViewControllerType> : UIViewControllerRepresentable where UIViewControllerType : UIViewController {
+
+    @MainActor public init(_ base: () -> UIViewControllerType)
+
+    /// Creates the view controller object and configures its initial state.
+    ///
+    /// You must implement this method and use it to create your view controller
+    /// object. Create the view controller using your app's current data and
+    /// contents of the `context` parameter. The system calls this method only
+    /// once, when it creates your view controller for the first time. For all
+    /// subsequent updates, the system calls the
+    /// ``UIViewControllerRepresentable/updateUIViewController(_:context:)``
+    /// method.
+    ///
+    /// - Parameter context: A context structure containing information about
+    ///   the current state of the system.
+    ///
+    /// - Returns: Your UIKit view controller configured with the provided
+    ///   information.
+    @MainActor public func makeUIViewController(context _: UIKitNavigation.UIViewControllerRepresenting<UIViewControllerType>.Context) -> UIViewControllerType
+
+    /// Updates the state of the specified view controller with new information
+    /// from SwiftUI.
+    ///
+    /// When the state of your app changes, SwiftUI updates the portions of your
+    /// interface affected by those changes. SwiftUI calls this method for any
+    /// changes affecting the corresponding UIKit view controller. Use this
+    /// method to update the configuration of your view controller to match the
+    /// new state information provided in the `context` parameter.
+    ///
+    /// - Parameters:
+    ///   - uiViewController: Your custom view controller object.
+    ///   - context: A context structure containing information about the current
+    ///     state of the system.
+    @MainActor public func updateUIViewController(_: UIViewControllerType, context _: UIKitNavigation.UIViewControllerRepresenting<UIViewControllerType>.Context)
+}
+
+/// Wraps a UIKit view in a SwiftUI view.
+///
+/// Useful for rendering previews of `UIView`s in iOS 16 and earlier, where the `#Preview` macro
+/// is unavailable.
+@MainActor public struct UIViewRepresenting<UIViewType> : UIViewRepresentable where UIViewType : UIView {
+
+    @MainActor public init(_ base: () -> UIViewType)
+
+    /// Creates the view object and configures its initial state.
+    ///
+    /// You must implement this method and use it to create your view object.
+    /// Configure the view using your app's current data and contents of the
+    /// `context` parameter. The system calls this method only once, when it
+    /// creates your view for the first time. For all subsequent updates, the
+    /// system calls the ``UIViewRepresentable/updateUIView(_:context:)``
+    /// method.
+    ///
+    /// - Parameter context: A context structure containing information about
+    ///   the current state of the system.
+    ///
+    /// - Returns: Your UIKit view configured with the provided information.
+    @MainActor public func makeUIView(context _: UIKitNavigation.UIViewRepresenting<UIViewType>.Context) -> UIViewType
+
+    /// Updates the state of the specified view with new information from
+    /// SwiftUI.
+    ///
+    /// When the state of your app changes, SwiftUI updates the portions of your
+    /// interface affected by those changes. SwiftUI calls this method for any
+    /// changes affecting the corresponding UIKit view. Use this method to
+    /// update the configuration of your view to match the new state information
+    /// provided in the `context` parameter.
+    ///
+    /// - Parameters:
+    ///   - uiView: Your custom view object.
+    ///   - context: A context structure containing information about the current
+    ///     state of the system.
+    @MainActor public func updateUIView(_: UIViewType, context _: UIKitNavigation.UIViewRepresenting<UIViewType>.Context)
+}
+
+/// Executes a closure with the specified animation and returns the result.
+///
+/// - Parameters:
+///   - animation: An animation, set in the ``UITransaction/uiKit`` property of the thread's
+///     current transaction.
+///   - body: A closure to execute.
+///   - completion: A completion to run when the animation is complete.
+/// - Returns: The result of executing the closure with the specified animation.
+@MainActor public func withUIKitAnimation<Result>(_ animation: UIKitNavigation.UIKitAnimation? = .default, _ body: () throws -> Result, completion: (@Sendable (Bool?) -> Void)? = nil) rethrows -> Result
+
+@available(iOS 14, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension UIColorWell {
+
+    /// Creates a new color well with the specified frame and registers the binding against the
+    /// selected color.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - selectedColor: The binding to read from for the selected color, and write to when the
+    ///     selected color changes.
+    @MainActor public convenience init(frame: CGRect = .zero, selectedColor: SwiftNavigation.UIBinding<UIColor?>)
+
+    /// Establishes a two-way connection between a binding and the color well's selected color.
+    ///
+    /// - Parameter selectedColor: The binding to read from for the selected color, and write to
+    ///   when the selected color changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(selectedColor: SwiftNavigation.UIBinding<UIColor?>) -> SwiftNavigation.ObserveToken
+}
+
+extension UIControl : UIKitNavigation.UIControlProtocol {
+}
+
+@available(iOS 14, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension UIDatePicker {
+
+    /// Creates a new date picker with the specified frame and registers the binding against the
+    /// selected date.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - date: The binding to read from for the selected date, and write to when the selected
+    ///     date changes.
+    @MainActor public convenience init(frame: CGRect = .zero, date: SwiftNavigation.UIBinding<Date>)
+
+    /// Establishes a two-way connection between a binding and the date picker's selected date.
+    ///
+    /// - Parameter date: The binding to read from for the selected date, and write to when the
+    ///   selected date changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(date: SwiftNavigation.UIBinding<Date>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, tvOS 14, *)
+extension UIPageControl {
+
+    /// Creates a new page control with the specified frame and registers the binding against the
+    /// current page.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - currentPage: The binding to read from for the current page, and write to when the
+    ///     current page changes.
+    @MainActor public convenience init(frame: CGRect = .zero, currentPage: SwiftNavigation.UIBinding<Int>)
+
+    /// Establishes a two-way connection between a binding and the page control's current page.
+    ///
+    /// - Parameter currentPage: The binding to read from for the current page, and write to when
+    ///   the current page changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(currentPage: SwiftNavigation.UIBinding<Int>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, tvOS 14, *)
+extension UISegmentedControl {
+
+    /// Creates a new segmented control with the specified frame and registers the binding against the
+    /// selected segment.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - selectedSegment: The binding to read from for the selected segment, and write to when the
+    ///     selected segment changes.
+    ///   - fileID: The source `#fileID` associated with the control.
+    ///   - filePath: The source `#filePath` associated with the control.
+    ///   - line: The source `#line` associated with the control.
+    ///   - column: The source `#column` associated with the control.
+    @MainActor public convenience init(frame: CGRect = .zero, selectedSegment: SwiftNavigation.UIBinding<some RawRepresentable<Int>>, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column)
+
+    /// Establishes a two-way connection between a binding and the segmented control's selected segment.
+    ///
+    /// - Parameters:
+    ///   - selectedSegment: The binding to read from for the selected segment, and write to when the
+    ///     selected segment changes.
+    ///   - fileID: The source `#fileID` associated with the binding.
+    ///   - filePath: The source `#filePath` associated with the binding.
+    ///   - line: The source `#line` associated with the binding.
+    ///   - column: The source `#column` associated with the binding.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(selectedSegment: SwiftNavigation.UIBinding<some RawRepresentable<Int>>, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension UISlider {
+
+    /// Creates a new slider with the specified frame and registers the binding against the value.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - value: The binding to read from for the current value, and write to when the value
+    ///     changes.
+    @MainActor public convenience init(frame: CGRect = .zero, value: SwiftNavigation.UIBinding<Float>)
+
+    /// Establishes a two-way connection between a binding and the slider's current value.
+    ///
+    /// - Parameter value: The binding to read from for the current value, and write to when the
+    ///   value changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(value: SwiftNavigation.UIBinding<Float>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension UIStepper {
+
+    /// Creates a new stepper with the specified frame and registers the binding against the value.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - value: The binding to read from for the current value, and write to when the value
+    ///     changes.
+    @MainActor public convenience init(frame: CGRect = .zero, value: SwiftNavigation.UIBinding<Double>)
+
+    /// Establishes a two-way connection between a binding and the stepper's current value.
+    ///
+    /// - Parameter value: The binding to read from for the current value, and write to when the
+    ///   value changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(value: SwiftNavigation.UIBinding<Double>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension UISwitch {
+
+    /// Creates a new switch with the specified frame and registers the binding against whether or
+    /// not the switch is on.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - isOn: The binding to read from for the current state, and write to when the state
+    ///     changes.
+    @MainActor public convenience init(frame: CGRect = .zero, isOn: SwiftNavigation.UIBinding<Bool>)
+
+    /// Establishes a two-way connection between a binding and the switch's current state.
+    ///
+    /// - Parameter isOn: The binding to read from for the current state, and write to when the
+    ///   state changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(isOn: SwiftNavigation.UIBinding<Bool>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 18, tvOS 18, visionOS 2, *)
+extension UITabBarController {
+
+    @discardableResult
+    @MainActor public func bind(selectedTab: SwiftNavigation.UIBinding<String?>, fileID: StaticString = #fileID, filePath: StaticString = #filePath, line: UInt = #line, column: UInt = #column) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 14, tvOS 14, *)
+extension UITextField {
+
+    /// Creates a new text field with the specified frame and registers the binding against its
+    /// text.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - text: The binding to read from for the current text, and write to when the text
+    ///     changes.
+    @MainActor public convenience init(frame: CGRect = .zero, text: SwiftNavigation.UIBinding<String>)
+
+    /// Creates a new text field with the specified frame and registers the binding against its
+    /// text.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view, measured in points.
+    ///   - attributedText: The binding to read from for the current text, and write to when the
+    ///     attributed text changes.
+    @MainActor public convenience init(frame: CGRect = .zero, attributedText: SwiftNavigation.UIBinding<NSAttributedString>)
+
+    /// Establishes a two-way connection between a binding and the text field's current text.
+    ///
+    /// - Parameter text: The binding to read from for the current text, and write to when the text
+    ///   changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(text: SwiftNavigation.UIBinding<String>) -> SwiftNavigation.ObserveToken
+
+    /// Establishes a two-way connection between a binding and the text field's current text.
+    ///
+    /// - Parameter attributedText: The binding to read from for the current text, and write to when
+    ///   the attributed text changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(attributedText: SwiftNavigation.UIBinding<NSAttributedString>) -> SwiftNavigation.ObserveToken
+
+    /// Establishes a two-way connection between a binding and the text field's current selection.
+    ///
+    /// - Parameter selection: The binding to read from for the current selection, and write to when
+    ///   the selected text range changes.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(selection: SwiftNavigation.UIBinding<UIKitNavigation.UITextSelection?>) -> SwiftNavigation.ObserveToken
+
+    /// Modifies this text field by binding its focus state to the given state value.
+    ///
+    /// Use this modifier to cause the text field to receive focus whenever the the `binding` equals
+    /// the `value`. Typically, you create an enumeration of fields that may receive focus, bind an
+    /// instance of this enumeration, and assign its cases to focusable text fields.
+    ///
+    /// The following example uses the cases of a `LoginForm` enumeration to bind the focus state of
+    /// two `UITextField` views. A sign-in button validates the fields and sets the bound
+    /// `focusedField` value to any field that requires the user to correct a problem.
+    ///
+    /// ```swift
+    /// final class LoginViewController: UIViewController {
+    ///   enum Field {
+    ///     case usernameField
+    ///     case passwordField
+    ///   }
+    ///
+    ///   @UIBinding private var username = ""
+    ///   @UIBinding private var password = ""
+    ///   @UIBinding private var focusedField: Field?
+    ///
+    ///   // ...
+    ///
+    ///   override func viewDidLoad() {
+    ///     super.viewDidLoad()
+    ///
+    ///     let usernameTextField = UITextField(text: $username)
+    ///     usernameTextField.focus($focusedField, equals: .usernameField)
+    ///
+    ///     let passwordTextField = UITextField(text: $password)
+    ///     passwordTextField.focus($focusedField, equals: .passwordField)
+    ///     passwordTextField.isSecureTextEntry = true
+    ///
+    ///     let signInButton = UIButton(
+    ///       style: .system,
+    ///       primaryAction: UIAction { [weak self] _ in
+    ///         guard let self else { return }
+    ///         if username.isEmpty {
+    ///           focusedField = .usernameField
+    ///         } else if password.isEmpty {
+    ///           focusedField = .passwordField
+    ///         } else {
+    ///           handleLogin(username, password)
+    ///         }
+    ///       }
+    ///     )
+    ///     signInButton.setTitle("Sign In", for: .normal)
+    ///
+    ///     // ...
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// To control focus using a Boolean, use the ``UIKit/UITextField/bind(focus:)`` method instead.
+    ///
+    /// - Parameters:
+    ///   - focus: The state binding to register. When focus moves to the text field, the binding
+    ///     sets the bound value to the corresponding match value. If a caller sets the state value
+    ///     programmatically to the matching value, then focus moves to the text field. When focus
+    ///     leaves the text field, the binding sets the bound value to `nil`. If a caller sets the
+    ///     value to `nil`, UIKit automatically dismisses focus.
+    ///   - value: The value to match against when determining whether the binding should change.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind<Value>(focus: SwiftNavigation.UIBinding<Value?>, equals value: Value) -> SwiftNavigation.ObserveToken where Value : Hashable
+
+    /// Binds this text field's focus state to the given Boolean state value.
+    ///
+    /// Use this method to cause the text field to receive focus whenever the the `condition` value
+    /// is `true`. You can use this method to observe the focus state of a text field, or
+    /// programmatically set and remove focus from the text field.
+    ///
+    /// In the following example, a single `UITextField` accepts a user's desired `username`. The
+    /// text field binds its focus state to the Boolean value `usernameFieldIsFocused`. A "Submit"
+    /// button's action verifies whether the name is available. If the name is unavailable, the
+    /// button sets `usernameFieldIsFocused` to `true`, which causes focus to return to the text
+    /// field, so the user can enter a different name.
+    ///
+    /// ```swift
+    /// final class LoginViewController: UIViewController {
+    ///   @UIBindable private var username = ""
+    ///   @UIBindable private var usernameFieldIsFocused = false
+    ///
+    ///   // ...
+    ///
+    ///   override func viewDidLoad() {
+    ///     super.viewDidLoad()
+    ///
+    ///     let textField = UITextField(text: $username)
+    ///     textField.focus($usernameFieldIsFocused)
+    ///
+    ///     let submitButton = UIButton(
+    ///       style: .system,
+    ///       primaryAction: UIAction { [weak self] _ in
+    ///         guard let self else { return }
+    ///         if !isUserNameAvailable(username: username) {
+    ///           usernameFieldIsFocused = true
+    ///         }
+    ///       }
+    ///     )
+    ///     submitButton.setTitle("Sign In", for: .normal)
+    ///
+    ///     // ...
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// To control focus by matching a value, use the ``UIKit/UITextField/bind(focus:equals:)``
+    /// method instead.
+    ///
+    /// - Parameter condition: The focus state to bind. When focus moves to the text field, the
+    ///   binding sets the bound value to `true`. If a caller sets the value to  `true`
+    ///   programmatically, then focus moves to the text field. When focus leaves the text field,
+    ///   the binding sets the value to `false`. If a caller sets the value to `false`, UIKit
+    ///   automatically dismisses focus.
+    /// - Returns: A cancel token.
+    @discardableResult
+    @MainActor public func bind(focus condition: SwiftNavigation.UIBinding<Bool>) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension UITraitCollection {
+
+    public var dismiss: UIKitNavigation.UIDismissAction { get }
+
+    public var isPresented: Bool { get }
+}
+
+extension UIViewController {
+
+    @available(iOS, deprecated: 17, renamed: "traitCollection.push")
+    @available(macOS, deprecated: 14, renamed: "traitCollection.push")
+    @available(tvOS, deprecated: 17, renamed: "traitCollection.push")
+    @available(watchOS, deprecated: 10, renamed: "traitCollection.push")
+    @MainActor public func push<Element>(value: Element) where Element : Hashable
+
+    @MainActor public func navigationDestination<D>(for data: D.Type, destination: @escaping (D) -> UIViewController) where D : Hashable
+}
+
+extension UIViewController {
+
+    /// Presents a view controller modally when a binding to a Boolean value you provide is true.
+    ///
+    /// Like SwiftUI's `sheet`, `fullScreenCover`, and `popover` view modifiers, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding to a Boolean value that determines whether to present the view
+    ///     controller.
+    ///   - onDismiss: The closure to execute when dismissing the view controller.
+    ///   - content: A closure that returns the view controller to display over the current view
+    ///     controller's content.
+    @discardableResult
+    @MainActor public func present(isPresented: SwiftNavigation.UIBinding<Bool>, onDismiss: (() -> Void)? = nil, content: @escaping () -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    /// Presents a view controller modally using the given item as a data source for its content.
+    ///
+    /// Like SwiftUI's `sheet`, `fullScreenCover`, and `popover` view modifiers, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user. If `item`'s
+    ///     identity changes, the view controller is dismissed and replaced with a new one using the
+    ///     same process.
+    ///   - onDismiss: The closure to execute when dismissing the view controller.
+    ///   - content: A closure that returns the view controller to display over the current view
+    ///     controller's content.
+    @discardableResult
+    @MainActor public func present<Item>(item: SwiftNavigation.UIBinding<Item?>, onDismiss: (() -> Void)? = nil, content: @escaping (Item) -> UIViewController) -> SwiftNavigation.ObserveToken where Item : Identifiable
+
+    /// Presents a view controller modally using the given item as a data source for its content.
+    ///
+    /// Like SwiftUI's `sheet`, `fullScreenCover`, and `popover` view modifiers, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user. If `item`'s
+    ///     identity changes, the view controller is dismissed and replaced with a new one using the
+    ///     same process.
+    ///   - onDismiss: The closure to execute when dismissing the view controller.
+    ///   - content: A closure that returns the view controller to display over the current view
+    ///     controller's content.
+    @discardableResult
+    @MainActor public func present<Item>(item: SwiftNavigation.UIBinding<Item?>, onDismiss: (() -> Void)? = nil, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController) -> SwiftNavigation.ObserveToken where Item : Identifiable
+
+    /// Presents a view controller modally using the given item as a data source for its content.
+    ///
+    /// Like SwiftUI's `sheet`, `fullScreenCover`, and `popover` view modifiers, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user. If `item`'s
+    ///     identity changes, the view controller is dismissed and replaced with a new one using the
+    ///     same process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the view controller.
+    ///   - content: A closure that returns the view controller to display over the current view
+    ///     controller's content.
+    @discardableResult
+    @MainActor public func present<Item, ID>(item: SwiftNavigation.UIBinding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, content: @escaping (Item) -> UIViewController) -> SwiftNavigation.ObserveToken where ID : Hashable
+
+    /// Presents a view controller modally using the given item as a data source for its content.
+    ///
+    /// Like SwiftUI's `sheet`, `fullScreenCover`, and `popover` view modifiers, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user. If `item`'s
+    ///     identity changes, the view controller is dismissed and replaced with a new one using the
+    ///     same process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - onDismiss: The closure to execute when dismissing the view controller.
+    ///   - content: A closure that returns the view controller to display over the current view
+    ///     controller's content.
+    @discardableResult
+    @MainActor public func present<Item, ID>(item: SwiftNavigation.UIBinding<Item?>, id: KeyPath<Item, ID>, onDismiss: (() -> Void)? = nil, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController) -> SwiftNavigation.ObserveToken where ID : Hashable
+
+    /// Pushes a view controller onto the receiver's stack when a binding to a Boolean value you
+    /// provide is true.
+    ///
+    /// Like SwiftUI's `navigationDestination(isPresented:)` view modifier, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding to a Boolean value that determines whether to push the view
+    ///     controller.
+    ///   - content: A closure that returns the view controller to display onto the receiver's
+    ///     stack.
+    @discardableResult
+    @MainActor public func navigationDestination(isPresented: SwiftNavigation.UIBinding<Bool>, content: @escaping () -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    /// Pushes a view controller onto the receiver's stack using the given item as a data source for
+    /// its content.
+    ///
+    /// Like SwiftUI's `navigationDestination(item:)` view modifier, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user.
+    ///   - content: A closure that returns the view controller to display onto the receiver's
+    ///     stack.
+    @discardableResult
+    @MainActor public func navigationDestination<Item>(item: SwiftNavigation.UIBinding<Item?>, content: @escaping (Item) -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    /// Pushes a view controller onto the receiver's stack using the given item as a data source for
+    /// its content.
+    ///
+    /// Like SwiftUI's `navigationDestination(item:)` view modifier, but for UIKit.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user.
+    ///   - content: A closure that returns the view controller to display onto the receiver's
+    ///     stack.
+    @discardableResult
+    @MainActor public func navigationDestination<Item>(item: SwiftNavigation.UIBinding<Item?>, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    /// Presents a view controller when a binding to a Boolean value you provide is true.
+    ///
+    /// This helper powers ``present(isPresented:onDismiss:content:)`` and
+    /// ``UIKit/UINavigationController/pushViewController(isPresented:content:)`` and can be used to
+    /// define custom transitions.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding to a Boolean value that determines whether to present the view
+    ///     controller.
+    ///   - content: A closure that returns the view controller to display.
+    ///   - present: The closure to execute when presenting the view controller.
+    ///   - dismiss: The closure to execute when dismissing the view controller.
+    @discardableResult
+    @MainActor public func destination(isPresented: SwiftNavigation.UIBinding<Bool>, content: @escaping () -> UIViewController, present: @escaping (UIViewController, SwiftNavigation.UITransaction) -> Void, dismiss: @escaping (_ child: UIViewController, _ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken
+
+    /// Presents a view controller using the given item as a data source for its content.
+    ///
+    /// This helper powers ``navigationDestination(item:content:)-1gks3`` and can be used to define
+    /// custom transitions.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user.
+    ///   - content: A closure that returns the view controller to display.
+    ///   - present: The closure to execute when presenting the view controller.
+    ///   - dismiss: The closure to execute when dismissing the view controller.
+    @discardableResult
+    @MainActor public func destination<Item>(item: SwiftNavigation.UIBinding<Item?>, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController, present: @escaping (UIViewController, SwiftNavigation.UITransaction) -> Void, dismiss: @escaping (_ child: UIViewController, _ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken
+
+    /// Presents a view controller using the given item as a data source for its content.
+    ///
+    /// This helper powers ``present(item:onDismiss:content:)-4m7m3`` and can be used to define
+    /// custom transitions.
+    ///
+    /// - Parameters:
+    ///   - item: A binding to an optional source of truth for the view controller. When `item` is
+    ///     non-`nil`, the item's content is passed to the `content` closure. You display this
+    ///     content in a view controller that you create that is displayed to the user. If `item`'s
+    ///     identity changes, the view controller is dismissed and replaced with a new one using the
+    ///     same process.
+    ///   - id: The key path to the provided item's identifier.
+    ///   - content: A closure that returns the view controller to display.
+    ///   - present: The closure to execute when presenting the view controller.
+    ///   - dismiss: The closure to execute when dismissing the view controller.
+    @discardableResult
+    @MainActor public func destination<Item, ID>(item: SwiftNavigation.UIBinding<Item?>, id: KeyPath<Item, ID>, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController, present: @escaping (_ child: UIViewController, _ transaction: SwiftNavigation.UITransaction) -> Void, dismiss: @escaping (_ child: UIViewController, _ transaction: SwiftNavigation.UITransaction) -> Void) -> SwiftNavigation.ObserveToken where ID : Hashable
+}
+
+extension UINavigationController {
+
+    @available(*, deprecated, message: "Use 'self.navigationDestination(isPresented:)' instead of 'self.navigationController?.pushViewController(isPresented:)'.")
+    @discardableResult
+    @MainActor public func pushViewController(isPresented: SwiftNavigation.UIBinding<Bool>, content: @escaping () -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    @available(*, deprecated, message: "Use 'self.navigationDestination(item:)' instead of 'self.navigationController?.pushViewController(item:)'.")
+    @discardableResult
+    @MainActor public func pushViewController<Item>(item: SwiftNavigation.UIBinding<Item?>, content: @escaping (Item) -> UIViewController) -> SwiftNavigation.ObserveToken
+
+    @available(*, deprecated, message: "Use 'self.navigationDestination(item:)' instead of 'self.navigationController?.pushViewController(item:)'.")
+    @discardableResult
+    @MainActor public func pushViewController<Item>(item: SwiftNavigation.UIBinding<Item?>, content: @escaping (SwiftNavigation.UIBinding<Item>) -> UIViewController) -> SwiftNavigation.ObserveToken
+}
+
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+extension UITraitCollection {
+
+    /// Pushes a value onto the current navigation stack controller.
+    ///
+    /// When you invoke ``UIPushAction/callAsFunction(value:fileID:filePath:line:column:)`` with a
+    /// value, UIKit Navigation will append a copy to the underlying path driving the current
+    /// navigation stack.
+    ///
+    /// ```swift
+    /// UIButton(primaryAction: UIAction { [weak self] _ in
+    ///   self?.traitCollection.push(Path.detail)
+    /// })
+    /// ```
+    ///
+    /// If there is no navigation stack, a runtime warning will be reported, instead.
+    public var push: UIKitNavigation.UIPushAction { get }
+}
+
+@available(iOS 13, tvOS 13, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension UIAlertController {
+
+    /// Creates and returns a view controller for displaying an alert using a data description.
+    ///
+    /// - Parameters:
+    ///   - state: A data description of the alert.
+    ///   - handler: A closure that is invoked with an action held in `state`.
+    @MainActor public convenience init<Action>(state: SwiftNavigation.AlertState<Action>, handler: @escaping (_ action: Action?) -> Void = { (_: Never?) in })
+
+    /// Creates and returns a view controller for displaying an action sheet using a data
+    /// description.
+    ///
+    /// - Parameters:
+    ///   - state: A data description of the alert.
+    ///   - handler: A closure that is invoked with an action held in `state`.
+    @MainActor public convenience init<Action>(state: SwiftNavigation.ConfirmationDialogState<Action>, handler: @escaping (_ action: Action?) -> Void = { (_: Never?) in })
+}
+
+@available(iOS 13, tvOS 13, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension UIAlertAction.Style {
+
+    public init(_ role: SwiftNavigation.ButtonStateRole)
+}
+
+@available(iOS 13, tvOS 13, *)
+@available(macOS, unavailable)
+@available(watchOS, unavailable)
+extension UIAlertAction {
+
+    @MainActor public convenience init<Action>(_ button: SwiftNavigation.ButtonState<Action>, action handler: @escaping (_ action: Action?) -> Void = { (_: Never?) in })
+}
+
+extension UIBinding {
+
+    /// Specifies an animation to perform when the binding value changes.
+    ///
+    /// - Parameter animation: An animation sequence performed when the binding value changes.
+    /// - Returns: A new binding.
+    public func animation(_ animation: UIKitNavigation.UIKitAnimation? = .default) -> SwiftNavigation.UIBinding<Value>
+}
+
+extension UITransaction {
+
+    /// Creates a transaction and assigns its animation property.
+    ///
+    /// - Parameter animation: The animation to perform when the current state changes.
+    public init(animation: UIKitNavigation.UIKitAnimation? = nil)
+
+    /// UIKit-specific data associated with the current state change.
+    public var uiKit: SwiftNavigation.UITransaction.UIKit
+
+    /// UIKit-specific data associated with a ``UITransaction``.
+    public struct UIKit : Sendable {
+
+        /// The animation, if any, associated with the current state change.
+        public var animation: UIKitNavigation.UIKitAnimation?
+
+        /// A Boolean value that indicates whether views should disable animations.
+        public var disablesAnimations: Bool
+
+        /// Adds a completion to run when the animations created with this transaction are all
+        /// complete.
+        ///
+        /// The completion callback will always be fired exactly one time.
+        public mutating func addAnimationCompletion(_ completion: @escaping @Sendable (Bool?) -> Void)
+    }
+}
+
