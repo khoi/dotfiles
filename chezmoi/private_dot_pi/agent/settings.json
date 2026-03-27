@@ -1,0 +1,23 @@
+{
+  "lastChangelogVersion": "0.62.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.4",
+  "defaultThinkingLevel": "xhigh",
+  "enabledModels": [
+    "openai-codex/gpt-5.4",
+    "openai-codex/gpt-5.3-codex-spark"
+  ],
+  "editorPaddingX": 2,
+  "steeringMode": "all",
+  "quietStartup": false,
+  "theme": "zenbones-dark",
+  "showHardwareCursor": false,
+  "hideThinkingBlock": true,
+  "collapseChangelog": true,
+  "treeFilterMode": "user-only",
+  "packages": [],
+  "workingVibe": "zen",
+  "pi-codex-fast": {
+    "enabled": true
+  }
+}
