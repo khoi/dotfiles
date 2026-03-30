@@ -68,6 +68,7 @@ test -d ~/.bun/bin && fish_add_path ~/.bun/bin
 # Keybindings
 bind \cf forward-word # Ctrl+F: accept one word of autosuggestion
 bind \ce end-of-line # Ctrl+E: accept full autosuggestion
+bind ctrl-g edit_command_buffer
 
 # Initialize zoxide (cached)
 if command -v zoxide &>/dev/null
