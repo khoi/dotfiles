@@ -16,7 +16,6 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "npm:pi-codex-web-search",
     "npm:pi-powerline-footer",
     "npm:@anthnykr/pi-codex-fast-mode",
     "npm:pi-subagents",
