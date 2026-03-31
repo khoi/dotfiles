@@ -49,6 +49,21 @@ class FollowUpTabEditor extends CustomEditor {
       this.tui.requestRender();
     }
   }
+
+  override handleAction(action: string): void {
+    if (action !== "app.message.followUp") {
+      super.handleAction(action);
+      return;
+    }
+
+    const beforeText = this.getText();
+    super.handleAction(action);
+
+    if (beforeText.trim() && this.getText() === beforeText) {
+      this.setText("");
+      this.tui.requestRender();
+    }
+  }
 }
 
 export default function followUpTabExtension(pi: ExtensionAPI): void {
