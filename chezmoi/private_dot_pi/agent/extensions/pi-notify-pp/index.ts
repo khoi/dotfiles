@@ -47,7 +47,7 @@ async function sendSupatermClaudeHook(event: SupatermClaudeHookEvent): Promise<v
   }
 
   await new Promise<void>((resolve) => {
-    const child = spawn(supatermCLIPath, ["claude-hook"], {
+    const child = spawn(supatermCLIPath, ["agent-hook", "--agent", "claude"], {
       env: process.env,
       stdio: ["pipe", "ignore", "ignore"],
     });
