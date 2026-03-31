@@ -18,7 +18,11 @@
   "packages": [
     "npm:pi-codex-web-search",
     "npm:pi-powerline-footer",
-    "npm:@anthnykr/pi-codex-fast-mode"
+    "npm:@anthnykr/pi-codex-fast-mode",
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-interactive-shell",
+    "npm:pi-interview"
   ],
   "pi-codex-fast": {
     "enabled": true
