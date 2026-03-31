@@ -1,19 +1,17 @@
 [tools]
-rust = "1.94.0"
+rust = "1.94.1"
 go = "latest"
 python = "latest"
 zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
-node = "25.8.1"
-"npm:@openai/codex" = "latest"
-"npm:@mariozechner/pi-coding-agent" = "latest"
-ruby = "3"
+node = "25.8.2"
+ruby = "4"
 
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = []
-trusted_config_paths = ["~/code/github.com/khoi","~/code/github.com/supabitapp"]
+trusted_config_paths = ["~/code/github.com/khoi","~/code/github.com/supabitapp", "~/.supacode"]
 idiomatic_version_file = true
 paranoid = false
