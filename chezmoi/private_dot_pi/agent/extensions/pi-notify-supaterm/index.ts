@@ -21,12 +21,14 @@ type SupatermClaudeHookEventName =
   | "Notification"
   | "PreToolUse"
   | "SessionEnd"
-  | "SessionStart";
+  | "SessionStart"
+  | "Stop";
 
 type SupatermClaudeHookEvent = {
   hook_event_name: SupatermClaudeHookEventName;
   agent_type?: string;
   cwd: string;
+  last_assistant_message?: string;
   message?: string;
   model?: string;
   notification_type?: string;
@@ -204,6 +206,11 @@ export default function (pi: ExtensionAPI) {
           message: body,
           notification_type: hasError ? "error" : "request_input",
           title,
+        })
+      );
+      await sendSupatermClaudeHook(
+        supatermClaudeHookEvent("Stop", {
+          last_assistant_message: snippet,
         })
       );
       return;
