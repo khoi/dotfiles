@@ -14,7 +14,7 @@ import type { AssistantMessage, TextContent } from "@mariozechner/pi-ai";
 const supatermCLIPath = process.env.SUPATERM_CLI_PATH;
 const supatermSurfaceID = process.env.SUPATERM_SURFACE_ID;
 const supatermSessionID = supatermSurfaceID
-  ? `pi-notify-pp-${supatermSurfaceID.toLowerCase()}`
+  ? `pi-notify-supaterm-${supatermSurfaceID.toLowerCase()}`
   : undefined;
 
 type SupatermClaudeHookEventName =
@@ -75,7 +75,7 @@ function supatermClaudeHookEvent(
     cwd: process.cwd(),
     hook_event_name: hookEventName,
     session_id: supatermSessionID,
-    source: "pi-notify-pp",
+    source: "pi-notify-supaterm",
   };
 }
 
