@@ -98,27 +98,26 @@ if [[ -z "$branch_name" || "$branch_name" == "null" ]]; then
   [[ -z "$issue_slug" ]] || branch_name="$branch_name-$issue_slug"
 fi
 
+repo_root=$(git rev-parse --show-toplevel)
 existing_worktree=$(
   wt ls --json | jq -r --arg branch "$branch_name" '.[] | select(.branch == $branch and .is_bare == false) | .path' | head -n 1
 )
-created_worktree=false
+worktree_existed=false
 
 if [[ -n "$existing_worktree" ]]; then
   worktree_path="$existing_worktree"
+  worktree_existed=true
 else
   worktree_root=$(wt base)
   worktree_path="$worktree_root/$branch_name"
+fi
 
-  if git show-ref --verify --quiet "refs/remotes/origin/HEAD"; then
-    base_ref=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD)
-  elif git show-ref --verify --quiet refs/heads/main; then
-    base_ref="main"
-  else
-    base_ref="HEAD"
-  fi
-
-  worktree_path=$(wt switch "$branch_name" --from "$base_ref" --path "$worktree_path" --copy-ignored --copy-untracked)
-  created_worktree=true
+if git show-ref --verify --quiet "refs/remotes/origin/HEAD"; then
+  base_ref=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD)
+elif git show-ref --verify --quiet refs/heads/main; then
+  base_ref="main"
+else
+  base_ref="HEAD"
 fi
 
 prompt=$(cat <<EOF
@@ -133,12 +132,19 @@ $issue_context
 EOF
 )
 
-escaped_prompt=${prompt//\\/\\\\}
-escaped_prompt=${escaped_prompt//\"/\\\"}
-escaped_prompt=${escaped_prompt//\$/\\$}
-printf -v tab_script 'codex "%s"\n' "$escaped_prompt"
+quoted_branch_name=$(jq -rn --arg value "$branch_name" '$value | @sh')
+quoted_base_ref=$(jq -rn --arg value "$base_ref" '$value | @sh')
+quoted_prompt=$(jq -rn --arg value "$prompt" '$value | @sh')
+quoted_worktree_path=$(jq -rn --arg value "$worktree_path" '$value | @sh')
 
-sp_args=(new-tab --json --no-focus --cwd "$worktree_path")
+tab_script=$(cat <<EOF
+worktree_path=\$(wt switch $quoted_branch_name --from $quoted_base_ref --path $quoted_worktree_path --copy-ignored --copy-untracked) &&
+cd "\$worktree_path" &&
+codex $quoted_prompt
+EOF
+)
+
+sp_args=(new-tab --json --no-focus --cwd "$repo_root")
 
 if [[ -n "$space" ]]; then
   sp_args+=(--space "$space")
@@ -156,13 +162,13 @@ jq -n \
   --arg title "$issue_title" \
   --arg branch "$branch_name" \
   --arg worktree "$worktree_path" \
-  --argjson createdWorktree "$created_worktree" \
+  --argjson worktreeExisted "$worktree_existed" \
   --argjson tab "$tab_json" \
   '{
     issue: $issue,
     title: $title,
     branch: $branch,
     worktree: $worktree,
-    createdWorktree: $createdWorktree,
+    worktreeExisted: $worktreeExisted,
     tab: $tab
   }'
