@@ -1,6 +1,5 @@
 import type { ExtensionAPI, Theme } from "@mariozechner/pi-coding-agent";
 import {
-  createBashTool,
   createEditTool,
   createFindTool,
   createGrepTool,
@@ -19,7 +18,6 @@ const toolCache = new Map<string, BuiltInTools>();
 function createBuiltInTools(cwd: string) {
   return {
     read: createReadTool(cwd),
-    bash: createBashTool(cwd),
     edit: createEditTool(cwd),
     write: createWriteTool(cwd),
     find: createFindTool(cwd),
@@ -44,11 +42,6 @@ function shortenPath(path: string): string {
 
 function toolLabel(theme: Theme, label: string): string {
   return `${theme.fg("success", "•")} ${theme.fg("toolTitle", theme.bold(label))}`;
-}
-
-function summarizeCommand(command: string): string {
-  const singleLine = command.replace(/\s+/g, " ").trim();
-  return singleLine.length > 100 ? `${singleLine.slice(0, 97)}...` : singleLine;
 }
 
 function renderExpandedResult(result: { content?: Array<{ type: string; text?: string }> }, theme: Theme) {
@@ -110,12 +103,6 @@ export default function minimalToolOutput(pi: ExtensionAPI) {
       text += theme.fg("warning", `:${start}${end ? `-${end}` : ""}`);
     }
 
-    return new Text(text, 0, 0);
-  });
-
-  registerBuiltInTool(pi, "bash", (args, theme) => {
-    const command = summarizeCommand(args.command || "...");
-    const text = `${toolLabel(theme, "bash")} ${theme.fg("muted", command)}`;
     return new Text(text, 0, 0);
   });
 
