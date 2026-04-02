@@ -46,14 +46,13 @@ const getAutoCompactEnabled = (cwd: string): boolean => {
 };
 
 const setStatusReady = (ctx: FooterContext): void => {
-  const theme = ctx.ui.theme;
-  ctx.ui.setStatus("status-line", theme.fg("dim", "Ready"));
+  ctx.ui.setStatus("status-line", "Ready");
 };
 
 const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
   const autoCompactEnabled = getAutoCompactEnabled(ctx.cwd);
 
-  ctx.ui.setFooter((tui, theme, footerData) => {
+  ctx.ui.setFooter((tui, _theme, footerData) => {
     const dispose = footerData.onBranchChange(() => tui.requestRender());
 
     return {
@@ -114,13 +113,7 @@ const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
             ? `?/${formatTokens(contextWindow)}${autoIndicator}`
             : `${contextPercent}%/${formatTokens(contextWindow)}${autoIndicator}`;
 
-        let contextPercentText = contextPercentDisplay;
-        if (contextPercentValue > 90) {
-          contextPercentText = theme.fg("error", contextPercentDisplay);
-        } else if (contextPercentValue > 70) {
-          contextPercentText = theme.fg("warning", contextPercentDisplay);
-        }
-        statsParts.push(contextPercentText);
+        statsParts.push(contextPercentDisplay);
 
         let statsLeft = statsParts.join(" ");
         let statsLeftWidth = visibleWidth(statsLeft);
@@ -163,13 +156,9 @@ const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
           }
         }
 
-        const dimStatsLeft = theme.fg("dim", statsLeft);
-        const remainder = statsLine.slice(statsLeft.length);
-        const dimRemainder = theme.fg("dim", remainder);
-
         const lines = [
-          truncateToWidth(theme.fg("dim", pwd), width, theme.fg("dim", "...")),
-          dimStatsLeft + dimRemainder,
+          truncateToWidth(pwd, width, "..."),
+          statsLine,
         ];
 
         const extensionStatuses = footerData.getExtensionStatuses();
@@ -178,7 +167,7 @@ const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([, text]) => sanitizeStatusText(text))
             .join(" ");
-          lines.push(truncateToWidth(statusLine, width, theme.fg("dim", "...")));
+          lines.push(truncateToWidth(statusLine, width, "..."));
         }
 
         return lines;
@@ -197,17 +186,11 @@ export default function statusLine(pi: ExtensionAPI) {
 
   pi.on("turn_start", async (_event, ctx) => {
     turnCount += 1;
-    const theme = ctx.ui.theme;
-    const spinner = theme.fg("accent", "●");
-    const text = theme.fg("dim", ` Turn ${turnCount}...`);
-    ctx.ui.setStatus("status-line", spinner + text);
+    ctx.ui.setStatus("status-line", `● Turn ${turnCount}...`);
   });
 
   pi.on("turn_end", async (_event, ctx) => {
-    const theme = ctx.ui.theme;
-    const check = theme.fg("success", "✓");
-    const text = theme.fg("dim", ` Turn ${turnCount} complete`);
-    ctx.ui.setStatus("status-line", check + text);
+    ctx.ui.setStatus("status-line", `✓ Turn ${turnCount} complete`);
   });
 
   pi.on("session_switch", async (_event, ctx) => {
