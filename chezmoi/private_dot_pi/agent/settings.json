@@ -16,7 +16,6 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "npm:@anthnykr/pi-codex-fast-mode",
     "npm:pi-web-access",
     "../../code/github.com/supabitapp/supaterm-pi",
     "npm:pi-bash-live-view"
