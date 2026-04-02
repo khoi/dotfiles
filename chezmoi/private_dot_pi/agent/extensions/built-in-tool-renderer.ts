@@ -57,30 +57,19 @@ export default function builtInToolRenderer(pi: ExtensionAPI) {
       }
       return new Text(text, 0, 0);
     },
-    renderResult(result, { expanded, isPartial }, theme) {
+    renderResult(result, { isPartial }, theme, context) {
       if (isPartial) return new Text(theme.fg("warning", "Reading..."), 0, 0);
 
       const content = result.content[0];
       const details = result.details as ReadToolDetails | undefined;
-      if (content?.type === "image") return new Text(theme.fg("success", "Image loaded"), 0, 0);
+      let text = theme.fg("accent", context.args.path);
 
-      const output = getTextContent(result);
-      if (output === undefined) return new Text(theme.fg("error", "No content"), 0, 0);
-
-      const lines = output.split("\n");
-      let text = theme.fg("success", `${lines.length} lines`);
-
-      if (details?.truncation?.truncated) {
-        text += theme.fg("warning", ` (truncated from ${details.truncation.totalLines})`);
+      if (content?.type === "image") {
+        text += theme.fg("dim", " (image)");
       }
 
-      if (expanded) {
-        for (const line of lines.slice(0, 15)) {
-          text += `\n${theme.fg("dim", line)}`;
-        }
-        if (lines.length > 15) {
-          text += `\n${theme.fg("muted", `... ${lines.length - 15} more lines`)}`;
-        }
+      if (details?.truncation?.truncated) {
+        text += theme.fg("warning", ` (truncated from ${details.truncation.totalLines} lines)`);
       }
 
       return new Text(text, 0, 0);
