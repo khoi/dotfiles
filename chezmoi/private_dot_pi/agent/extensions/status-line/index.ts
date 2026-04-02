@@ -41,7 +41,7 @@ const shortenPath = (path: string): string => {
 };
 
 const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
-  ctx.ui.setFooter((tui, _theme, footerData) => {
+  ctx.ui.setFooter((tui, theme, footerData) => {
     const dispose = footerData.onBranchChange(() => tui.requestRender());
 
     return {
@@ -84,7 +84,7 @@ const installFooter = (pi: ExtensionAPI, ctx: FooterContext): void => {
         const components = [modelDisplay, contextDisplay, costDisplay].filter((component) => component.length > 0);
         const line = components.length > 0 ? `${pathDisplay}${bullet}${components.join(bullet)}` : pathDisplay;
 
-        return [truncateToWidth(line, width, "...")];
+        return [truncateToWidth(theme.fg("dim", line), width, theme.fg("dim", "..."))];
       },
     };
   });
