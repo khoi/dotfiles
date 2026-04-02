@@ -96,6 +96,27 @@ const resolveSummaryModel = (ctx: ExtensionContext) => {
   return ctx.model;
 };
 
+const getModelAuth = async (ctx: ExtensionContext, model: NonNullable<ExtensionContext["model"]>) => {
+  const registry = ctx.modelRegistry as ExtensionContext["modelRegistry"] & {
+    getApiKeyAndHeaders?: (
+      candidate: NonNullable<ExtensionContext["model"]>,
+    ) => Promise<{ ok?: boolean; apiKey?: string; headers?: Record<string, string> } | undefined>;
+    getApiKey?: (candidate: NonNullable<ExtensionContext["model"]>) => Promise<string | undefined>;
+  };
+
+  if (typeof registry.getApiKeyAndHeaders === "function") {
+    const auth = await registry.getApiKeyAndHeaders(model);
+    if (auth?.ok && auth.apiKey) return auth;
+  }
+
+  if (typeof registry.getApiKey === "function") {
+    const apiKey = await registry.getApiKey(model);
+    if (apiKey) return { apiKey };
+  }
+
+  return undefined;
+};
+
 export default function thinkingSummary(pi: ExtensionAPI) {
   let lastSummary = "";
   let lastSummaryConvTokens = 0;
@@ -116,8 +137,8 @@ export default function thinkingSummary(pi: ExtensionAPI) {
     const model = resolveSummaryModel(ctx);
     if (!model) return;
 
-    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-    if (!auth?.ok || !auth.apiKey) return;
+    const auth = await getModelAuth(ctx, model);
+    if (!auth?.apiKey) return;
 
     const conversation = buildConversation(ctx.sessionManager.getBranch());
     if (!conversation.trim()) return;
