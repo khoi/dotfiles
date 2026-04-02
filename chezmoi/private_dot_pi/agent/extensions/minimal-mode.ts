@@ -1,6 +1,5 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import {
-	createBashTool,
 	createEditTool,
 	createFindTool,
 	createGrepTool,
@@ -19,7 +18,6 @@ const shortenPath = (path: string): string => {
 
 const createBuiltInTools = (cwd: string) => ({
 	read: createReadTool(cwd),
-	bash: createBashTool(cwd),
 	edit: createEditTool(cwd),
 	write: createWriteTool(cwd),
 	find: createFindTool(cwd),
@@ -94,26 +92,6 @@ export default function minimalMode(pi: ExtensionAPI) {
 		renderResult(result, { expanded }, theme) {
 			if (!expanded) return new Text("", 0, 0);
 			return renderExpandedOutput(result, theme);
-		},
-	});
-
-	pi.registerTool({
-		name: "bash",
-		label: "bash",
-		description:
-			"Execute a bash command in the current working directory. Returns stdout and stderr. Output is truncated to last 2000 lines or 50KB (whichever is hit first).",
-		parameters: getBuiltInTools(process.cwd()).bash.parameters,
-		async execute(toolCallId, params, signal, onUpdate, ctx) {
-			return getBuiltInTools(ctx.cwd).bash.execute(toolCallId, params, signal, onUpdate);
-		},
-		renderCall(args, theme) {
-			const command = args.command || "...";
-			const timeoutSuffix = args.timeout ? theme.fg("muted", ` (timeout ${args.timeout}s)`) : "";
-			return new Text(theme.fg("toolTitle", theme.bold(`$ ${command}`)) + timeoutSuffix, 0, 0);
-		},
-		renderResult(result, { expanded }, theme) {
-			if (!expanded) return new Text("", 0, 0);
-			return renderExpandedOutput(result, theme, { trim: true });
 		},
 	});
 
