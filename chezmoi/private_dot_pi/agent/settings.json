@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.64.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "xhigh",
   "enabledModels": [
     "openai-codex/gpt-5.4",
     "openai-codex/gpt-5.3-codex-spark"
@@ -12,16 +12,16 @@
   "quietStartup": false,
   "theme": "zenbones-dark",
   "showHardwareCursor": false,
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
     "npm:pi-powerline-footer",
     "npm:@anthnykr/pi-codex-fast-mode",
-    "npm:pi-subagents",
     "npm:pi-web-access",
-    "npm:pi-interactive-shell",
-    "npm:pi-interview"
+    "npm:pi-interview",
+    "../../code/github.com/supabitapp/supaterm-pi",
+    "npm:pi-bash-live-view"
   ],
   "pi-codex-fast": {
     "enabled": true
