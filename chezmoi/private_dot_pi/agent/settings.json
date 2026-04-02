@@ -16,7 +16,6 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "npm:pi-powerline-footer",
     "npm:@anthnykr/pi-codex-fast-mode",
     "npm:pi-web-access",
     "../../code/github.com/supabitapp/supaterm-pi",
