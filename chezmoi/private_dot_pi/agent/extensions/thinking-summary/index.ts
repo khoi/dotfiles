@@ -21,6 +21,7 @@ const MAX_TOKENS = 300;
 const RESUMMARIZE_TOKEN_THRESHOLD = 40_000;
 
 const AUTO_DETECT_MODELS = [
+  "gpt-5.3-codex-spark",
   "gpt-5.4-nano",
   "gpt-5.4-mini",
   "gemini-3-flash",
