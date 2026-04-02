@@ -1,14 +1,11 @@
-import type { BashToolDetails, EditToolDetails, ExtensionAPI, ReadToolDetails } from "@mariozechner/pi-coding-agent";
-import { createBashTool, createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
+import type { EditToolDetails, ExtensionAPI, ReadToolDetails } from "@mariozechner/pi-coding-agent";
+import { createEditTool, createReadTool, createWriteTool } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
 
 const promptMetadata = {
   read: {
     promptSnippet: "Read file contents",
     promptGuidelines: ["Use read to examine files instead of cat or sed."],
-  },
-  bash: {
-    promptSnippet: "Execute bash commands (ls, grep, find, etc.)",
   },
   edit: {
     promptSnippet: "Make surgical edits to files (find exact text and replace)",
@@ -83,50 +80,6 @@ export default function builtInToolRenderer(pi: ExtensionAPI) {
         }
         if (lines.length > 15) {
           text += `\n${theme.fg("muted", `... ${lines.length - 15} more lines`)}`;
-        }
-      }
-
-      return new Text(text, 0, 0);
-    },
-  });
-
-  const bash = createBashTool(cwd);
-  pi.registerTool({
-    name: "bash",
-    label: bash.label,
-    description: bash.description,
-    parameters: bash.parameters,
-    ...promptMetadata.bash,
-    async execute(toolCallId, params, signal, onUpdate) {
-      return bash.execute(toolCallId, params, signal, onUpdate);
-    },
-    renderCall(args, theme) {
-      const command = args.command.length > 80 ? `${args.command.slice(0, 77)}...` : args.command;
-      let text = theme.fg("toolTitle", theme.bold("$ ")) + theme.fg("accent", command);
-      if (args.timeout) text += theme.fg("dim", ` (timeout: ${args.timeout}s)`);
-      return new Text(text, 0, 0);
-    },
-    renderResult(result, { expanded, isPartial }, theme) {
-      if (isPartial) return new Text(theme.fg("warning", "Running..."), 0, 0);
-
-      const details = result.details as BashToolDetails | undefined;
-      const output = getTextContent(result) ?? "";
-      const exitCode = output.match(/exit code: (\d+)/)?.[1];
-      const lines = output.split("\n").filter((line) => line.trim().length > 0);
-
-      let text = exitCode && exitCode !== "0" ? theme.fg("error", `exit ${exitCode}`) : theme.fg("success", "done");
-      text += theme.fg("dim", ` (${lines.length} lines)`);
-
-      if (details?.truncation?.truncated) {
-        text += theme.fg("warning", " [truncated]");
-      }
-
-      if (expanded) {
-        for (const line of output.split("\n").slice(0, 20)) {
-          text += `\n${theme.fg("dim", line)}`;
-        }
-        if (output.split("\n").length > 20) {
-          text += `\n${theme.fg("muted", "... more output")}`;
         }
       }
 
