@@ -21,6 +21,7 @@ Workflow:
 
 Rules:
 
+- Use the best models with high thinking always.
 - Do not modify code during the review pass unless the user asks for fixes.
 - Keep subagent instructions narrow and identical except for the shared base branch.
 - Validate findings yourself before presenting them as real.
