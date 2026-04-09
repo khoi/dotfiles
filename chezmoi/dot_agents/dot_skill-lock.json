@@ -1,138 +1,95 @@
 {
   "version": 3,
   "skills": {
-    "frontend-design": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/skills.git",
-      "skillPath": "skills/frontend-design/SKILL.md",
-      "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
-      "installedAt": "2026-01-25T10:09:30.721Z",
-      "updatedAt": "2026-01-25T10:09:30.721Z"
-    },
-    "swift-composable-architecture": {
-      "source": "nonameplum/agent-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/nonameplum/agent-skills.git",
-      "skillPath": "swift-composable-architecture/SKILL.md",
-      "skillFolderHash": "96879ce3a269ff346b7385d4891c2a6d51ced9b7",
-      "installedAt": "2026-01-25T14:44:45.790Z",
-      "updatedAt": "2026-01-28T14:17:38.319Z"
-    },
-    "swift-concurrency": {
-      "source": "avdlee/swift-concurrency-agent-skill",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/avdlee/swift-concurrency-agent-skill.git",
-      "skillPath": "swift-concurrency/SKILL.md",
-      "skillFolderHash": "07fab06be382a072f6f85b9f1c3dd4349fee4983",
-      "installedAt": "2026-01-25T14:44:45.833Z",
-      "updatedAt": "2026-02-17T12:45:36.589Z"
-    },
-    "vercel-react-best-practices": {
-      "source": "vercel-labs/agent-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
-      "skillPath": "skills/react-best-practices/SKILL.md",
-      "skillFolderHash": "b86e3967846abb5beeeb874410d8f2ebf6a3f5e1",
-      "installedAt": "2026-01-26T03:40:57.140Z",
-      "updatedAt": "2026-01-26T03:40:57.140Z"
-    },
     "execplan": {
       "source": "khoi/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/khoi/skills.git",
       "skillPath": "skills/execplan/SKILL.md",
       "skillFolderHash": "8a400db85e229ab53342a6ebf497183b20aa6dd2",
-      "installedAt": "2026-01-26T05:05:56.048Z",
-      "updatedAt": "2026-01-26T05:05:56.048Z"
+      "installedAt": "2026-04-01T15:17:34.886Z",
+      "updatedAt": "2026-04-01T15:17:34.886Z"
     },
-    "swift-dependencies": {
-      "source": "nonameplum/agent-skills",
+    "execplan-create": {
+      "source": "grp06/useful-codex-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/nonameplum/agent-skills.git",
-      "skillPath": "swift-dependencies/SKILL.md",
-      "skillFolderHash": "f1ef3868c7b451d2b0fe00bb6db65eb155a549d1",
-      "installedAt": "2026-01-26T05:18:38.104Z",
-      "updatedAt": "2026-01-26T05:18:38.104Z"
+      "sourceUrl": "https://github.com/grp06/useful-codex-skills.git",
+      "skillPath": "execplan-create/SKILL.md",
+      "skillFolderHash": "b5e86d707f2a3b3a3f44d32b9850c2e618dab213",
+      "installedAt": "2026-04-05T17:36:53.086Z",
+      "updatedAt": "2026-04-05T17:36:53.086Z"
     },
-    "swift-sharing": {
-      "source": "nonameplum/agent-skills",
+    "execplan-improve": {
+      "source": "grp06/useful-codex-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/nonameplum/agent-skills.git",
-      "skillPath": "swift-sharing/SKILL.md",
-      "skillFolderHash": "44c8c8912423aff26fa39ba941112557856fbf55",
-      "installedAt": "2026-01-28T14:17:38.257Z",
-      "updatedAt": "2026-01-28T14:17:38.257Z"
+      "sourceUrl": "https://github.com/grp06/useful-codex-skills.git",
+      "skillPath": "execplan-improve/SKILL.md",
+      "skillFolderHash": "f451b68104675613ed115c575d0a79a7b269c040",
+      "installedAt": "2026-04-05T17:36:53.429Z",
+      "updatedAt": "2026-04-05T17:36:53.429Z"
     },
-    "swiftui-expert-skill": {
-      "source": "avdlee/swiftui-agent-skill",
+    "implement-execplan": {
+      "source": "grp06/useful-codex-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/avdlee/swiftui-agent-skill.git",
-      "skillPath": "swiftui-expert-skill/SKILL.md",
-      "skillFolderHash": "8b2cfeec89f80befd36d685ec636fdcd633a30c3",
-      "installedAt": "2026-01-29T13:16:46.768Z",
-      "updatedAt": "2026-02-11T15:58:29.720Z"
+      "sourceUrl": "https://github.com/grp06/useful-codex-skills.git",
+      "skillPath": "implement-execplan/SKILL.md",
+      "skillFolderHash": "11dd9b6d899719a331adea64e8c30309b11475ad",
+      "installedAt": "2026-04-05T17:36:53.768Z",
+      "updatedAt": "2026-04-05T17:36:53.768Z"
     },
-    "create-mcp-app": {
-      "source": "modelcontextprotocol/ext-apps",
+    "session-analyzer": {
+      "source": "grp06/useful-codex-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/modelcontextprotocol/ext-apps.git",
-      "skillPath": "plugins/mcp-apps/skills/create-mcp-app/SKILL.md",
-      "skillFolderHash": "860fca4566a2e7cf54e740c2935ec4d0f99f838b",
-      "installedAt": "2026-02-12T09:40:47.263Z",
-      "updatedAt": "2026-02-12T09:40:47.263Z"
+      "sourceUrl": "https://github.com/grp06/useful-codex-skills.git",
+      "skillPath": "session-analyzer/SKILL.md",
+      "skillFolderHash": "72845df399910c816a7a7df5de6373e8755bea93",
+      "installedAt": "2026-04-05T17:36:54.142Z",
+      "updatedAt": "2026-04-05T17:36:54.142Z"
     },
-    "migrate-oai-app": {
-      "source": "modelcontextprotocol/ext-apps",
+    "tool-error-analyzer": {
+      "source": "grp06/useful-codex-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/modelcontextprotocol/ext-apps.git",
-      "skillPath": "plugins/mcp-apps/skills/migrate-oai-app/SKILL.md",
-      "skillFolderHash": "b0da6910cf1ac4b2694eec834dc81becf10f1f09",
-      "installedAt": "2026-02-12T09:40:47.333Z",
-      "updatedAt": "2026-02-12T09:40:47.333Z"
-    },
-    "code-simplifier": {
-      "source": "simonwong/agent-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/simonwong/agent-skills.git",
-      "skillPath": "skills/code-simplifier/SKILL.md",
-      "skillFolderHash": "dc668c13ee8a4798e01437097857e753594261e6",
-      "installedAt": "2026-02-26T04:19:04.578Z",
-      "updatedAt": "2026-02-26T04:19:04.578Z"
+      "sourceUrl": "https://github.com/grp06/useful-codex-skills.git",
+      "skillPath": "tool-error-analyzer/SKILL.md",
+      "skillFolderHash": "dd1adb78e6603c30fa0f00054f20446f690e5cf4",
+      "installedAt": "2026-04-05T17:36:54.526Z",
+      "updatedAt": "2026-04-05T17:36:54.526Z"
     },
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "45f9dcf935433abcb49929aef1d1bc3dedf20c79",
+      "skillFolderHash": "b6f762bf402cdfaf6a06514e9ce4142ce3e4fb4c",
       "pluginName": "agent-browser",
-      "installedAt": "2026-03-07T17:15:31.159Z",
-      "updatedAt": "2026-03-07T17:15:31.159Z"
+      "installedAt": "2026-04-07T15:10:01.721Z",
+      "updatedAt": "2026-04-07T15:10:01.721Z"
     },
-    "commit": {
-      "source": "khoi/skills",
+    "grill-me": {
+      "source": "mattpocock/skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/khoi/skills.git",
-      "skillPath": "skills/commit/SKILL.md",
-      "skillFolderHash": "9bbc2298a7b527769a16028a9e7de20151bb6e8e",
-      "installedAt": "2026-03-16T11:31:44.333Z",
-      "updatedAt": "2026-03-16T11:31:44.333Z"
+      "sourceUrl": "https://github.com/mattpocock/skills.git",
+      "skillPath": "grill-me/SKILL.md",
+      "skillFolderHash": "2a1ad17028306ebe45f0e49703fa28b9b2e7f499",
+      "installedAt": "2026-04-08T14:41:21.181Z",
+      "updatedAt": "2026-04-08T14:41:21.181Z"
     }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
   },
   "lastSelectedAgents": [
     "amp",
+    "antigravity",
     "cline",
     "codex",
     "cursor",
+    "deepagents",
+    "firebender",
     "gemini-cli",
     "github-copilot",
     "kimi-cli",
     "opencode",
-    "warp",
-    "claude-code"
-  ],
-  "dismissed": {
-    "findSkillsPrompt": true
-  }
+    "warp"
+  ]
 }
