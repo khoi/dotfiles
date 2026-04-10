@@ -1,0 +1,351 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+shopt -s nullglob
+shopt -s inherit_errexit 2>/dev/null || true
+
+usage() {
+  cat <<'EOF'
+Usage: vcs-tile [options] <input>
+
+Options:
+  -o, --output PATH
+  -n, --count INT
+  -c, --columns INT
+      --rows INT
+      --start VALUE
+      --end VALUE
+      --padding INT
+      --margin INT
+      --background COLOR
+      --thumb-width INT
+      --thumb-height INT
+  -q, --quality INT
+      --format auto|jpg|jpeg|png|webp
+      --hwaccel none|videotoolbox
+      --ffmpeg PATH
+      --ffprobe PATH
+      --overwrite
+      --print-command
+      --verbose
+  -h, --help
+EOF
+}
+
+die() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+need_command() {
+  command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"
+}
+
+require_arg() {
+  [[ $# -ge 2 ]] || die "missing value for $1"
+}
+
+is_positive_int() {
+  [[ "$1" =~ ^[1-9][0-9]*$ ]]
+}
+
+is_non_negative_int() {
+  [[ "$1" =~ ^[0-9]+$ ]]
+}
+
+resolve_time() {
+  local value="$1"
+  local duration="$2"
+  awk -v value="$value" -v duration="$duration" '
+    function fail() {
+      exit 64
+    }
+    function parse_clock(text, count, parts) {
+      count = split(text, parts, ":")
+      if (count == 1) {
+        return parts[1] + 0
+      }
+      if (count == 2) {
+        return (parts[1] + 0) * 60 + (parts[2] + 0)
+      }
+      if (count == 3) {
+        return (parts[1] + 0) * 3600 + (parts[2] + 0) * 60 + (parts[3] + 0)
+      }
+      fail()
+    }
+    BEGIN {
+      if (value ~ /%$/) {
+        sub(/%$/, "", value)
+        printf "%.12f\n", duration * ((value + 0) / 100)
+        exit 0
+      }
+      printf "%.12f\n", parse_clock(value)
+    }
+  ' || die "invalid time value: $value"
+}
+
+count_rows() {
+  local count="$1"
+  local columns="$2"
+  awk -v count="$count" -v columns="$columns" 'BEGIN { printf "%d\n", int((count + columns - 1) / columns) }'
+}
+
+ffprobe_duration() {
+  local ffprobe_bin="$1"
+  local input="$2"
+  "$ffprobe_bin" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$input"
+}
+
+format_from_output() {
+  local explicit_format="$1"
+  local output="$2"
+  if [[ "$explicit_format" != "auto" ]]; then
+    printf '%s\n' "$explicit_format"
+    return
+  fi
+  case "${output##*.}" in
+    jpg|jpeg|png|webp) printf '%s\n' "${output##*.}" ;;
+    *) printf 'jpg\n' ;;
+  esac
+}
+
+default_output() {
+  local input="$1"
+  local format="$2"
+  if [[ "$format" == "auto" || "$format" == "jpg" || "$format" == "jpeg" ]]; then
+    printf '%s.jpg\n' "$input"
+    return
+  fi
+  printf '%s.%s\n' "$input" "$format"
+}
+
+input=
+output=
+count=20
+columns=4
+rows=
+start_value='5.5%'
+end_value='94.5%'
+padding=2
+margin=2
+background='white'
+thumb_width=
+thumb_height=
+quality=2
+format='auto'
+hwaccel='none'
+ffmpeg_bin="${FFMPEG_BIN:-$(command -v ffmpeg || true)}"
+ffprobe_bin="${FFPROBE_BIN:-$(command -v ffprobe || true)}"
+overwrite=0
+print_command=0
+verbose=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o|--output)
+      require_arg "$@"
+      output="$2"
+      shift 2
+      ;;
+    -n|--count)
+      require_arg "$@"
+      is_positive_int "$2" || die "--count must be greater than 0"
+      count="$2"
+      shift 2
+      ;;
+    -c|--columns)
+      require_arg "$@"
+      is_positive_int "$2" || die "--columns must be greater than 0"
+      columns="$2"
+      shift 2
+      ;;
+    --rows)
+      require_arg "$@"
+      is_positive_int "$2" || die "--rows must be greater than 0"
+      rows="$2"
+      shift 2
+      ;;
+    --start)
+      require_arg "$@"
+      start_value="$2"
+      shift 2
+      ;;
+    --end)
+      require_arg "$@"
+      end_value="$2"
+      shift 2
+      ;;
+    --padding)
+      require_arg "$@"
+      is_non_negative_int "$2" || die "--padding must be 0 or greater"
+      padding="$2"
+      shift 2
+      ;;
+    --margin)
+      require_arg "$@"
+      is_non_negative_int "$2" || die "--margin must be 0 or greater"
+      margin="$2"
+      shift 2
+      ;;
+    --background)
+      require_arg "$@"
+      background="$2"
+      shift 2
+      ;;
+    --thumb-width)
+      require_arg "$@"
+      is_positive_int "$2" || die "--thumb-width must be greater than 0"
+      thumb_width="$2"
+      shift 2
+      ;;
+    --thumb-height)
+      require_arg "$@"
+      is_positive_int "$2" || die "--thumb-height must be greater than 0"
+      thumb_height="$2"
+      shift 2
+      ;;
+    -q|--quality)
+      require_arg "$@"
+      is_positive_int "$2" || die "--quality must be greater than 0"
+      quality="$2"
+      shift 2
+      ;;
+    --format)
+      require_arg "$@"
+      case "$2" in
+        auto|jpg|jpeg|png|webp) format="$2" ;;
+        *) die "--format must be auto, jpg, jpeg, png, or webp" ;;
+      esac
+      shift 2
+      ;;
+    --hwaccel)
+      require_arg "$@"
+      case "$2" in
+        none|videotoolbox) hwaccel="$2" ;;
+        *) die "--hwaccel must be none or videotoolbox" ;;
+      esac
+      shift 2
+      ;;
+    --ffmpeg)
+      require_arg "$@"
+      ffmpeg_bin="$2"
+      shift 2
+      ;;
+    --ffprobe)
+      require_arg "$@"
+      ffprobe_bin="$2"
+      shift 2
+      ;;
+    --overwrite)
+      overwrite=1
+      shift
+      ;;
+    --print-command)
+      print_command=1
+      shift
+      ;;
+    --verbose)
+      verbose=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      [[ $# -gt 0 ]] || die "missing input"
+      input="$1"
+      shift
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      [[ -z "$input" ]] || die "only one input file is supported"
+      input="$1"
+      shift
+      ;;
+  esac
+done
+
+[[ -n "$input" ]] || die "missing input"
+[[ -f "$input" ]] || die "input not found: $input"
+[[ -n "$ffmpeg_bin" ]] || die "missing dependency: ffmpeg"
+[[ -n "$ffprobe_bin" ]] || die "missing dependency: ffprobe"
+need_command "$ffmpeg_bin"
+need_command "$ffprobe_bin"
+
+if [[ -z "$output" ]]; then
+  output="$(default_output "$input" "$format")"
+fi
+
+duration="$(ffprobe_duration "$ffprobe_bin" "$input")"
+start_seconds="$(resolve_time "$start_value" "$duration")"
+end_seconds="$(resolve_time "$end_value" "$duration")"
+
+awk -v start="$start_seconds" 'BEGIN { exit(start < 0 ? 0 : 1) }' && die "--start resolves below 0"
+end_seconds="$(awk -v end="$end_seconds" -v duration="$duration" 'BEGIN { if (end > duration) end = duration; printf "%.12f\n", end }')"
+awk -v start="$start_seconds" -v end="$end_seconds" 'BEGIN { exit(end <= start ? 0 : 1) }' && die "--end must resolve after --start"
+
+if [[ -z "$rows" ]]; then
+  rows="$(count_rows "$count" "$columns")"
+fi
+
+awk -v rows="$rows" -v columns="$columns" -v count="$count" 'BEGIN { exit(rows * columns < count ? 0 : 1) }' && die "--rows * --columns must be at least --count"
+
+sample_duration="$(awk -v start="$start_seconds" -v end="$end_seconds" 'BEGIN { printf "%.12f\n", end - start }')"
+fps="$(awk -v count="$count" -v sample_duration="$sample_duration" 'BEGIN { printf "%.12f\n", count / sample_duration }')"
+
+filters=("trim=start=${start_seconds}:end=${end_seconds}" "fps=${fps}" "setsar=1")
+
+if [[ -n "$thumb_width" && -n "$thumb_height" ]]; then
+  filters+=("scale=${thumb_width}:${thumb_height}:force_original_aspect_ratio=decrease")
+elif [[ -n "$thumb_width" ]]; then
+  filters+=("scale=${thumb_width}:-1")
+elif [[ -n "$thumb_height" ]]; then
+  filters+=("scale=-1:${thumb_height}")
+fi
+
+filters+=("tile=${columns}x${rows}:padding=${padding}:margin=${margin}:color=${background}")
+
+filtergraph=
+for filter in "${filters[@]}"; do
+  if [[ -n "$filtergraph" ]]; then
+    filtergraph+=","
+  fi
+  filtergraph+="$filter"
+done
+
+output_format="$(format_from_output "$format" "$output")"
+
+command=("$ffmpeg_bin" "-hide_banner" "-v" "error")
+if [[ "$overwrite" -eq 1 ]]; then
+  command+=("-y")
+else
+  command+=("-n")
+fi
+if [[ "$hwaccel" != "none" ]]; then
+  command+=("-hwaccel" "$hwaccel")
+fi
+command+=("-i" "$input" "-vf" "$filtergraph" "-frames:v" "1")
+case "$output_format" in
+  jpg|jpeg|webp) command+=("-q:v" "$quality") ;;
+esac
+command+=("$output")
+
+if [[ "$print_command" -eq 1 || "$verbose" -eq 1 ]]; then
+  printf '%q ' "${command[@]}"
+  printf '\n'
+fi
+
+if [[ "$verbose" -eq 1 ]]; then
+  printf 'duration=%s start=%s end=%s count=%s columns=%s rows=%s output=%s\n' \
+    "$duration" "$start_seconds" "$end_seconds" "$count" "$columns" "$rows" "$output"
+fi
+
+mkdir -p "$(dirname "$output")"
+"${command[@]}"
+
+if [[ "$verbose" -eq 1 ]]; then
+  printf '%s\n' "$output"
+fi
