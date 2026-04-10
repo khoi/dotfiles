@@ -45,7 +45,7 @@ Use a different path if the user provides one. If no ExecPlan exists in either l
 
 ## Understand the purpose of execplans by reading PLANS.md
 
-Read `.agents/dd-mm-yy-title-describing-the-feature-PLANS.md` from the base repo (or worktree if present) before modifying the ExecPlan.
+Read `.agents/0001-title-describing-the-feature-PLANS.md` from the base repo (or worktree if present) before modifying the ExecPlan.
 
 ## Workflow
 

@@ -8,7 +8,7 @@ description: >-
 
 # Implement ExecPlan
 
-Execute the execution plan located at `.agents/plans/dd-mm-yy-title-describing-the-feature-PLANS.md` in the current repository OR if the user mentioned another execplan at a different file path, implement that one.
+Execute the execution plan located at `.agents/plans/0001-title-describing-the-feature-PLANS.md` in the current repository OR if the user mentioned another execplan at a different file path, implement that one.
 
 Do not treat the ExecPlan as a blind checklist. Use it as the implementation contract for delivering the intended behavior and the intended simplification of the system.
 

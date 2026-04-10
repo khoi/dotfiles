@@ -19,7 +19,7 @@ Write plans the way a strong software designer would: not as a task list for rea
 
 - Find the appropriate PLAN file for that feature in `{baseDir}/.agents/plans` - there might be multiple plan files for other features, only find what we need.
 - Read the file in full before drafting.
-- If the plan file for the feature is missing, copy this skill's `PLANS.md` to `{baseDir}/.agents/plans/dd-mm-yy-title-describing-the-feature-PLANS.md`, then read that copy as the source of truth.
+- If the plan file for the feature is missing, copy this skill's `PLANS.md` to `{baseDir}/.agents/plans/0001-title-describing-the-feature-PLANS.md`, then read that copy as the source of truth.
 - Follow that file exactly. If any instruction conflicts with this skill, PLANS.md wins.
 
 ## Ousterhout lens
@@ -50,12 +50,12 @@ Reject plan shapes that mainly add new layers, knobs, or abstraction names witho
 
 ## Output location
 
-- Write the ExecPlan to `dd-mm-yy-title-describing-the-feature-PLANS.md` in the target repo.
+- Write the ExecPlan to `0001-title-describing-the-feature-PLANS.md` in the target repo.
 - If `.agents/` does not exist, create it before writing the file.
 
 ## Format rules
 
-- Because `dd-mm-yy-title-describing-the-feature-PLANS.md` contains only the ExecPlan, do not wrap it in outer triple backticks.
+- Because `0001-title-describing-the-feature-PLANS.md` contains only the ExecPlan, do not wrap it in outer triple backticks.
 
 ## Authoring workflow
 
@@ -64,7 +64,7 @@ Reject plan shapes that mainly add new layers, knobs, or abstraction names witho
 3. Decide the plan shape that most reduces system complexity while still satisfying the request. Prefer the path that creates a simpler interface or a deeper owned module, not the one that merely redistributes logic.
 4. Draft the ExecPlan using the skeleton and rules from PLANS.md. Name the exact files and boundaries involved, explain the current pain, and describe the complexity dividend the change is intended to produce.
 5. Ensure required sections exist and are self-contained, novice-friendly, behavior-focused, and explicit about why the design is simpler after the change.
-6. Save to `dd-mm-yy-title-describing-the-feature-PLANS.md`.
+6. Save to `0001-title-describing-the-feature-PLANS.md`.
 
 ## Anti-patterns
 
