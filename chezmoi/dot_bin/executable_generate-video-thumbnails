@@ -5,7 +5,7 @@ shopt -s inherit_errexit 2>/dev/null || true
 
 usage() {
   cat <<'EOF'
-Usage: vcs-tile [options] <input>
+Usage: generate-video-thumbnails [options] <input>
 
 Options:
   -o, --output PATH
