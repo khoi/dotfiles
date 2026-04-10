@@ -9,21 +9,23 @@ Usage: vcs-tile [options] <input>
 
 Options:
   -o, --output PATH
-  -n, --count INT
-  -c, --columns INT
-      --rows INT
-      --start VALUE
-      --end VALUE
-      --padding INT
-      --margin INT
-      --background COLOR
+  -n, --count INT                 default: 20
+  -c, --columns INT              default: 4
+      --rows INT                 default: ceil(count / columns)
+      --start VALUE              default: 5.5%%
+      --end VALUE                default: 94.5%%
+      --padding INT              default: 2
+      --margin INT               default: 2
+      --background COLOR         default: white
       --thumb-width INT
       --thumb-height INT
-  -q, --quality INT
+  -q, --quality INT              default: 2
       --format auto|jpg|jpeg|png|webp
+                                 default: auto
       --hwaccel none|videotoolbox
-      --ffmpeg PATH
-      --ffprobe PATH
+                                 default: none
+      --ffmpeg PATH              default: ffmpeg in PATH
+      --ffprobe PATH             default: ffprobe in PATH
       --overwrite
       --print-command
       --verbose
