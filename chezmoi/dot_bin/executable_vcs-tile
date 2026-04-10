@@ -9,7 +9,7 @@ Usage: vcs-tile [options] <input>
 
 Options:
   -o, --output PATH
-  -n, --count INT                 default: 20
+  -n, --count INT                default: 20
   -c, --columns INT              default: 4
       --rows INT                 default: ceil(count / columns)
       --start VALUE              default: 5.5%%
@@ -105,8 +105,8 @@ format_from_output() {
     return
   fi
   case "${output##*.}" in
-    jpg|jpeg|png|webp) printf '%s\n' "${output##*.}" ;;
-    *) printf 'jpg\n' ;;
+  jpg | jpeg | png | webp) printf '%s\n' "${output##*.}" ;;
+  *) printf 'jpg\n' ;;
   esac
 }
 
@@ -148,130 +148,130 @@ fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -o|--output)
-      require_arg "$@"
-      output="$2"
-      shift 2
-      ;;
-    -n|--count)
-      require_arg "$@"
-      is_positive_int "$2" || die "--count must be greater than 0"
-      count="$2"
-      shift 2
-      ;;
-    -c|--columns)
-      require_arg "$@"
-      is_positive_int "$2" || die "--columns must be greater than 0"
-      columns="$2"
-      shift 2
-      ;;
-    --rows)
-      require_arg "$@"
-      is_positive_int "$2" || die "--rows must be greater than 0"
-      rows="$2"
-      shift 2
-      ;;
-    --start)
-      require_arg "$@"
-      start_value="$2"
-      shift 2
-      ;;
-    --end)
-      require_arg "$@"
-      end_value="$2"
-      shift 2
-      ;;
-    --padding)
-      require_arg "$@"
-      is_non_negative_int "$2" || die "--padding must be 0 or greater"
-      padding="$2"
-      shift 2
-      ;;
-    --margin)
-      require_arg "$@"
-      is_non_negative_int "$2" || die "--margin must be 0 or greater"
-      margin="$2"
-      shift 2
-      ;;
-    --background)
-      require_arg "$@"
-      background="$2"
-      shift 2
-      ;;
-    --thumb-width)
-      require_arg "$@"
-      is_positive_int "$2" || die "--thumb-width must be greater than 0"
-      thumb_width="$2"
-      shift 2
-      ;;
-    --thumb-height)
-      require_arg "$@"
-      is_positive_int "$2" || die "--thumb-height must be greater than 0"
-      thumb_height="$2"
-      shift 2
-      ;;
-    -q|--quality)
-      require_arg "$@"
-      is_positive_int "$2" || die "--quality must be greater than 0"
-      quality="$2"
-      shift 2
-      ;;
-    --format)
-      require_arg "$@"
-      case "$2" in
-        auto|jpg|jpeg|png|webp) format="$2" ;;
-        *) die "--format must be auto, jpg, jpeg, png, or webp" ;;
-      esac
-      shift 2
-      ;;
-    --hwaccel)
-      require_arg "$@"
-      case "$2" in
-        none|videotoolbox) hwaccel="$2" ;;
-        *) die "--hwaccel must be none or videotoolbox" ;;
-      esac
-      shift 2
-      ;;
-    --ffmpeg)
-      require_arg "$@"
-      ffmpeg_bin="$2"
-      shift 2
-      ;;
-    --ffprobe)
-      require_arg "$@"
-      ffprobe_bin="$2"
-      shift 2
-      ;;
-    --overwrite)
-      overwrite=1
-      shift
-      ;;
-    --print-command)
-      print_command=1
-      shift
-      ;;
-    --verbose)
-      verbose=1
-      shift
-      ;;
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --)
-      shift
-      [[ $# -gt 0 ]] || die "missing input"
-      input="$1"
-      shift
-      ;;
-    -*)
-      die "unknown option: $1"
-      ;;
-    *)
-      [[ -z "$input" ]] || die "only one input file is supported"
-      input="$1"
-      shift
-      ;;
+  -o | --output)
+    require_arg "$@"
+    output="$2"
+    shift 2
+    ;;
+  -n | --count)
+    require_arg "$@"
+    is_positive_int "$2" || die "--count must be greater than 0"
+    count="$2"
+    shift 2
+    ;;
+  -c | --columns)
+    require_arg "$@"
+    is_positive_int "$2" || die "--columns must be greater than 0"
+    columns="$2"
+    shift 2
+    ;;
+  --rows)
+    require_arg "$@"
+    is_positive_int "$2" || die "--rows must be greater than 0"
+    rows="$2"
+    shift 2
+    ;;
+  --start)
+    require_arg "$@"
+    start_value="$2"
+    shift 2
+    ;;
+  --end)
+    require_arg "$@"
+    end_value="$2"
+    shift 2
+    ;;
+  --padding)
+    require_arg "$@"
+    is_non_negative_int "$2" || die "--padding must be 0 or greater"
+    padding="$2"
+    shift 2
+    ;;
+  --margin)
+    require_arg "$@"
+    is_non_negative_int "$2" || die "--margin must be 0 or greater"
+    margin="$2"
+    shift 2
+    ;;
+  --background)
+    require_arg "$@"
+    background="$2"
+    shift 2
+    ;;
+  --thumb-width)
+    require_arg "$@"
+    is_positive_int "$2" || die "--thumb-width must be greater than 0"
+    thumb_width="$2"
+    shift 2
+    ;;
+  --thumb-height)
+    require_arg "$@"
+    is_positive_int "$2" || die "--thumb-height must be greater than 0"
+    thumb_height="$2"
+    shift 2
+    ;;
+  -q | --quality)
+    require_arg "$@"
+    is_positive_int "$2" || die "--quality must be greater than 0"
+    quality="$2"
+    shift 2
+    ;;
+  --format)
+    require_arg "$@"
+    case "$2" in
+    auto | jpg | jpeg | png | webp) format="$2" ;;
+    *) die "--format must be auto, jpg, jpeg, png, or webp" ;;
+    esac
+    shift 2
+    ;;
+  --hwaccel)
+    require_arg "$@"
+    case "$2" in
+    none | videotoolbox) hwaccel="$2" ;;
+    *) die "--hwaccel must be none or videotoolbox" ;;
+    esac
+    shift 2
+    ;;
+  --ffmpeg)
+    require_arg "$@"
+    ffmpeg_bin="$2"
+    shift 2
+    ;;
+  --ffprobe)
+    require_arg "$@"
+    ffprobe_bin="$2"
+    shift 2
+    ;;
+  --overwrite)
+    overwrite=1
+    shift
+    ;;
+  --print-command)
+    print_command=1
+    shift
+    ;;
+  --verbose)
+    verbose=1
+    shift
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  --)
+    shift
+    [[ $# -gt 0 ]] || die "missing input"
+    input="$1"
+    shift
+    ;;
+  -*)
+    die "unknown option: $1"
+    ;;
+  *)
+    [[ -z "$input" ]] || die "only one input file is supported"
+    input="$1"
+    shift
+    ;;
   esac
 done
 
@@ -336,7 +336,7 @@ if [[ "$hwaccel" != "none" ]]; then
 fi
 command+=("-i" "$input" "-vf" "$filtergraph" "-frames:v" "1")
 case "$output_format" in
-  jpg|jpeg|webp) command+=("-q:v" "$quality") ;;
+jpg | jpeg | webp) command+=("-q:v" "$quality") ;;
 esac
 command+=("$output")
 
