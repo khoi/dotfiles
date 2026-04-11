@@ -38,7 +38,7 @@ When choosing between valid implementations, prefer the one that makes future re
 4. Implement milestone by milestone. Keep the ExecPlan's `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` sections up to date as you go.
 5. After each meaningful slice, run the plan's validation steps or the nearest targeted verification that proves the slice works.
 6. Continue until the entire plan is complete and the promised behavior is demonstrated.
-7. Once the execplan is implemented completely, rename it with a meaningful name and move it to `.agent/done`. If the `done` folder does not exist, create it.
+7. Once the execplan is implemented completely, rename it with a meaningful name and move it to `.agent/plans/done`. If the `done` folder does not exist, create it.
 
 ## Implementation-First Rule
 
