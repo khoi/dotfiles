@@ -8,11 +8,10 @@ window-inherit-font-size = true
 
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
+
 keybind = super+shift+d=new_split:down
 keybind = chain=equalize_splits
-keybind = super+e=new_split:right
-keybind = chain=equalize_splits
-keybind = "chain=text:echo 123\r"
+
 keybind = super+shift+equal=equalize_splits
 keybind = opt+h=goto_split:left
 keybind = opt+j=goto_split:bottom
