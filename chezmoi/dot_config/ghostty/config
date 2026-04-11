@@ -1,16 +1,20 @@
-font-family = JetBrainsMono Nerd Font
-font-size = 18
+theme = light:Zenbones Light,dark:Zenbones Dark
+font-family = "JetBrainsMono Nerd Font"
+font-size = 15
+confirm-close-surface = false
+cursor-style = block
+cursor-style-blink = false
 window-inherit-font-size = true
 
-confirm-close-surface = false
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
 keybind = super+shift+d=new_split:down
 keybind = chain=equalize_splits
+keybind = super+e=new_split:right
+keybind = chain=equalize_splits
+keybind = "chain=text:echo 123\r"
 keybind = super+shift+equal=equalize_splits
 keybind = opt+h=goto_split:left
 keybind = opt+j=goto_split:bottom
 keybind = opt+k=goto_split:top
 keybind = opt+l=goto_split:right
-
-theme = light:Zenbones Light,dark:Zenbones Dark
