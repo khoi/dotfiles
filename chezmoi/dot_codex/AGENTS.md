@@ -18,6 +18,7 @@
 - Automatically commit and push your changes and your changes only. If they're ignored by the repo rules, do not force it. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
 - Never commit without GPG signing.
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
+- Do not commit plan files.
 - When interacting with GitHub, always use the gh CLI and not the browser
 - When creating GitHub issues with gh, never pass a multi-line body as a single quoted string; write the body to a temp file via heredoc and use `gh issue create --body-file` to avoid literal `\n`
 - When Git commiting, only add the files related to the change, skip everything else. 
@@ -34,8 +35,3 @@
 
 - Don't ask questions you can answer with a quick, low-risk discovery read (e.g., configs, existing patterns, docs).
 - Don't ask open-ended questions if a tight multiple-choice or yes/no would eliminate ambiguity faster.
-
-## 
-
-
-I have front end code at git@github.com:supabitapp/supacode.git we own it, u can modify it 
