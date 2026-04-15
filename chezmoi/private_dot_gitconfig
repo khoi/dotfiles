@@ -6,18 +6,6 @@
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	commentChar = %
-	pager = delta
-[interactive]
-	diffFilter = delta --color-only
-[delta]
-	navigate = true
-	side-by-side = true
-	dark = true
-	syntax-theme = ansi
-	plus-style = syntax "#153a2d"
-	plus-emph-style = syntax "#1f5a43"
-	minus-style = syntax "#3f1d24"
-	minus-emph-style = syntax "#5f2f38"
 [merge]
 	ff = only
 [pull]

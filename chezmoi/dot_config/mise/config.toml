@@ -6,7 +6,6 @@ zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
-delta = "latest"
 node = "25.8.2"
 ruby = "4"
 
