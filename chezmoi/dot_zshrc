@@ -59,12 +59,10 @@ export PATH=~/.bin:$PATH
 alias lg="lazygit"
 
 # fzf
-if command -v fzf >/dev/null 2>&1; then
-  export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore --follow'
-  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-  export FZF_DEFAULT_OPTS="--tiebreak end"
-  eval "$(fzf --zsh)"
-fi
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore --follow'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS="--tiebreak end"
 
 # starship (cached init)
 if (( $+commands[starship] )); then
