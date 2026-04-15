@@ -42,6 +42,10 @@ if [[ -f /opt/homebrew/bin/brew ]]; then
   FPATH=/opt/homebrew/share/zsh/site-functions:$FPATH
 fi
 
+if [[ -x /opt/homebrew/bin/mise ]]; then
+  eval "$(/opt/homebrew/bin/mise activate zsh)"
+fi
+
 autoload -Uz compinit
 if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
   compinit

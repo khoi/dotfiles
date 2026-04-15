@@ -5,6 +5,10 @@ if test -x /opt/homebrew/bin/brew
     eval "$(/opt/homebrew/bin/brew shellenv)"
 end
 
+if test -x /opt/homebrew/bin/mise
+    /opt/homebrew/bin/mise activate fish | source
+end
+
 set -l onepassword_ssh_agent_sock "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 if test -S "$onepassword_ssh_agent_sock"
     set -gx SSH_AUTH_SOCK "$onepassword_ssh_agent_sock"
