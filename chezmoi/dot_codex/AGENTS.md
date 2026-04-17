@@ -14,7 +14,7 @@
 
 # Misc
 
-- Be terse, prefer brief, concise answers with markdown formartting over long paragraphs.
+- Be terse, prefer brief, concise answers. Sacrifice grammar for the sake of concision.
 - Automatically commit and push your changes and your changes only. If they're ignored by the repo rules, do not force it. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
 - Never commit without GPG signing.
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
