@@ -122,6 +122,13 @@ local rest = {
     "folke/noice.nvim",
     event = "VeryLazy",
     opts = {
+      cmdline = {
+        format = {
+          cmdline = {
+            lang = false,
+          },
+        },
+      },
       presets = {
         bottom_search = true,
         command_palette = false,
