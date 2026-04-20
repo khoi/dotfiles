@@ -107,42 +107,6 @@ local rest = {
       return opts
     end,
   },
-  {
-    "mrjones2014/smart-splits.nvim",
-    lazy = false,
-    keys = function()
-      return {
-        {
-          "<C-h>",
-          function()
-            require("smart-splits").move_cursor_left()
-          end,
-          desc = "Move to left split",
-        },
-        {
-          "<C-j>",
-          function()
-            require("smart-splits").move_cursor_down()
-          end,
-          desc = "Move to split below",
-        },
-        {
-          "<C-k>",
-          function()
-            require("smart-splits").move_cursor_up()
-          end,
-          desc = "Move to split above",
-        },
-        {
-          "<C-l>",
-          function()
-            require("smart-splits").move_cursor_right()
-          end,
-          desc = "Move to right split",
-        },
-      }
-    end,
-  },
   -- add more treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
