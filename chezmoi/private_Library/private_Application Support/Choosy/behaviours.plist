@@ -19,7 +19,7 @@
 		<key>enabled</key>
 		<true/>
 		<key>predicate</key>
-		<string>URL CONTAINS "okta" OR URL CONTAINS "greenhouse" OR sourceApp == "/Users/khoi/Applications/Slack.app" OR URL CONTAINS "meet.google" OR URL CONTAINS "goodnotes" OR URL CONTAINS "GoodNotes" OR URL CONTAINS "timebase"</string>
+		<string>URL CONTAINS "okta" OR URL CONTAINS "greenhouse" OR sourceApp == "/Users/khoi/Applications/Slack.app" OR URL CONTAINS "meet.google" OR URL CONTAINS "goodnotes" OR URL CONTAINS "GoodNotes" OR URL CONTAINS "timebase" OR URL CONTAINS "Goodnotes"</string>
 		<key>title</key>
 		<string>Goodnotes</string>
 	</dict>
