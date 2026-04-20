@@ -6,8 +6,12 @@ zig = "0.15.2"
 uv = "latest"
 pnpm = "latest"
 bun = "latest"
-node = "25.8.2"
+delta = "latest"
+node = "25.9.0"
 ruby = "4"
+"github:MarcoLucidi01/ytcast" = "latest"
+"npm:@mariozechner/pi-coding-agent" = "latest"
+"npm:@openai/codex" = "0.121.0"
 
 [settings]
 experimental = true
