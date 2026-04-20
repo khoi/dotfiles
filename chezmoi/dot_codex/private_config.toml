@@ -1,5 +1,3 @@
-#:schema https://developers.openai.com/codex/config-schema.json
-
 approval_policy = "never"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
@@ -7,14 +5,13 @@ model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
 plan_mode_reasoning_effort = "xhigh"
-notify = [
-]
+notify = [ ]
 suppress_unstable_features_warning = true
 service_tier = "fast"
 
 [profiles.fast]
-model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
 
 [profiles.slow]
 model = "gpt-5.4"
@@ -49,9 +46,19 @@ enabled = false
 [tui]
 status_line = [
   "model-with-reasoning",
-  "context-remaining",
+  "context-usage",
   "current-dir",
   "five-hour-limit",
   "weekly-limit",
-  "context-window-size"
+  "context-window-size",
+  "thread-title"
 ]
+terminal_title = [
+  "git-branch",
+  "thread",
+  "spinner",
+  "project",
+  "status",
+  "task-progress"
+]
+theme = "zenbones-dark"
