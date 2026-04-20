@@ -64,7 +64,7 @@ local function setup_zenbones_highlights()
   apply_zenbones_syntax_colors()
 end
 
-return {
+local plugins = {
   {
     "zenbones-theme/zenbones.nvim",
     dependencies = { "rktjmp/lush.nvim" },
@@ -92,15 +92,20 @@ return {
       }
     end,
   },
+}
+
+local rest = {
   {
     "folke/snacks.nvim",
-    opts = {
-      picker = {
-        sources = {
-          files = { hidden = true },
-        },
-      },
-    },
+    opts = function(_, opts)
+      opts = opts or {}
+      opts.picker = opts.picker or {}
+      opts.picker.sources = opts.picker.sources or {}
+      opts.picker.sources.files = vim.tbl_deep_extend("force", opts.picker.sources.files or {}, {
+        hidden = true,
+      })
+      return opts
+    end,
   },
   -- add more treesitter parsers
   {
@@ -119,6 +124,7 @@ return {
     opts = {
       presets = {
         bottom_search = true,
+        command_palette = false,
         long_message_to_split = true,
         inc_rename = true,
       },
@@ -151,4 +157,17 @@ return {
       },
     },
   },
+  -- Configure fzf-lua to show hidden files
+  {
+    "ibhagwan/fzf-lua",
+    opts = {
+      files = {
+        fd_opts = "--color=never --type f --hidden --follow --exclude .git",
+      },
+    },
+  },
 }
+
+vim.list_extend(plugins, rest)
+
+return plugins
