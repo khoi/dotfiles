@@ -16,9 +16,6 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "npm:@anthnykr/pi-codex-fast-mode"
-  ],
-  "pi-codex-fast": {
-    "enabled": true
-  }
+    "git:github.com/khoi/pi"
+  ]
 }
