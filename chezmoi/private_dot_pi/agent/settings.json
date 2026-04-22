@@ -17,9 +17,7 @@
   "treeFilterMode": "user-only",
   "packages": [
     "npm:@anthnykr/pi-codex-fast-mode",
-    "../../code/github.com/lucasmeijer/pi-bash-live-view",
-    "npm:pi-terminal-signals",
-    "npm:pi-web-access"
+    "../../code/github.com/lucasmeijer/pi-bash-live-view"
   ],
   "pi-codex-fast": {
     "enabled": true
