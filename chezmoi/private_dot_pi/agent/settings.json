@@ -1,21 +1,24 @@
 {
-  "lastChangelogVersion": "0.65.2",
+  "lastChangelogVersion": "0.68.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
-  "defaultThinkingLevel": "high",
+  "defaultThinkingLevel": "xhigh",
   "enabledModels": [
     "openai-codex/gpt-5.4",
     "openai-codex/gpt-5.3-codex-spark"
   ],
-  "editorPaddingX": 2,
   "steeringMode": "all",
   "quietStartup": false,
-  "theme": "pidex-dark",
   "showHardwareCursor": false,
   "hideThinkingBlock": true,
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
     "git:github.com/khoi/pi"
-  ]
+  ],
+  "pi-codex-fast": {
+    "enabled": true
+  },
+  "enableInstallTelemetry": false,
+  "theme": "zenbones-dark"
 }
