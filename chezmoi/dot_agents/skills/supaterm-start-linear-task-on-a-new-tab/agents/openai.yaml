@@ -1,4 +1,0 @@
-interface:
-  display_name: "Start Linear Task Tab"
-  short_description: "Open a Linear task in a fresh wt tab"
-  default_prompt: "Use $supaterm-start-linear-task-on-a-new-tab to start SUP-34 in a new Supaterm tab with a fresh wt worktree."
