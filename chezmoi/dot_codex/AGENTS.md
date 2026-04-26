@@ -16,7 +16,6 @@
 
 - Be terse, prefer brief, concise answers. Sacrifice grammar for the sake of concision.
 - Automatically commit and push your changes and your changes only. If they're ignored by the repo rules, do not force it. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
-- Never commit without GPG signing.
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
 - Do not commit plan files.
 - When interacting with GitHub, always use the gh CLI and not the browser
@@ -30,6 +29,7 @@
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
 - If you find uncommited non-related changes, if it doesn't intefer with ur work, leave that alone. U might be working along side other agents as well. do not revert or modify it, if needed stop and ask the users what to do. 
 - Never mention any competitor products in our code/commits messages.
+- if 1Password authentication is needed, ask the user to do it, summarize why it's needed.
 
 ## Anti-patterns
 
