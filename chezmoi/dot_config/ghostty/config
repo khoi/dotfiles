@@ -5,6 +5,7 @@ confirm-close-surface = false
 cursor-style = block
 cursor-style-blink = false
 window-inherit-font-size = true
+unfocused-split-opacity = 0.7
 
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
