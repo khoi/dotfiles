@@ -6,6 +6,7 @@ cursor-style = block
 cursor-style-blink = false
 window-inherit-font-size = true
 unfocused-split-opacity = 0.9
+custom-shader = ~/.config/ghostty/shaders/crt.glsl
 
 keybind = super+d=new_split:right
 keybind = chain=equalize_splits
