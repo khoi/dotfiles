@@ -6,8 +6,10 @@
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	commentChar = %
+	pager = delta
 [merge]
 	ff = only
+	conflictStyle = zdiff3
 [pull]
 	ff = only
 	default = current
@@ -54,3 +56,8 @@
 	threads = 0
 [gj]
 	root = /Users/Developer/code
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+  side-by-side = true
