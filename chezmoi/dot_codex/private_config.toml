@@ -1,10 +1,9 @@
-approval_policy = "on-request"
-approvals_reviewer = "auto_review"
+approval_policy = "never"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_verbosity = "low"
 personality = "pragmatic"
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"
 plan_mode_reasoning_effort = "xhigh"
 notify = [ ]
 suppress_unstable_features_warning = true
