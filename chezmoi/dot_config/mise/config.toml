@@ -12,6 +12,7 @@ ruby = "4"
 "github:MarcoLucidi01/ytcast" = "latest"
 "npm:@mariozechner/pi-coding-agent" = "latest"
 "npm:@openai/codex" = "latest"
+ripgrep = "latest"
 
 [settings]
 experimental = true
