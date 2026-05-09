@@ -206,7 +206,7 @@
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "custom:zenbones",
+  "theme": "dark",
   "fileCheckpointingEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754086902587
