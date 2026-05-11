@@ -6,7 +6,7 @@
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	commentChar = %
-	pager = delta
+	pager = hunk pager
 [merge]
 	ff = only
 	conflictStyle = zdiff3
@@ -56,9 +56,3 @@
 	threads = 0
 [gj]
 	root = /Users/Developer/code
-[interactive]
-	diffFilter = delta --color-only
-[delta]
-	navigate = true
-	side-by-side = true
-	syntax-theme = zenbones-dark
