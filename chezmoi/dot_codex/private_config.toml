@@ -1,11 +1,10 @@
 approval_policy = "never"
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
 plan_mode_reasoning_effort = "xhigh"
-notify = [ ]
 suppress_unstable_features_warning = true
 service_tier = "fast"
 
