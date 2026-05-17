@@ -15,19 +15,18 @@
 # Misc
 
 - Be terse, prefer brief, concise answers. Sacrifice grammar for the sake of concision.
-- Automatically commit your changes and your changes only and push. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
+- Automatically commit your changes and your changes only. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
-- Do not commit plan files.
 - When interacting with GitHub, always use the gh CLI and not the browser
 - When creating GitHub issues with gh, never pass a multi-line body as a single quoted string; write the body to a temp file via heredoc and use `gh issue create --body-file` to avoid literal `\n`
 - When Git commiting, only add the files related to the change, skip everything else. 
-- Before commiting, make sure to run lint, check if there is one. Run tests if they're lightweight.
 - We want the simplest change possible. We don't care about migration. Code readability matters most, and we're happy to make bigger changes to achieve it.
 - When the user asks for a plan, dive deep into the code first before asking clarifying questions.
 - Add regression test when it fits
 - Never disable lint rules without my permissions
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
 - If you find uncommited non-related changes, if it doesn't intefer with ur work, leave that alone. U might be working along side other agents as well. do not revert or modify it, if needed stop and ask the users what to do. 
+- Git push after committing (even if containing not other commits from other agents), as long as no conflict push often.
 - Never mention any competitor products in our code/commits messages.
 - if 1Password authentication is needed, ask the user to do it, summarize why it's needed.
 
