@@ -104,6 +104,9 @@ local rest = {
       opts.picker.sources.files = vim.tbl_deep_extend("force", opts.picker.sources.files or {}, {
         hidden = true,
       })
+      opts.picker.sources.explorer = vim.tbl_deep_extend("force", opts.picker.sources.explorer or {}, {
+        hidden = true,
+      })
       return opts
     end,
   },
