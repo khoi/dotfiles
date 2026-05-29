@@ -45,7 +45,7 @@ Read `.github/pull_request_template.md` if exists, for the required sections, th
 
 ### 3.4 Write PR for user review
 
-Write complete PR details to `work-tmp/pr_description.md`:
+Write complete PR details to `/tmp/pr_description.md`:
 
 ```markdown
 ---
@@ -55,29 +55,29 @@ title: [PR title]
 [PR description]
 ```
 
-Ask user: "I've written the PR details to `work-tmp/pr_description.md`. You can edit the title, labels, or description directly in that file. Reply 'yes' when ready to create the PR, or provide feedback for changes."
+Ask user: "I've written the PR details to `/tmp/pr_description.md`. You can edit the title, labels, or description directly in that file. Reply 'yes' when ready to create the PR, or provide feedback for changes."
 
 ### 3.5 Create PR (after user approval only)
 
-Read `work-tmp/pr_description.md` to get the (potentially edited) title, labels, and description:
+Read `/tmp/pr_description.md` to get the (potentially edited) title, labels, and description:
 
 ```bash
 # Parse frontmatter from the reviewed file
-title=$(grep '^title:' work-tmp/pr_description.md | sed 's/^title: //')
-labels=$(grep '^labels:' work-tmp/pr_description.md | sed 's/^labels: //' | sed 's/, /,/g')
+title=$(grep '^title:' /tmp/pr_description.md | sed 's/^title: //')
+labels=$(grep '^labels:' /tmp/pr_description.md | sed 's/^labels: //' | sed 's/, /,/g')
 
 # Extract body (everything after the closing --- of frontmatter)
-awk '/^---$/{if(++count==2) flag=1; next} flag' work-tmp/pr_description.md > work-tmp/pr_body.md
+awk '/^---$/{if(++count==2) flag=1; next} flag' /tmp/pr_description.md > /tmp/pr_body.md
 
 # Create PR using parsed values
 gh pr create \
   --title "$title" \
-  --body-file work-tmp/pr_body.md \
+  --body-file /tmp/pr_body.md \
   --base develop \
   --label "$labels" \
   --draft
 
 # Clean up temporary files
-rm work-tmp/pr_description.md work-tmp/pr_body.md
+rm /tmp/pr_description.md /tmp/pr_body.md
 ```
 
