@@ -29,6 +29,7 @@
 - Git push after committing (even if containing not other commits from other agents), as long as no conflict push often.
 - Never mention any competitor products in our code/commits messages.
 - if 1Password authentication is needed, ask the user to do it, summarize why it's needed.
+- Before submitting a pull request, always run $simplify skill if exists
 
 ## Anti-patterns
 
