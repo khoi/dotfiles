@@ -6,8 +6,9 @@ if ! command -v op &>/dev/null; then
   exit 1
 fi
 
-RESTIC_PASSWORD_COMMAND="echo $(op read 'op://Personal/vault/restic encryption')"
-RESTIC_REPOSITORY="$(op read 'op://Private/vault/restic repo')"
+OP_ACCOUNT="my.1password.com"
+RESTIC_PASSWORD_COMMAND="echo $(op read --account "$OP_ACCOUNT" 'op://Personal/vault/restic encryption')"
+RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" 'op://Personal/vault/restic repo')"
 
 HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')-$(hostname)"
 
