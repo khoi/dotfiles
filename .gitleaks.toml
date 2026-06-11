@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "ghostty keybind definitions trip the generic-api-key rule"
+regexTarget = "line"
+regexes = ['''^keybind = ''']
