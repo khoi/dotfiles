@@ -33,11 +33,11 @@ shell_snapshot = true
 steer = true
 responses_websockets_v2 = true
 multi_agent = true
-js_repl = false
 memories = true
 external_migration = true
 hooks = true
 terminal_resize_reflow = true
+js_repl = false
 
 [notice]
 hide_rate_limit_model_nudge = true
@@ -85,7 +85,7 @@ status_line_use_colors = true
   "gpt-5.5" = 4
 
 [marketplaces.openai-bundled]
-last_updated = "2026-06-02T10:14:28Z"
+last_updated = "2026-06-08T20:36:15Z"
 source_type = "local"
 source = "/Users/Developer/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -169,8 +169,30 @@ trust_level = "trusted"
 [projects."/Users/Developer/code/github.com/khoi/trmnl"]
 trust_level = "trusted"
 
+[projects."/Users/Developer/Documents/Codex/2026-06-04/so-for-some-reason-i-configured"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/Documents/Codex/2026-06-04/so-for-some-reason-i-configured-2"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/dev/supaterm/web"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/Documents/Codex/2026-06-08/goal-dive-deep-into-posthog-documentation"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/khoi/resume"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/Documents/Codex/2026-06-09/can-you-add-project-to-codex"]
+trust_level = "trusted"
+
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
+
+[mcp_servers.cua-driver]
+command = "/Users/Developer/.local/bin/cua-driver"
+args = ["mcp"]
 
 [mcp_servers.node_repl]
 args = []
@@ -183,15 +205,12 @@ NODE_REPL_NODE_MODULE_DIRS = ""
 NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/Developer/.codex"
 CODEX_HOME = "/Users/Developer/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "0b0d41e7a14a4903d2f95b0b3f427ed796b12c8edca2fa392a03df43997075ae"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "2de792ebdf729e85542c94275f6654821dddce546d9c7374c915f2297529e313"
 BROWSER_USE_AVAILABLE_BACKENDS = "iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.602.40724"
 CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
-
-[mcp_servers.cua-driver]
-command = "/Users/Developer/.local/bin/cua-driver"
-args = ["mcp"]
 
 [hooks.state]
 
@@ -237,6 +256,15 @@ enabled = false
 [plugins."browser@openai-bundled"]
 enabled = true
 
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."slack@openai-curated"]
+enabled = true
+
+[plugins."gmail@openai-curated"]
+enabled = true
+
 [desktop]
 ambient-suggestions-enabled = true
 appearanceLightCodeThemeId = "codex"
@@ -247,7 +275,6 @@ keepRemoteControlAwakeWhilePluggedIn = true
 git-branch-prefix = "khoi/"
 git-show-sidebar-pr-icons = true
 conversationDetailMode = "STEPS_COMMANDS"
-default-service-tier = "priority"
 
 [desktop.appearanceLightChromeTheme]
 accent = "#0169cc"
