@@ -8,9 +8,11 @@ plan_mode_reasoning_effort = "xhigh"
 suppress_unstable_features_warning = true
 service_tier = "fast"
 
+notify = ["/Users/Developer/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+
 [profiles.fast]
-model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "medium"
 
 [profiles.slow]
 model = "gpt-5.4"
@@ -20,8 +22,8 @@ model_reasoning_effort = "xhigh"
 max_threads = 8
 
 [features]
+goals = true
 apps = false
-codex_hooks = true
 prevent_idle_sleep = true
 default_mode_request_user_input = true
 ghost_commit = false
@@ -31,10 +33,34 @@ shell_snapshot = true
 steer = true
 responses_websockets_v2 = true
 multi_agent = true
+js_repl = false
+memories = true
+external_migration = true
+hooks = true
+terminal_resize_reflow = true
 
 [notice]
 hide_rate_limit_model_nudge = true
 hide_full_access_warning = true
+fast_default_opt_out = true
+
+  [notice.model_migrations]
+  "gpt-5.3-codex" = "gpt-5.4"
+
+  [notice.external_config_migration_prompts]
+  home_last_prompted_at = 1_778_151_019
+  home = true
+
+    [notice.external_config_migration_prompts.project_last_prompted_at]
+    "/Users/Developer/code/github.com/supabitapp/supaterm/revdiff" = 1_777_564_905
+    "/Users/Developer/code/github.com/openai/codex/revdiff" = 1_777_642_826
+    "/Users/Developer/code/github.com/superset-sh/superset" = 1_777_713_825
+    "/Users/Developer/Downloads" = 1_778_486_666
+"/Users/Developer/code/github.com/supabitapp/supaterm/.worktrees/notification-dismiss" = 1778594799
+"/private/tmp/td/td" = 1780052380
+
+[notice.external_config_migration_prompts.projects]
+"/Users/Developer/code/github.com/supabitapp/supaterm/.worktrees/notification-dismiss" = true
 
 [analytics]
 enabled = false
@@ -43,15 +69,7 @@ enabled = false
 enabled = false
 
 [tui]
-status_line = [
-  "model-with-reasoning",
-  "context-usage",
-  "current-dir",
-  "five-hour-limit",
-  "weekly-limit",
-  "context-window-size",
-  "thread-title"
-]
+status_line = ["context-used", "model-with-reasoning", "context-window-size", "pull-request-number", "branch-changes"]
 terminal_title = [
   "git-branch",
   "thread",
@@ -61,3 +79,220 @@ terminal_title = [
   "task-progress"
 ]
 theme = "zenbones-dark"
+status_line_use_colors = true
+
+  [tui.model_availability_nux]
+  "gpt-5.5" = 4
+
+[marketplaces.openai-bundled]
+last_updated = "2026-06-02T10:14:28Z"
+source_type = "local"
+source = "/Users/Developer/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-06-02T10:40:48Z"
+source_type = "local"
+source = "/Users/Developer/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/canvas-prototype"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/Downloads"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.local/share/chezmoi"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend-dev2"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend-dev3"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.agents"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/openai/codex"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/supabitapp/supaterm"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/supabitapp/supacode"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-CN/flue-agents"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.pi/agent/git/github.com/khoi/pi"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/obsidianmd/jsoncanvas"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.config/soloterm/demo"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-CN/Good-Board"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.codex"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/cruncher"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/vercel-labs/wterm"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/.pi/agent/git/github.com/khoi/resume"]
+trust_level = "trusted"
+
+[projects."/private/tmp"]
+trust_level = "trusted"
+
+[projects."/private/tmp/td/td"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/GoodNotes/llmproxy-selfservice-slack-bot"]
+trust_level = "trusted"
+
+[projects."/Users/Developer/code/github.com/khoi/trmnl"]
+trust_level = "trusted"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = ""
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/Developer/.codex"
+CODEX_HOME = "/Users/Developer/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "0b0d41e7a14a4903d2f95b0b3f427ed796b12c8edca2fa392a03df43997075ae"
+BROWSER_USE_AVAILABLE_BACKENDS = "iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+
+[mcp_servers.cua-driver]
+command = "/Users/Developer/.local/bin/cua-driver"
+args = ["mcp"]
+
+[hooks.state]
+
+[hooks.state."/Users/Developer/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:132228ded42a79f2930a1a492d645b7fb83658de25c3ee785a81e7665da82be6"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:22e6ec1e8950954ce08edf64b1a731b1c0add5d0293c9940b0ccf6869c8e47d4"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:stop:2:0"]
+trusted_hash = "sha256:95675e5ca4353d2f4147b8240ebd5ba752225bae1e363523c6ec75c8cd380aa6"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:5ad2ce0e16bc5b59e4fca029e14032490bae6ecdbcc34369635820d533790a37"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:87ddd262d6a11826809390b5cbf07cdb8226aa6fa0634b07154c5b7aa4488a9d"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:76d9bc36d1639b0da34180077c7a8894f11734f63b3748d7e48f3efedee9f973"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:669bfec67d008fd1c2bdfbab23232e38335814cc41276bfb55946626dae59216"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:87ddd262d6a11826809390b5cbf07cdb8226aa6fa0634b07154c5b7aa4488a9d"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:669bfec67d008fd1c2bdfbab23232e38335814cc41276bfb55946626dae59216"
+
+[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:76d9bc36d1639b0da34180077c7a8894f11734f63b3748d7e48f3efedee9f973"
+
+[plugins."documents@openai-primary-runtime"]
+enabled = false
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = false
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = false
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[desktop]
+ambient-suggestions-enabled = true
+appearanceLightCodeThemeId = "codex"
+appearanceDarkCodeThemeId = "codex"
+followUpQueueMode = "steer"
+preventSleepWhileRunning = true
+keepRemoteControlAwakeWhilePluggedIn = true
+git-branch-prefix = "khoi/"
+git-show-sidebar-pr-icons = true
+conversationDetailMode = "STEPS_COMMANDS"
+default-service-tier = "priority"
+
+[desktop.appearanceLightChromeTheme]
+accent = "#0169cc"
+contrast = 40
+ink = "#0d0d0d"
+opaqueWindows = true
+surface = "#ffffff"
+
+[desktop.appearanceLightChromeTheme.fonts]
+code = '"SFMono-Regular"'
+ui = "Geist, Inter"
+
+[desktop.appearanceLightChromeTheme.semanticColors]
+diffAdded = "#00a240"
+diffRemoved = "#e02e2a"
+skill = "#751ed9"
+
+[desktop.appearanceDarkChromeTheme]
+accent = "#0169cc"
+contrast = 60
+ink = "#fcfcfc"
+opaqueWindows = false
+surface = "#111111"
+
+[desktop.appearanceDarkChromeTheme.fonts]
+
+[desktop.appearanceDarkChromeTheme.semanticColors]
+diffAdded = "#00a240"
+diffRemoved = "#e02e2a"
+skill = "#b06dff"
+
+[desktop.open-in-target-preferences]
+global = "zed"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:7f46fa775087e62b0107670dd7bede1edbcfe8a799200e77286fd397d095de95"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:86ad5f88a51f1bb05f8ea365f5a63ebd6eeba55f6665b6c99a5e1c5d8503a5b2"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:session_start:1:0"]
+trusted_hash = "sha256:c4d2bd85540ddac1db75f7224ca5a181934be5ccd604fca154eefe3286b26c4e"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:stop:1:0"]
+trusted_hash = "sha256:95675e5ca4353d2f4147b8240ebd5ba752225bae1e363523c6ec75c8cd380aa6"
+
+[hooks.state."/Users/Developer/.codex/hooks.json:user_prompt_submit:1:0"]
+trusted_hash = "sha256:5dd630b99cb39a5f72cff53a8e2f3c9534627a0a085116c0aef105315f8e8ad2"
