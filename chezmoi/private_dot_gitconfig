@@ -7,7 +7,6 @@
 	autocrlf = input
 	commentChar = %
 	pager = hunk pager
-	hooksPath = ~/.config/git/hooks
 [merge]
 	ff = only
 	conflictStyle = zdiff3
@@ -57,3 +56,15 @@
 	threads = 0
 [gj]
 	root = /Users/Developer/code
+[hook "hk-pre-commit"]
+	command = test \"${HK:-1}\" = \"0\" || ~/.local/share/mise/shims/hk run pre-commit \"$@\"
+	event = pre-commit
+[hook "hk-commit-msg"]
+	command = test \"${HK:-1}\" = \"0\" || ~/.local/share/mise/shims/hk run commit-msg --from-hook \"$@\"
+	event = commit-msg
+[hook "hk-pre-push"]
+	command = test \"${HK:-1}\" = \"0\" || ~/.local/share/mise/shims/hk run pre-push --from-hook \"$@\"
+	event = pre-push
+[hook "hk-prepare-commit-msg"]
+	command = test \"${HK:-1}\" = \"0\" || ~/.local/share/mise/shims/hk run prepare-commit-msg --from-hook \"$@\"
+	event = prepare-commit-msg
