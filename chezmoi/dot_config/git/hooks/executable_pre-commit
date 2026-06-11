@@ -1,0 +1,8 @@
+#!/bin/sh
+PATH="$HOME/.local/share/mise/shims:$PATH"
+if [ "${HK:-1}" != "0" ]; then
+    hk run pre-commit "$@" || exit $?
+fi
+repo_hook="$(git rev-parse --git-dir)/hooks/pre-commit"
+[ -x "$repo_hook" ] && exec "$repo_hook" "$@"
+exit 0

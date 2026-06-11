@@ -7,6 +7,7 @@
 	autocrlf = input
 	commentChar = %
 	pager = hunk pager
+	hooksPath = ~/.config/git/hooks
 [merge]
 	ff = only
 	conflictStyle = zdiff3
