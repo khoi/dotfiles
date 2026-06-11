@@ -13,6 +13,8 @@ ruby = "4"
 "npm:@mariozechner/pi-coding-agent" = "latest"
 "npm:@openai/codex" = "latest"
 ripgrep = "latest"
+hk = "latest"
+gitleaks = "latest"
 
 [settings]
 experimental = true
