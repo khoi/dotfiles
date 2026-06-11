@@ -12,7 +12,7 @@
     "deny": [
       "Read(./.entire/metadata/**)"
     ],
-    "defaultMode": "dontAsk"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus[1m]",
   "hooks": {
