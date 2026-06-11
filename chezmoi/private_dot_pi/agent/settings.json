@@ -1,11 +1,12 @@
 {
-  "lastChangelogVersion": "0.68.1",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.4",
+  "lastChangelogVersion": "0.73.1",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "xhigh",
   "enabledModels": [
     "openai-codex/gpt-5.4",
-    "openai-codex/gpt-5.3-codex-spark"
+    "openai-codex/gpt-5.3-codex-spark",
+    "anthropic/claude-opus-4-7"
   ],
   "steeringMode": "all",
   "quietStartup": false,
@@ -14,11 +15,27 @@
   "collapseChangelog": true,
   "treeFilterMode": "user-only",
   "packages": [
-    "git:github.com/khoi/pi"
+    "git:github.com/khoi/pi",
+    "git:git@github.com:supabitapp/supaterm-skills.git"
   ],
   "pi-codex-fast": {
     "enabled": true
   },
   "enableInstallTelemetry": false,
-  "theme": "zenbones-dark"
+  "theme": "zenbones-dark",
+  "codex-web-search": {
+    "model": "gpt-5.3-codex-spark",
+    "reasoningEffort": "low",
+    "defaultMode": "fast",
+    "fastFreshness": "cached",
+    "deepFreshness": "live",
+    "fastMaxSources": 10,
+    "deepMaxSources": 10,
+    "defuddleMode": "direct",
+    "fastTimeoutMs": 90000,
+    "deepTimeoutMs": 240000,
+    "defuddleTimeoutMs": 45000,
+    "fastQueryBudget": 10,
+    "deepQueryBudget": 24
+  }
 }
