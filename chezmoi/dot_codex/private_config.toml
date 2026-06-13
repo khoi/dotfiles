@@ -51,17 +51,6 @@ fast_default_opt_out = true
   home_last_prompted_at = 1_778_151_019
   home = true
 
-    [notice.external_config_migration_prompts.project_last_prompted_at]
-    "/Users/Developer/code/github.com/supabitapp/supaterm/revdiff" = 1_777_564_905
-    "/Users/Developer/code/github.com/openai/codex/revdiff" = 1_777_642_826
-    "/Users/Developer/code/github.com/superset-sh/superset" = 1_777_713_825
-    "/Users/Developer/Downloads" = 1_778_486_666
-"/Users/Developer/code/github.com/supabitapp/supaterm/.worktrees/notification-dismiss" = 1778594799
-"/private/tmp/td/td" = 1780052380
-
-[notice.external_config_migration_prompts.projects]
-"/Users/Developer/code/github.com/supabitapp/supaterm/.worktrees/notification-dismiss" = true
-
 [analytics]
 enabled = false
 
@@ -93,99 +82,6 @@ source = "/Users/Developer/.codex/.tmp/bundled-marketplaces/openai-bundled"
 last_updated = "2026-06-02T10:40:48Z"
 source_type = "local"
 source = "/Users/Developer/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/canvas-prototype"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/Downloads"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.local/share/chezmoi"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend-dev2"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/frontend-dev3"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.agents"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/openai/codex"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/supabitapp/supaterm"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/supabitapp/supacode"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-CN/flue-agents"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.pi/agent/git/github.com/khoi/pi"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/obsidianmd/jsoncanvas"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.config/soloterm/demo"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-CN/Good-Board"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.codex"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-Paddington/cruncher"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/vercel-labs/wterm"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/.pi/agent/git/github.com/khoi/resume"]
-trust_level = "trusted"
-
-[projects."/private/tmp"]
-trust_level = "trusted"
-
-[projects."/private/tmp/td/td"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/GoodNotes/llmproxy-selfservice-slack-bot"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/khoi/trmnl"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/Documents/Codex/2026-06-04/so-for-some-reason-i-configured"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/Documents/Codex/2026-06-04/so-for-some-reason-i-configured-2"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/dev/supaterm/web"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/Documents/Codex/2026-06-08/goal-dive-deep-into-posthog-documentation"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/code/github.com/khoi/resume"]
-trust_level = "trusted"
-
-[projects."/Users/Developer/Documents/Codex/2026-06-09/can-you-add-project-to-codex"]
-trust_level = "trusted"
 
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
@@ -224,24 +120,6 @@ trusted_hash = "sha256:95675e5ca4353d2f4147b8240ebd5ba752225bae1e363523c6ec75c8c
 
 [hooks.state."/Users/Developer/.codex/hooks.json:user_prompt_submit:0:0"]
 trusted_hash = "sha256:5ad2ce0e16bc5b59e4fca029e14032490bae6ecdbcc34369635820d533790a37"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:87ddd262d6a11826809390b5cbf07cdb8226aa6fa0634b07154c5b7aa4488a9d"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:76d9bc36d1639b0da34180077c7a8894f11734f63b3748d7e48f3efedee9f973"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-Paddington/goodwork/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:669bfec67d008fd1c2bdfbab23232e38335814cc41276bfb55946626dae59216"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:87ddd262d6a11826809390b5cbf07cdb8226aa6fa0634b07154c5b7aa4488a9d"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:669bfec67d008fd1c2bdfbab23232e38335814cc41276bfb55946626dae59216"
-
-[hooks.state."/Users/Developer/code/github.com/Goodnotes-CN/ma-rocket-tortoise/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:76d9bc36d1639b0da34180077c7a8894f11734f63b3748d7e48f3efedee9f973"
 
 [plugins."documents@openai-primary-runtime"]
 enabled = false
