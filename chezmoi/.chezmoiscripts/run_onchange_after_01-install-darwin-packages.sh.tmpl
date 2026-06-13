@@ -1,14 +1,11 @@
 {{ if eq .chezmoi.os "darwin" -}}
-#!/bin/bash
+#!/bin/sh
+set -eu
 
-. "{{ .chezmoi.sourceDir }}/.chezmoitemplates/homebrew.sh"
+mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
 
-"$HOMEBREW_BIN" bundle --verbose --file=/dev/stdin <<EOF
-{{ range .packages.darwin.brews -}}
-brew {{ . | quote }}
-{{ end -}}
-{{ range .packages.darwin.casks -}}
-cask {{ . | quote }}
-{{ end -}}
-EOF
+test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
+
+"$mise_bin" system install --yes --update
+"$mise_bin" install -y
 {{ end -}}

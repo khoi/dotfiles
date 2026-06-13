@@ -16,8 +16,17 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --use-builtin-git=true khoi
   - 1Password
     - Turn on SSH Agent
     - Integrate with 1Password CLI
-  - Raycast (Disable Spotlight)
   - Adguard
+  - Choosy
+  - CleanShot
+  - Ghostty
+  - IINA
+  - OrbStack
+  - Raycast (Disable Spotlight)
+  - SF Symbols
+  - Telegram
+  - supacode
+- Install JetBrains Mono Nerd Font
 - Install xcodes using the CLI (not part of the script since it takes forever)
 
 ```sh

@@ -1,10 +1,9 @@
 #!/bin/sh
-set -eufo pipefail
-
-. "{{ .chezmoi.sourceDir }}/.chezmoitemplates/homebrew.sh"
+set -euf
 
 fish_config_dir="{{ .chezmoi.homeDir }}/.config/fish"
 fish_plugins_path="$fish_config_dir/fish_plugins"
+fish_bin="/opt/homebrew/bin/fish"
 
 mkdir -p "$fish_config_dir"
 
@@ -12,5 +11,9 @@ if [ ! -f "$fish_plugins_path" ]; then
   install -m 0644 "{{ .chezmoi.sourceDir }}/dot_config/private_fish/fish_plugins" "$fish_plugins_path"
 fi
 
+if [ ! -x "$fish_bin" ]; then
+  fish_bin="$(command -v fish)"
+fi
+
 echo "🐟 Install fish plugins"
-HOME="{{ .chezmoi.homeDir }}" XDG_CONFIG_HOME="{{ .chezmoi.homeDir }}/.config" "$(command -v fish)" -c 'curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
+HOME="{{ .chezmoi.homeDir }}" XDG_CONFIG_HOME="{{ .chezmoi.homeDir }}/.config" "$fish_bin" -c 'curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
