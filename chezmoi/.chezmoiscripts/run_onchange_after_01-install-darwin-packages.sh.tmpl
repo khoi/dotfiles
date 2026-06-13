@@ -8,5 +8,10 @@ export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
 
 test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
 
-"$mise_bin" bootstrap --yes --update
+if [ "${CI:-}" = "true" ]; then
+  "$mise_bin" bootstrap packages install --yes --update
+  "$mise_bin" install --yes
+else
+  "$mise_bin" bootstrap --yes --update
+fi
 {{ end -}}
