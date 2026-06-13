@@ -88,7 +88,7 @@ url = "https://developers.openai.com/mcp"
 
 [mcp_servers.cua-driver]
 command = "cua-driver"
-args = ["mcp"]
+args = ["mcp", "--no-overlay"]
 
 [mcp_servers.node_repl]
 command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
