@@ -19,7 +19,7 @@ env:
 jobs:
   bootstrap:
     name: Bootstrap macOS
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 90
 
     steps:
