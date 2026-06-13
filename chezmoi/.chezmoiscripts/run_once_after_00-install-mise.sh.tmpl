@@ -3,7 +3,7 @@ set -eu
 
 mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
 
-if [ ! -x "$mise_bin" ] || ! "$mise_bin" system --help >/dev/null 2>&1; then
+if [ ! -x "$mise_bin" ] || ! "$mise_bin" bootstrap packages install --help >/dev/null 2>&1; then
   mkdir -p "{{ .chezmoi.homeDir }}/.local/bin"
   curl -fsSL https://mise.run | MISE_INSTALL_PATH="$mise_bin" sh
 fi

@@ -32,7 +32,7 @@ zoxide = "latest"
 hk = "latest"
 gitleaks = "latest"
 
-[system.packages]
+[bootstrap.packages]
 "brew:aria2" = "latest"
 "brew:fish" = "latest"
 "brew:git" = "latest"

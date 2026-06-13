@@ -4,8 +4,11 @@ set -eu
 
 mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
 
+export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
+
 test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
 
-"$mise_bin" system install --yes --update
-"$mise_bin" install -y
+"$mise_bin" bootstrap packages install --yes --update
+"$mise_bin" install --yes node
+"$mise_bin" install --yes
 {{ end -}}
