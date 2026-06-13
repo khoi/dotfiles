@@ -12,6 +12,7 @@ chezmoi diff                       # preview changes
 ## Structure
 
 - `chezmoi/` - actual dotfiles source (chezmoi root)
+  - `dot_Brewfile` - Homebrew casks for GUI apps and fonts
   - `dot_config/mise/config.toml` - mise tools and system packages
   - `.chezmoiscripts/` - install scripts and macOS prefs
   - `dot_*` maps to `~/.*`

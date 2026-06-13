@@ -1,0 +1,30 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+brewfile="{{ .chezmoi.homeDir }}/.Brewfile"
+
+test -n "{{ include "dot_Brewfile" | sha256sum }}"
+
+if [ -x /opt/homebrew/bin/brew ]; then
+  brew_bin=/opt/homebrew/bin/brew
+elif [ -x /usr/local/bin/brew ]; then
+  brew_bin=/usr/local/bin/brew
+else
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ -x /opt/homebrew/bin/brew ]; then
+    brew_bin=/opt/homebrew/bin/brew
+  elif [ -x /usr/local/bin/brew ]; then
+    brew_bin=/usr/local/bin/brew
+  else
+    echo "Homebrew install failed" >&2
+    exit 1
+  fi
+fi
+
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_ENV_HINTS=1
+
+"$brew_bin" analytics off >/dev/null 2>&1 || true
+"$brew_bin" bundle install --file="$brewfile"
+{{ end -}}
