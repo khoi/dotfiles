@@ -61,7 +61,18 @@ jobs:
             --no-tty \
             --force \
             --refresh-externals=always \
-            apply
+            apply --exclude=scripts
+
+          chezmoi \
+            --source "$GITHUB_WORKSPACE/chezmoi" \
+            --destination "$home" \
+            --cache "$cache" \
+            --config "$config" \
+            --persistent-state "$state" \
+            --no-tty \
+            --force \
+            --refresh-externals=never \
+            apply --include=scripts --verbose
 
       - name: Verify chezmoi
         shell: bash
