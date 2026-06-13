@@ -45,6 +45,9 @@ gitleaks = "latest"
 "brew:pkgconf" = "latest"
 "brew:tealdeer" = "latest"
 
+[bootstrap.user]
+login_shell = "/opt/homebrew/bin/fish"
+
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = []

@@ -8,7 +8,5 @@ export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
 
 test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
 
-"$mise_bin" bootstrap packages install --yes --update
-"$mise_bin" install --yes node
-"$mise_bin" install --yes
+"$mise_bin" bootstrap --yes --update
 {{ end -}}
