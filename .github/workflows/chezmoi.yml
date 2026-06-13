@@ -37,7 +37,6 @@ jobs:
           home="$RUNNER_TEMP/home"
           cache="$RUNNER_TEMP/chezmoi-cache"
           config="$RUNNER_TEMP/chezmoi.toml"
-          generated_config="$RUNNER_TEMP/chezmoi.generated.toml"
           state="$RUNNER_TEMP/chezmoi-state/chezmoistate.boltdb"
 
           mkdir -p "$home" "$cache" "$(dirname "$state")"
@@ -49,20 +48,10 @@ jobs:
             --destination "$home" \
             --cache "$cache" \
             --config "$config" \
-            --no-tty \
-            --refresh-externals=never \
-            execute-template --init --file "$GITHUB_WORKSPACE/chezmoi/.chezmoi.toml.tmpl" > "$generated_config"
-          mv "$generated_config" "$config"
-
-          chezmoi \
-            --source "$GITHUB_WORKSPACE/chezmoi" \
-            --destination "$home" \
-            --cache "$cache" \
-            --config "$config" \
             --persistent-state "$state" \
             --no-tty \
             --force \
-            --refresh-externals=always \
+            --refresh-externals=never \
             apply --exclude=scripts
 
           chezmoi \

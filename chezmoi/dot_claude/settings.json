@@ -3,7 +3,6 @@
   "alwaysThinkingEnabled" : true,
   "enabledPlugins" : {
     "frontend-design@claude-plugins-official" : true,
-    "gn-github@goodnotes-skills" : true,
     "pr-review-toolkit@claude-plugins-official" : true,
     "warp@claude-code-warp" : true
   },
@@ -235,7 +234,6 @@
     ]
   },
   "includeCoAuthoredBy" : false,
-  "model" : "claude-fable-5[1m]",
   "permissions" : {
     "defaultMode" : "bypassPermissions",
     "deny" : [

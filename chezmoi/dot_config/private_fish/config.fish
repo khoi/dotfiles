@@ -18,7 +18,6 @@ if test -f ~/.config/fish/private_variables.fish
 end
 
 set -gx EDITOR nvim
-set -gx GJ_ROOT ~/Developer/code
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
