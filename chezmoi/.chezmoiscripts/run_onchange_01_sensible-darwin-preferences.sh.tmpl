@@ -20,7 +20,7 @@ done 2>/dev/null &
 username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
 username="${username#-}"
 username="${username%-}"
-serial="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformSerialNumber/ {print $4}')"
+serial="$(ioreg -rd1 -c IOPlatformExpertDevice 2>/dev/null | awk -F'"' '/IOPlatformSerialNumber/ {print $4}' || true)"
 
 if [[ -n "$serial" ]]; then
 	computer_name="$username-$serial"
