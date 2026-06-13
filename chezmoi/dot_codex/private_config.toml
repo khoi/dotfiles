@@ -90,10 +90,6 @@ url = "https://developers.openai.com/mcp"
 command = "cua-driver"
 args = ["mcp"]
 
-[mcp_servers.lume]
-command = "/Users/Developer/.local/bin/lume"
-args = ["serve", "--mcp"]
-
 [mcp_servers.node_repl]
 command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120.0
