@@ -85,7 +85,7 @@ status_line_use_colors = true
   "gpt-5.5" = 4
 
 [marketplaces.openai-bundled]
-last_updated = "2026-06-08T20:36:15Z"
+last_updated = "2026-06-11T13:06:22Z"
 source_type = "local"
 source = "/Users/Developer/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -191,26 +191,25 @@ trust_level = "trusted"
 url = "https://developers.openai.com/mcp"
 
 [mcp_servers.cua-driver]
-command = "/Users/Developer/.local/bin/cua-driver"
+command = "cua-driver"
 args = ["mcp"]
 
 [mcp_servers.node_repl]
-args = []
-command = "/Applications/Codex.app/Contents/Resources/node_repl"
-startup_timeout_sec = 120
+command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120.0
 
 [mcp_servers.node_repl.env]
-NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = ""
-NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/Developer/.codex"
-CODEX_HOME = "/Users/Developer/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "2de792ebdf729e85542c94275f6654821dddce546d9c7374c915f2297529e313"
 BROWSER_USE_AVAILABLE_BACKENDS = "iab"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.602.40724"
+BROWSER_USE_CODEX_APP_VERSION = "26.608.12217"
 CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+CODEX_HOME = "/Users/Developer/.codex"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "72614174f4dad67a58d46a3ac759cffb45c92fa48a293af4c4ea35102ba391ba"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/Developer/.codex"
 
 [hooks.state]
 
@@ -253,9 +252,6 @@ enabled = false
 [plugins."presentations@openai-primary-runtime"]
 enabled = false
 
-[plugins."browser@openai-bundled"]
-enabled = true
-
 [plugins."github@openai-curated"]
 enabled = true
 
@@ -263,6 +259,9 @@ enabled = true
 enabled = true
 
 [plugins."gmail@openai-curated"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
 enabled = true
 
 [desktop]
