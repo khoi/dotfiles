@@ -1,30 +1,26 @@
 #!/usr/bin/env zsh
 set -eo pipefail
 
-killall Finder
-killall Dock
+git_bin="/opt/homebrew/bin/git"
+
+if [ ! -x "$git_bin" ]; then
+  git_bin="$(command -v git)"
+fi
+
+killall Finder 2>/dev/null || true
+killall Dock 2>/dev/null || true
 
 echo "Change the Git remote from HTTP to SSH"
 cd {{ .chezmoi.sourceDir }} || exit 1
 
-# Get current remote URL
-current_url=$(git remote get-url origin)
+current_url=$("$git_bin" remote get-url origin)
 
-# Check if remote is already using SSH
 if [[ "$current_url" == git@github.com:* ]]; then
-    echo "Git remote is already using SSH."
+  echo "Git remote is already using SSH."
 elif [[ "$current_url" == https://github.com/* ]]; then
-    # Change from HTTPS to SSH
-    git remote set-url origin git@github.com:$(echo "$current_url" | sed -e 's/https:\/\/github.com\///')
-    
-    # Check if the command was successful
-    if [ $? -eq 0 ]; then
-        echo "Successfully changed Git remote to SSH."
-    else
-        echo "Failed to change Git remote to SSH."
-        exit 1
-    fi
+  "$git_bin" remote set-url origin git@github.com:$(echo "$current_url" | sed -e 's/https:\/\/github.com\///')
+  echo "Successfully changed Git remote to SSH."
 else
-    echo "Unexpected remote URL format: $current_url"
-    exit 1
+  echo "Unexpected remote URL format: $current_url"
+  exit 1
 fi
