@@ -26,5 +26,13 @@ export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_ENV_HINTS=1
 
 "$brew_bin" analytics off >/dev/null 2>&1 || true
-"$brew_bin" bundle install --file="$brewfile"
+
+attempt=1
+until "$brew_bin" bundle install --file="$brewfile"; do
+  if [ "$attempt" -ge 3 ]; then
+    exit 1
+  fi
+  attempt=$((attempt + 1))
+  sleep 30
+done
 {{ end -}}
