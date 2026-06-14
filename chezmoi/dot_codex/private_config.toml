@@ -59,14 +59,7 @@ enabled = false
 
 [tui]
 status_line = ["context-used", "model-with-reasoning", "context-window-size", "pull-request-number", "branch-changes"]
-terminal_title = [
-  "git-branch",
-  "thread",
-  "spinner",
-  "project",
-  "status",
-  "task-progress"
-]
+terminal_title = ["git-branch", "activity", "project-name", "run-state", "task-progress"]
 theme = "zenbones-dark"
 status_line_use_colors = true
 
