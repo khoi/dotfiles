@@ -38,6 +38,7 @@ external_migration = true
 hooks = true
 terminal_resize_reflow = true
 js_repl = false
+rmcp_client = true
 
 [notice]
 hide_rate_limit_model_nudge = true
