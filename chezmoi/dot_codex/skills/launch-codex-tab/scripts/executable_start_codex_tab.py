@@ -6,6 +6,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -18,6 +19,7 @@ def parse_args():
     parser.add_argument("--prompt-file")
     parser.add_argument("--prompt")
     parser.add_argument("--stdin", action="store_true")
+    parser.add_argument("--launch-cwd")
     parser.add_argument("--approval", default="never")
     parser.add_argument("--sandbox", default="danger-full-access")
     parser.add_argument("--model")
@@ -108,11 +110,44 @@ def launcher_text(args, cwd, prompt_path):
     return "\n".join(lines) + "\n"
 
 
+def send_launcher(tab, launcher_path, send_text):
+    last_result = None
+    for _ in range(20):
+        result = subprocess.run(
+            ["sp", "pane", "send", "--newline", tab["paneID"], send_text],
+            text=True,
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            return
+        last_result = result
+        time.sleep(0.25)
+
+    sys.stderr.write(
+        json.dumps(
+            {
+                "error": "failed to send launcher to pane",
+                "tabID": tab.get("tabID"),
+                "paneID": tab.get("paneID"),
+                "launcherPath": str(launcher_path),
+                "sendText": send_text,
+                "stderr": last_result.stderr if last_result else "",
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    raise SystemExit(last_result.returncode if last_result else 1)
+
+
 def main():
     args = parse_args()
     cwd = Path(args.cwd).expanduser().resolve()
     if not cwd.is_dir():
         raise SystemExit(f"--cwd is not a directory: {cwd}")
+    launch_cwd = Path(args.launch_cwd).expanduser().resolve() if args.launch_cwd else Path.home()
+    if not launch_cwd.is_dir():
+        raise SystemExit(f"--launch-cwd is not a directory: {launch_cwd}")
 
     prompt = prompt_from_args(args)
     prompt_path = write_temp_file("codex-tab-prompt-", ".md", prompt)
@@ -122,17 +157,16 @@ def main():
         launcher_text(args, cwd, prompt_path),
         mode=0o700,
     )
+    send_text = shlex.quote(str(launcher_path))
 
-    sp_command = [
+    tab_command = [
         "sp",
         "tab",
         "new",
         "--json",
         "--focus" if args.focus else "--no-focus",
         "--cwd",
-        str(cwd),
-        "--",
-        str(launcher_path),
+        str(launch_cwd),
     ]
 
     if args.dry_run:
@@ -140,9 +174,11 @@ def main():
             json.dumps(
                 {
                     "cwd": str(cwd),
+                    "launchCwd": str(launch_cwd),
                     "promptPath": str(prompt_path),
                     "launcherPath": str(launcher_path),
-                    "spCommand": sp_command,
+                    "tabCommand": tab_command,
+                    "sendText": send_text,
                     "launcher": launcher_path.read_text(),
                 },
                 indent=2,
@@ -150,7 +186,7 @@ def main():
         )
         return
 
-    result = subprocess.run(sp_command, text=True, capture_output=True)
+    result = subprocess.run(tab_command, text=True, capture_output=True)
     if result.returncode != 0:
         sys.stderr.write(result.stderr)
         raise SystemExit(result.returncode)
@@ -164,8 +200,12 @@ def main():
             stdout=subprocess.DEVNULL,
         )
         tab["title"] = args.title
+    send_launcher(tab, launcher_path, send_text)
     tab["promptPath"] = str(prompt_path)
     tab["launcherPath"] = str(launcher_path)
+    tab["cwd"] = str(cwd)
+    tab["launchCwd"] = str(launch_cwd)
+    tab["sendText"] = send_text
     print(json.dumps(tab, indent=2))
 
 

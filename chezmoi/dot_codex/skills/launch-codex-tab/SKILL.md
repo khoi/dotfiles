@@ -22,7 +22,7 @@ Use this skill to avoid hand-quoting prompts through `sp tab new`. The bundled s
   --prompt-file /tmp/goo-3034-codex-prompt.md
 ```
 
-4. Read the JSON output. It includes `tabID` and `paneID`.
+4. Read the JSON output. It includes `tabID`, `paneID`, and the sent launcher text.
 5. If Codex shows a directory trust prompt for a fresh folder, accept it when the directory was just created for the task:
 
 ```bash
@@ -42,6 +42,7 @@ Use `scripts/start_codex_tab.py`.
 Important options:
 
 - `--cwd`: directory Codex should use as its workspace.
+- `--launch-cwd`: directory Supaterm should start the shell in. Defaults to `$HOME` so project shell hooks in a fresh worktree cannot close the tab before the launcher runs.
 - `--prompt-file`: file containing the initial Codex prompt.
 - `--prompt`: short inline prompt. Avoid this for long or quoted content.
 - `--stdin`: read the prompt from stdin.
@@ -51,7 +52,9 @@ Important options:
 - `--no-focus`: create the tab without focusing it.
 - `--dry-run`: print the generated command and launcher without starting Supaterm.
 
-The script starts interactive Codex with `--no-alt-screen` so Supaterm scrollback remains useful. It leaves a shell open after Codex exits by default.
+The script creates a normal Supaterm shell tab, then sends the generated launcher path into the pane with `sp pane send --newline`. The launcher starts interactive Codex with `--no-alt-screen` so Supaterm scrollback remains useful. It leaves a shell open after Codex exits by default.
+
+Supaterm starts the terminal shell in `--launch-cwd`, not `--cwd`. Codex still receives `--cd "$cwd"`. This keeps target-project shell hooks from killing the tab before the generated launcher can run.
 
 ## Prompt Shape
 
@@ -70,3 +73,5 @@ Do not rely on the spawned Codex inheriting this conversation. Put every require
 If launch fails, run `sp diagnostic` and verify the command is executing inside a Supaterm-connected environment. If Codex exits immediately, capture the pane scrollback and inspect the generated launcher path printed by `--dry-run`.
 
 For `/tmp` and other fresh directories, expect Codex to pause on workspace trust before it runs the prompt. Capture scrollback, then send Enter only if the target directory is the intended workspace.
+
+If project hooks, environment managers, or trust prompts fail, the pane should remain open and show the error. Fix the target environment in that pane or relaunch after resolving it.
