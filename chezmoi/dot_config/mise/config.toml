@@ -32,6 +32,7 @@ yt-dlp = "latest"
 zoxide = "latest"
 hk = "latest"
 gitleaks = "latest"
+"npm:agent-browser" = "latest"
 
 [bootstrap.packages]
 "brew:aria2" = "latest"
