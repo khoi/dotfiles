@@ -145,7 +145,7 @@ def main():
     cwd = Path(args.cwd).expanduser().resolve()
     if not cwd.is_dir():
         raise SystemExit(f"--cwd is not a directory: {cwd}")
-    launch_cwd = Path(args.launch_cwd).expanduser().resolve() if args.launch_cwd else Path.home()
+    launch_cwd = Path(args.launch_cwd).expanduser().resolve() if args.launch_cwd else cwd
     if not launch_cwd.is_dir():
         raise SystemExit(f"--launch-cwd is not a directory: {launch_cwd}")
 

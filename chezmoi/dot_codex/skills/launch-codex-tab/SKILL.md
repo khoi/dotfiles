@@ -42,7 +42,7 @@ Use `scripts/start_codex_tab.py`.
 Important options:
 
 - `--cwd`: directory Codex should use as its workspace.
-- `--launch-cwd`: directory Supaterm should start the shell in. Defaults to `$HOME` so project shell hooks in a fresh worktree cannot close the tab before the launcher runs.
+- `--launch-cwd`: directory Supaterm should start the shell in. Defaults to `--cwd`. Use this only when the terminal shell must start somewhere different from the Codex workspace.
 - `--prompt-file`: file containing the initial Codex prompt.
 - `--prompt`: short inline prompt. Avoid this for long or quoted content.
 - `--stdin`: read the prompt from stdin.
@@ -54,7 +54,7 @@ Important options:
 
 The script creates a normal Supaterm shell tab, then sends the generated launcher path into the pane with `sp pane send --newline`. The launcher starts interactive Codex with `--no-alt-screen` so Supaterm scrollback remains useful. It leaves a shell open after Codex exits by default.
 
-Supaterm starts the terminal shell in `--launch-cwd`, not `--cwd`. Codex still receives `--cd "$cwd"`. This keeps target-project shell hooks from killing the tab before the generated launcher can run.
+Supaterm starts the terminal shell in `--launch-cwd`, and Codex receives `--cd "$cwd"`. For normal worktree launches these are the same directory.
 
 ## Prompt Shape
 
