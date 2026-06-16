@@ -1,0 +1,4 @@
+interface:
+  display_name: "Launch Codex Tab"
+  short_description: "Start Codex in a new Supaterm tab."
+  default_prompt: "Use $launch-codex-tab to launch Codex in a new Supaterm tab for this worktree."
