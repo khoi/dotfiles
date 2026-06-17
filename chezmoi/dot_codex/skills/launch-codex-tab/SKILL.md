@@ -7,7 +7,7 @@ description: Launch an interactive Codex CLI session in a new Supaterm tab with 
 
 ## Overview
 
-Use this skill to avoid hand-quoting prompts through `sp tab new`. The bundled script writes a temporary launcher, starts interactive Codex in a fresh Supaterm tab, optionally renames the tab, and prints the tab/pane IDs for monitoring.
+Use this skill to avoid hand-quoting prompts through `sp tab new`. The bundled script writes a temporary launcher, starts interactive Codex in a fresh Supaterm tab, and prints the tab/pane IDs for monitoring.
 
 ## Workflow
 
@@ -18,7 +18,6 @@ Use this skill to avoid hand-quoting prompts through `sp tab new`. The bundled s
 ```bash
 /Users/Developer/.codex/skills/launch-codex-tab/scripts/start_codex_tab.py \
   --cwd "$WORKTREE" \
-  --title GOO-3034-codex \
   --prompt-file /tmp/goo-3034-codex-prompt.md
 ```
 
@@ -46,7 +45,6 @@ Important options:
 - `--prompt-file`: file containing the initial Codex prompt.
 - `--prompt`: short inline prompt. Avoid this for long or quoted content.
 - `--stdin`: read the prompt from stdin.
-- `--title`: rename the Supaterm tab after creation.
 - `--approval`: Codex approval policy. Defaults to `never`.
 - `--sandbox`: Codex sandbox mode. Defaults to `danger-full-access`.
 - `--no-focus`: create the tab without focusing it.

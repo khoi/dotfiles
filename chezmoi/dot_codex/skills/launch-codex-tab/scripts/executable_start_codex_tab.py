@@ -15,7 +15,6 @@ def parse_args():
         description="Launch interactive Codex in a new Supaterm tab."
     )
     parser.add_argument("--cwd", default=os.getcwd())
-    parser.add_argument("--title")
     parser.add_argument("--prompt-file")
     parser.add_argument("--prompt")
     parser.add_argument("--stdin", action="store_true")
@@ -192,14 +191,6 @@ def main():
         raise SystemExit(result.returncode)
 
     tab = json.loads(result.stdout)
-    if args.title:
-        subprocess.run(
-            ["sp", "tab", "rename", args.title, tab["tabID"]],
-            text=True,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
-        tab["title"] = args.title
     send_launcher(tab, launcher_path, send_text)
     tab["promptPath"] = str(prompt_path)
     tab["launcherPath"] = str(launcher_path)
