@@ -28,7 +28,7 @@
 - If you find uncommited non-related changes, if it doesn't intefer with ur work, leave that alone. U might be working along side other agents as well. do not revert or modify it, if needed stop and ask the users what to do. 
 - Git push after committing (even if containing not other commits from other agents), as long as no conflict push often.
 - Never mention any competitor products in our code/commits messages.
-- if 1Password authentication is needed, ask the user to do it, summarize why it's needed.
+- if 1Password authentication is needed, ask the user to do it using the native ask question tool
 - Before submitting a pull request, always run $simplify skill if exists
 
 ## Anti-patterns
