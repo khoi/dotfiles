@@ -80,10 +80,6 @@ source = "/Users/Developer/.cache/codex-runtimes/codex-primary-runtime/plugins/o
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
-[mcp_servers.cua-driver]
-command = "cua-driver"
-args = ["mcp", "--no-overlay"]
-
 [mcp_servers.node_repl]
 command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120.0
