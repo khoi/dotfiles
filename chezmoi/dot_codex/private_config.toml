@@ -40,6 +40,10 @@ terminal_resize_reflow = true
 js_repl = false
 rmcp_client = true
 
+[[skills.config]]
+path = "/Users/Developer/.agents/skills/agent-browser/SKILL.md"
+enabled = false
+
 [notice]
 hide_rate_limit_model_nudge = true
 hide_full_access_warning = true
