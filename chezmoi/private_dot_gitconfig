@@ -55,7 +55,7 @@
 [index]
 	threads = 0
 [gj]
-	root = /Users/Developer/code
+	root = ~/code
 [hook "hk-pre-commit"]
 	command = test \"${HK:-1}\" = \"0\" || ~/.local/share/mise/shims/hk run pre-commit \"$@\"
 	event = pre-commit
