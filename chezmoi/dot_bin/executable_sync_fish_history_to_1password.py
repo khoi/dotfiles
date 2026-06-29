@@ -35,6 +35,9 @@ class Entry:
     when: int
 
 
+ACCOUNT = "I7OKB4YQE5BOPG2WRQZXNH54NU"
+
+
 class OpError(RuntimeError):
     pass
 
@@ -50,7 +53,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_op(op: str, *args: str, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
-    command = [op, *args]
+    command = [op, "--account", ACCOUNT, *args]
     try:
         return subprocess.run(
             command,
