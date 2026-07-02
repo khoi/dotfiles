@@ -48,16 +48,11 @@ def bootstrap(worktree, skip):
     return True
 
 
-def worktree_env(worktree):
+def worktree_env(worktree, keys):
     try:
         output = run(["mise", "exec", "--", "env"], cwd=worktree)
     except SystemExit:
         return {}
-    keys = {
-        "GOODBOARD_WEB_HOST_PORT",
-        "GOODBOARD_PUBLIC_APP_URL",
-        "COMPOSE_PROJECT_NAME",
-    }
     values = {}
     for line in output.splitlines():
         if "=" not in line:
@@ -105,6 +100,7 @@ def parse_args():
     parser.add_argument("--worktree", required=True)
     parser.add_argument("--prompt-file", required=True)
     parser.add_argument("--base", default="origin/main")
+    parser.add_argument("--env-keys", default="COMPOSE_PROJECT_NAME")
     parser.add_argument("--codex-bin", default="codex")
     parser.add_argument("--space")
     parser.add_argument("--skip-fetch", action="store_true")
@@ -124,7 +120,7 @@ def main():
         run(["git", "fetch", "--prune", "origin", "main"], cwd=repo)
     worktree_state = create_or_reuse_worktree(repo, worktree, args.branch, args.base)
     did_bootstrap = bootstrap(worktree, args.skip_bootstrap)
-    env = worktree_env(worktree)
+    env = worktree_env(worktree, {key for key in args.env_keys.split(",") if key})
     tab = launch_tab(worktree, prompt_file, args.codex_bin, not args.no_focus, args.space)
     print(
         json.dumps(
