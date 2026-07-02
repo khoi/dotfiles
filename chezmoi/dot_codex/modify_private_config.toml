@@ -12,7 +12,6 @@ plan_mode_reasoning_effort = "xhigh"
 suppress_unstable_features_warning = true
 approvals_reviewer = "user"
 service_tier = "default"
-notify = ["/Users/Developer/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 "tui.status_line" = ["context-used", "model-with-reasoning", "context-window-size", "pull-request-number", "branch-changes"]
 "tui.terminal_title" = ["git-branch", "run-state", "task-progress"]
 "tui.theme" = "zenbones-dark"
@@ -56,5 +55,6 @@ model_reasoning_effort = "medium"
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 ` -}}
+{{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
 {{- range $key, $value := $managed -}}{{- $config = setValueAtPath $key $value $config -}}{{- end -}}
 {{- toToml $config -}}
