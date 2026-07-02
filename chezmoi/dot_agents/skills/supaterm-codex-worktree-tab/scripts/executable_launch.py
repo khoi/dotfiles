@@ -68,12 +68,28 @@ def worktree_env(worktree):
     return values
 
 
+def login_shell():
+    user = os.environ.get("USER")
+    if user:
+        result = subprocess.run(
+            ["dscl", ".", "-read", f"/Users/{user}", "UserShell"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+        if result.returncode == 0 and ":" in result.stdout:
+            shell = result.stdout.split(":", 1)[1].strip()
+            if shell:
+                return shell
+    return os.environ.get("SHELL") or "/bin/zsh"
+
+
 def launch_tab(worktree, prompt_file, codex_bin, focus, space):
     command = ["sp", "tab", "new", "--cwd", str(worktree), "--json"]
     command.append("--focus" if focus else "--no-focus")
     if space:
         command.extend(["--in", space])
-    command.extend(["--", "zsh", "-l"])
+    command.extend(["--", login_shell(), "-l"])
     tab = json.loads(run(command))
     pane_id = tab["paneID"]
     codex_command = f"{quote(codex_bin)} --cd {quote(str(worktree))} \"$(cat {quote(str(prompt_file))})\""
