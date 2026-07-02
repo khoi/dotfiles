@@ -43,7 +43,7 @@ The helper:
 - creates or reuses the worktree
 - runs `.mise/bin/bootstrap-worktree` when present
 - prints the values of `--env-keys` (default `COMPOSE_PROJECT_NAME`) from the worktree's mise env when available
-- opens a focused Supaterm tab in the worktree
+- opens a background Supaterm tab in the worktree (pass `--focus` to focus it)
 - sends `codex --cd <worktree> "$(cat <prompt-file>)"`
 
 ## Verification

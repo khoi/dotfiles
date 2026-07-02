@@ -105,7 +105,7 @@ def parse_args():
     parser.add_argument("--space")
     parser.add_argument("--skip-fetch", action="store_true")
     parser.add_argument("--skip-bootstrap", action="store_true")
-    parser.add_argument("--no-focus", action="store_true")
+    parser.add_argument("--focus", action="store_true")
     return parser.parse_args()
 
 
@@ -121,7 +121,7 @@ def main():
     worktree_state = create_or_reuse_worktree(repo, worktree, args.branch, args.base)
     did_bootstrap = bootstrap(worktree, args.skip_bootstrap)
     env = worktree_env(worktree, {key for key in args.env_keys.split(",") if key})
-    tab = launch_tab(worktree, prompt_file, args.codex_bin, not args.no_focus, args.space)
+    tab = launch_tab(worktree, prompt_file, args.codex_bin, args.focus, args.space)
     print(
         json.dumps(
             {
