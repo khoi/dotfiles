@@ -15,7 +15,7 @@
 # Misc
 
 - Be terse, prefer brief, concise answers. Sacrifice grammar for the sake of concision.
-- Automatically commit your changes and your changes only. Do not use `git add .`. If there are conflicts with remote, do not try to resolve, ask the users what to do.
+- Automatically commit your changes and your changes only. Do not use `git add .`.
 - When you need to clone something from GitHub to explore, use `gj get {path_to_git_url}` for instance `gj get git@github.com:ghostty-org/ghostty.git` to do it
 - When interacting with GitHub, always use the gh CLI and not the browser
 - When creating GitHub issues with gh, never pass a multi-line body as a single quoted string; write the body to a temp file via heredoc and use `gh issue create --body-file` to avoid literal `\n`
