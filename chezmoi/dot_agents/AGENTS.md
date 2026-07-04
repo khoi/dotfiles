@@ -25,6 +25,7 @@
 - Add regression test when it fits
 - Never disable lint rules without my permissions
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
+- For web research, keep a source ledger. Treat `markdown.new` URLs, raw URLs, redirect URLs, and tracking-query variants as the same source after canonicalizing. Do not search a URL you already opened, and do not reopen the same source unless the first open failed or the content changed.
 - If you find uncommited non-related changes, if it doesn't intefer with ur work, leave that alone. U might be working along side other agents as well. do not revert or modify it, if needed stop and ask the users what to do. 
 - Git push after committing (even if containing not other commits from other agents), as long as no conflict push often.
 - Never mention any competitor products in our code/commits messages.
