@@ -13,9 +13,10 @@ description:
 - Produce a commit that reflects the actual code changes and the session
   context.
 - Prefer a sequence of atomic commits when that tells the clearest story of the
-  change.
-- Follow common git conventions (type prefix, short subject, wrapped body).
-- Include both summary and rationale in the body.
+  change; each commit builds and passes on its own.
+- Subject style: `area: lowercase imperative summary`, where the area is the
+  package, directory, or subsystem touched.
+- Body only when the change needs explaining, and then as prose about why.
 
 ## Inputs
 
@@ -37,17 +38,21 @@ description:
    (build artifacts, logs, temp files), flag it to the user before committing.
 6. If staging is incomplete or includes unrelated files, fix the index or ask
    for confirmation.
-7. Choose a conventional type and optional scope that match the change (e.g.,
-   `feat(scope): ...`, `fix(scope): ...`, `refactor(scope): ...`).
-8. Write a subject line in imperative mood, <= 72 characters, no trailing
-   period.
-9. Write a body that includes:
-   - Summary of key changes (what changed).
-   - Rationale and trade-offs (why it changed).
-   - Tests or validation run (or explicit note if not run).
-10. Prefer commit messages that explain the value of the change, not just the
-    implementation details. Include context or alternatives when they help the
-    story.
+7. Choose the area prefix from what the commit touches: the package,
+   top-level directory, or subsystem (e.g., `document-sync: ...`,
+   `server: ...`, `tldraw: ...`). If a commit spans areas cleanly, that is a
+   sign it should be split.
+8. Write the subject as `area: summary` — imperative mood, lowercase after
+   the colon, <= 72 characters, no trailing period.
+9. Decide whether the commit needs a body:
+   - Trivial or self-evident change: no body. The subject carries it.
+   - Anything else: prose paragraphs (not bullet lists) explaining why the
+     change exists — the problem, the root cause, and why this approach over
+     the alternatives. Never restate what the diff already shows.
+   - Mention tests or validation only when the how of verifying is
+     non-obvious.
+10. Skip trailer ceremony. Add `Fixes #NNN` only when the commit actually
+    closes an issue.
 11. Wrap body lines at 72 characters.
 12. Create the commit message with a here-doc or temp file and use
     `git commit -F <file>` so newlines are literal (avoid `-m` with `\n`).
@@ -62,21 +67,27 @@ description:
 - One or more commits created with `git commit` whose messages reflect the
   session and present the change as a clear story.
 
-## Template
+## Examples
 
-Type and scope are examples only; adjust them for each atomic commit.
+Trivial change, subject only:
 
 ```
-<type>(<scope>): <short summary>
+cli: fix typo in --help output
+```
 
-Summary:
-- <what changed>
-- <what changed>
+Non-trivial change, prose body:
 
-Rationale:
-- <why>
-- <why>
+```
+document-sync: repair stale server writes on reconnect
 
-Tests:
-- <command or "not run (reason)">
+Reconnecting clients could replay writes the server had already
+superseded, silently reverting newer edits. The repair cache only
+checked version cells, so a write with an equal version but different
+payload slipped through.
+
+Compare payload hashes alongside versions instead of tracking a
+separate dirty flag; the hash already exists for equality checks, so
+this adds no new state.
+
+Fixes #123
 ```
