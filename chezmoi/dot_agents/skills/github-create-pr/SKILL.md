@@ -5,45 +5,64 @@ description: Creates a pull request on GitHub with proper labels, branch naming,
 
 # Create pull request
 
-Create a non-draft PR on GitHub with appropriate
-
 **Critical constraints:**
 
 - MUST wait for user approval before running `gh pr create`
 - MUST show complete PR content in chat before creating
-- MUST follow the writing and labeling rules below
+- MUST follow the writing rules below
 
-## Compose and create PR
+## Generate PR title
 
-### Generate PR title
+Same convention as commit subjects: `area: imperative summary`, lowercase
+after the colon, ≤72 chars. Area = the package, directory, or subsystem
+touched. Omit the prefix only when the change is genuinely cross-cutting.
 
-Format: `[type] Description of change`, ≤63 chars (fits squash-merge commit subjects).
+Examples: `terminal: fix viewport pin during resize reflow`,
+`macos: avoid notification publisher retain cycle`.
 
-Examples: `[feature] Add height parameter to plotly charts`, `[fix] Extra padding on button`.
+## Compose PR description
 
-### Compose PR description
-
-Read `.github/pull_request_template.md` if exists, for the required sections, then fill them in.
+Read `.github/pull_request_template.md` if it exists, for the required
+sections, then fill them in. Otherwise write free prose.
 
 **Writing rules:**
 
-- Highlight what matters. Omit the obvious.
-- 2-4 bullets maximum for listing changes.
-- No meta-commentary ("This PR...", "We have...", "I added..."). State what changed directly.
-- Don't list: added tests, updated types, added validation, fixed linting (all obvious).
-- DO explain non-obvious decisions (deprecations, unit choices, fallback behavior).
+- Prose paragraphs explaining why: the problem and how you'd hit it,
+  relevant background, root cause, the chosen approach and why not the
+  alternatives. Never a bullet restatement of the diff.
+- Length proportional to the change: an incremental PR gets two sentences;
+  a new subsystem gets a mini design doc.
+- Show, don't claim: usage snippets for new APIs, screenshots or recordings
+  under a `## Demo` heading for UI changes, an inline repro or verification
+  script for bug fixes, numbers for perf claims.
+- Call out scope limits explicitly (bold or `> [!NOTE]`): what this PR
+  deliberately does not do, with follow-up issues filed.
+- Bullets only to enumerate discrete cases (e.g., behavioral changes);
+  headers only when a section earns one.
+- Link issues: `Fixes #NNN` when closing one, `Related to #NNN` otherwise.
+- Credit the reporter when the fix came from someone's report.
+- The PR's atomic commits stay meaningful; the description and the commit
+  sequence tell the same story. Don't squash the narrative away.
 
 **Good:**
-> Adds `height` parameter to `st.plotly_chart()` using `Height` type system.
-> - Deprecates `use_container_height` (removed after 2025-12-31)
+
+> Embedders that render text outside the terminal grid need to predict how
+> many cells a codepoint will occupy. The immediate motivation is IME
+> preedit overlay rendering: measuring preedit text with font APIs can
+> disagree with the terminal's unicode table, causing the overlay to jump
+> when the composed text commits.
+>
+> This exposes the exact width table the print path already uses, so
+> overlays are column-accurate by construction.
 
 **Bad (lists every change):**
+
 > - Added `height` parameter to signature
 > - Updated layout config dataclass
 > - Added validation for height values
 > - Added unit tests
 
-### 3.4 Write PR for user review
+## Write PR for user review
 
 Write complete PR details to `/tmp/pr_description.md`:
 
@@ -57,7 +76,7 @@ title: [PR title]
 
 Ask user: "I've written the PR details to `/tmp/pr_description.md`. You can edit the title, labels, or description directly in that file. Reply 'yes' when ready to create the PR, or provide feedback for changes."
 
-### 3.5 Create PR (after user approval only)
+## Create PR (after user approval only)
 
 Read `/tmp/pr_description.md` to get the (potentially edited) title, labels, and description:
 
@@ -73,11 +92,8 @@ awk '/^---$/{if(++count==2) flag=1; next} flag' /tmp/pr_description.md > /tmp/pr
 gh pr create \
   --title "$title" \
   --body-file /tmp/pr_body.md \
-  --base develop \
-  --label "$labels" \
-  --draft
+  --label "$labels"
 
 # Clean up temporary files
 rm /tmp/pr_description.md /tmp/pr_body.md
 ```
-
