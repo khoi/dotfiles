@@ -1,6 +1,7 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
+{{- $config = unset $config "profiles" -}}
 {{- $managed := fromToml `
 approval_policy = "never"
 model = "gpt-5.5"
@@ -47,13 +48,6 @@ terminal_resize_reflow = true
 js_repl = false
 rmcp_client = true
 
-[profiles.fast]
-model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
-
-[profiles.slow]
-model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
 ` -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
 {{- range $key, $value := $managed -}}{{- $config = setValueAtPath $key $value $config -}}{{- end -}}
