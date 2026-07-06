@@ -1,7 +1,6 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
-{{- $config = unset $config "profiles" -}}
 {{- $managed := fromToml `
 approval_policy = "never"
 model = "gpt-5.5"
