@@ -34,3 +34,5 @@ restic \
   --exclude "$HOME/.Trash" \
   --exclude "$HOME/.orbstack/" \
   --exclude "$HOME/.ollama/"
+
+"$HOME/.bin/restic_maintain.sh"
