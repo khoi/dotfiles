@@ -7,8 +7,8 @@ if ! command -v op &>/dev/null; then
 fi
 
 OP_ACCOUNT="my.1password.com"
-RESTIC_PASSWORD_COMMAND="op read --account $OP_ACCOUNT op://Personal/Restic/password"
-RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" op://Personal/Restic/repository)"
+RESTIC_PASSWORD_COMMAND="op read --account $OP_ACCOUNT 'op://Personal/Restic on Hertzer Box/password'"
+RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" 'op://Personal/Restic on Hertzer Box/repository')"
 
 HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')-$(hostname)"
 
