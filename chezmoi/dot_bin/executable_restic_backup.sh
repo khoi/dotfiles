@@ -12,7 +12,7 @@ RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" 'op://Personal/vault/restic
 
 HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')-$(hostname)"
 
-echo "💾 Backing up with hostname $HOST"
+printf '💾 Backing up with hostname %s to "%s"\n' "$HOST" "$RESTIC_REPOSITORY"
 
 restic -r "$RESTIC_REPOSITORY" --password-command "$RESTIC_PASSWORD_COMMAND" unlock
 restic \
