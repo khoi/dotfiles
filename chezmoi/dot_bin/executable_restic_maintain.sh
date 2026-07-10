@@ -8,7 +8,7 @@ if ! command -v op &>/dev/null; then
 fi
 
 RESTIC_PASSWORD_COMMAND="echo $(op read 'op://Personal/vault/restic encryption')"
-RESTIC_REPOSITORY="$(op read 'op://Private/vault/restic repo')"
+RESTIC_REPOSITORY="$(op read 'op://Personal/vault/restic repo')"
 
 restic -r "$RESTIC_REPOSITORY" --password-command "$RESTIC_PASSWORD_COMMAND" unlock
 
