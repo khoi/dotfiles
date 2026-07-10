@@ -33,6 +33,7 @@ restic \
   --exclude "$HOME/Music" \
   --exclude "$HOME/.Trash" \
   --exclude "$HOME/.orbstack/" \
-  --exclude "$HOME/.ollama/"
+  --exclude "$HOME/.ollama/" \
+  "$@"
 
 "$HOME/.bin/restic_maintain.sh"
