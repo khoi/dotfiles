@@ -6,7 +6,7 @@ on_ac_power() {
 }
 
 storage_box_reachable() {
-  /usr/bin/nc -G 5 -z u629978.your-storagebox.de 23
+  /usr/bin/nc -G 5 -z u629978.your-storagebox.de 23 &>/dev/null
 }
 
 while (( 10#$(/bin/date +%H%M) < 500 )); do

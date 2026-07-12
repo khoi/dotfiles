@@ -24,6 +24,7 @@ restic \
   --exclude "$HOME/Music" \
   --exclude "$HOME/.Trash" \
   --exclude "$HOME/.orbstack/" \
+  --exclude "$HOME/OrbStack" \
   --exclude "$HOME/.ollama/" \
   "$@"
 
