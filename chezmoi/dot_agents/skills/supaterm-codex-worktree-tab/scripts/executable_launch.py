@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 from shlex import quote
 
@@ -79,6 +80,12 @@ def login_shell():
     return os.environ.get("SHELL") or "/bin/zsh"
 
 
+def send_and_submit(pane_id, text):
+    run(["sp", "pane", "send", pane_id, text])
+    time.sleep(0.15)
+    run(["sp", "pane", "send", "--newline", pane_id, ""])
+
+
 def launch_tab(worktree, prompt_file, codex_bin, focus, space):
     command = ["sp", "tab", "new", "--cwd", str(worktree), "--json"]
     command.append("--focus" if focus else "--no-focus")
@@ -88,7 +95,7 @@ def launch_tab(worktree, prompt_file, codex_bin, focus, space):
     tab = json.loads(run(command))
     pane_id = tab["paneID"]
     codex_command = f"{quote(codex_bin)} --cd {quote(str(worktree))} \"$(cat {quote(str(prompt_file))})\""
-    run(["sp", "pane", "send", "--newline", pane_id, codex_command])
+    send_and_submit(pane_id, codex_command)
     return tab
 
 

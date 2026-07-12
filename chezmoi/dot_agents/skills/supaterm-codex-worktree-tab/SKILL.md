@@ -22,7 +22,7 @@ Use this for delegated implementation work where each issue needs its own worktr
    - task-specific context such as existing branch or PR work, related issues, dependencies, or non-obvious constraints
    - required proof specific to the task, such as focused tests, E2E steps, or screenshot evidence
    - browser rule: if browser-visible, require `$agent-browser`, reading `/Users/Developer/.agents/skills/agent-browser/SKILL.md`, and `agent-browser skills get core`
-8. Run `scripts/launch.py` once per issue. Pass `--env-keys` with the repo's port/URL variables to echo them in the launch summary.
+8. Run `scripts/launch.py` once per issue. Pass `--env-keys` with the repo's port/URL variables to echo them in the launch summary. The helper sends text and Enter separately with a 150 ms delay; do not collapse them into one `sp pane send --newline` call.
 9. Capture the pane scrollback after launch and verify Codex received the prompt.
 
 ## Command
@@ -44,7 +44,9 @@ The helper:
 - runs `.mise/bin/bootstrap-worktree` when present
 - prints the values of `--env-keys` (default `COMPOSE_PROJECT_NAME`) from the worktree's mise env when available
 - opens a background Supaterm tab in the worktree (pass `--focus` to focus it)
-- sends `codex --cd <worktree> "$(cat <prompt-file>)"`
+- sends `codex --cd <worktree> "$(cat <prompt-file>)"`, waits 150 ms, then sends Enter
+
+When sending follow-up text to a pane already running Codex, use the same sequence. Codex treats Enter during a rapid input burst as a pasted newline instead of submission.
 
 ## Verification
 
