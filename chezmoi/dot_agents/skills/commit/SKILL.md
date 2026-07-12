@@ -39,9 +39,9 @@ description:
 6. If staging is incomplete or includes unrelated files, fix the index or ask
    for confirmation.
 7. Choose the area prefix from what the commit touches: the package,
-   top-level directory, or subsystem (e.g., `document-sync: ...`,
-   `server: ...`, `tldraw: ...`). If a commit spans areas cleanly, that is a
-   sign it should be split.
+   top-level directory, or subsystem (e.g., `cli: ...`, `docs: ...`,
+   `tests: ...`). If a commit spans areas cleanly, that is a sign it should be
+   split.
 8. Write the subject as `area: summary` — imperative mood, lowercase after
    the colon, <= 72 characters, no trailing period.
 9. Decide whether the commit needs a body:
@@ -78,16 +78,11 @@ cli: fix typo in --help output
 Non-trivial change, prose body:
 
 ```
-document-sync: repair stale server writes on reconnect
+config: reject invalid values during startup
 
-Reconnecting clients could replay writes the server had already
-superseded, silently reverting newer edits. The repair cache only
-checked version cells, so a write with an equal version but different
-payload slipped through.
+Invalid values were accepted during parsing and failed only when first
+used, making startup errors harder to diagnose.
 
-Compare payload hashes alongside versions instead of tracking a
-separate dirty flag; the hash already exists for equality checks, so
-this adds no new state.
-
-Fixes #123
+Validate each value at the parsing boundary so runtime code can assume
+the configuration is valid.
 ```
