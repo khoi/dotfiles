@@ -1,22 +1,12 @@
 #!/usr/bin/env zsh
-
 set -Eeuo pipefail
 
-if ! command -v op &>/dev/null; then
-  echo "❌ 1password CLI not found. Please install it first."
-  exit 1
-fi
+source "$HOME/.config/restic/hetzner.zsh"
 
-OP_ACCOUNT="my.1password.com"
-RESTIC_PASSWORD_COMMAND="op read --account $OP_ACCOUNT 'op://Personal/Restic on Hertzer Box/password'"
-RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" 'op://Personal/Restic on Hertzer Box/repository')"
-
-restic -r "$RESTIC_REPOSITORY" --password-command "$RESTIC_PASSWORD_COMMAND" unlock
+restic unlock
 
 echo "🧠 Forgetting extra backups"
 restic \
-  --password-command "$RESTIC_PASSWORD_COMMAND" \
-  -r "$RESTIC_REPOSITORY" \
   forget \
   --keep-within-daily 7d \
   --keep-within-weekly 1m \
@@ -25,6 +15,4 @@ restic \
 
 echo "🧹 Pruning"
 restic \
-  --password-command "$RESTIC_PASSWORD_COMMAND" \
-  -r "$RESTIC_REPOSITORY" \
   prune

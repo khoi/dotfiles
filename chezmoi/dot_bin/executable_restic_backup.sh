@@ -1,23 +1,14 @@
 #!/usr/bin/env zsh
 set -Eeuo pipefail
 
-if ! command -v op &>/dev/null; then
-  echo "❌ 1password CLI not found. Please install it first."
-  exit 1
-fi
-
-OP_ACCOUNT="my.1password.com"
-RESTIC_PASSWORD_COMMAND="op read --account $OP_ACCOUNT 'op://Personal/Restic on Hertzer Box/password'"
-RESTIC_REPOSITORY="$(op read --account "$OP_ACCOUNT" 'op://Personal/Restic on Hertzer Box/repository')"
+source "$HOME/.config/restic/hetzner.zsh"
 
 HOST="$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')-$(hostname)"
 
 printf '💾 Backing up with hostname %s to "%s"\n' "$HOST" "$RESTIC_REPOSITORY"
 
-restic -r "$RESTIC_REPOSITORY" --password-command "$RESTIC_PASSWORD_COMMAND" unlock
+restic unlock
 restic \
-  --password-command "$RESTIC_PASSWORD_COMMAND" \
-  -r "$RESTIC_REPOSITORY" \
   backup "$HOME" \
   -H "$HOST" \
   --compression "max" \
