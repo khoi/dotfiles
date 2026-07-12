@@ -9,8 +9,10 @@ storage_box_reachable() {
   /usr/bin/nc -G 5 -z u629978.your-storagebox.de 23
 }
 
-until on_ac_power && storage_box_reachable; do
+while (( 10#$(/bin/date +%H%M) < 500 )); do
+  if on_ac_power && storage_box_reachable; then
+    exec /usr/bin/caffeinate -s "$HOME/.bin/restic_backup.sh"
+  fi
+
   /bin/sleep 300
 done
-
-exec /usr/bin/caffeinate -s "$HOME/.bin/restic_backup.sh"
