@@ -52,6 +52,12 @@ login_shell = "/opt/homebrew/bin/fish"
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = []
-trusted_config_paths = ["~/code/github.com/khoi","~/code/github.com/supabitapp", "~/.supacode"]
+trusted_config_paths = [
+  "~/code/github.com/khoi",
+  "~/code/github.com/supabitapp",
+  "~/.supacode",
+  "~/.cursor/worktrees/supaterm",
+  "/private/tmp/claude-501/-Users-Developer-code-github-com-supabitapp-supaterm",
+]
 idiomatic_version_file = true
 paranoid = false
