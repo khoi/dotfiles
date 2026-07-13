@@ -5,7 +5,7 @@
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key>
-		<string>/Users/Developer/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<string>{{ .chezmoi.homeDir }}/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
 	</dict>
 	<key>Label</key>
 	<string>com.khoi.restic-backup</string>
@@ -15,12 +15,12 @@
 	<string>Background</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/Developer/.bin/restic_backup_when_ready.sh</string>
+		<string>{{ .chezmoi.homeDir }}/.bin/restic_backup_when_ready.sh</string>
 	</array>
 	<key>StandardErrorPath</key>
-	<string>/Users/Developer/Library/Logs/restic-backup.error.log</string>
+	<string>{{ .chezmoi.homeDir }}/Library/Logs/restic-backup.error.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/Developer/Library/Logs/restic-backup.log</string>
+	<string>{{ .chezmoi.homeDir }}/Library/Logs/restic-backup.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
