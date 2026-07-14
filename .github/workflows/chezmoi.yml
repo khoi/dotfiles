@@ -29,6 +29,14 @@ jobs:
       - name: Install chezmoi
         run: brew install chezmoi
 
+      - name: Configure mise
+        shell: bash
+        run: |
+          prefix="$RUNNER_TEMP/mise-homebrew"
+          echo "MISE_SYSTEM_BREW_PREFIX=$prefix" >> "$GITHUB_ENV"
+          echo "$prefix/bin" >> "$GITHUB_PATH"
+          echo "$prefix/sbin" >> "$GITHUB_PATH"
+
       - name: Apply chezmoi
         shell: bash
         run: |
@@ -87,6 +95,8 @@ jobs:
             --refresh-externals=never \
             verify --exclude=scripts
 
-          brew bundle check --file="$home/.Brewfile"
           test -x "$home/.local/bin/mise"
-          "$home/.local/bin/mise" --version
+          mise="$home/.local/bin/mise"
+          "$mise" --version
+          "$mise" bootstrap packages status --missing
+          "$mise" install --dry-run-code --locked

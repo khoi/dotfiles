@@ -7,11 +7,12 @@ mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
 export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
 
 test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
+test -n "{{ include "dot_config/mise/mise.lock" | sha256sum }}"
 
 if [ "${CI:-}" = "true" ]; then
-  "$mise_bin" bootstrap packages install --yes --update
-  "$mise_bin" install --yes
+  "$mise_bin" bootstrap packages apply --yes
+  "$mise_bin" install --yes --locked
 else
-  "$mise_bin" bootstrap --yes --update
+  "$mise_bin" bootstrap --yes --locked
 fi
 {{ end -}}

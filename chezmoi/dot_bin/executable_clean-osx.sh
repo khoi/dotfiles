@@ -66,6 +66,12 @@ if type "brew" &>/dev/null; then
     brew tap --repair &>/dev/null
 fi
 
+if type "mise" &> /dev/null; then
+    echo 'Cleanup mise...'
+    mise prune --configs --yes
+    mise prune --tools --yes
+fi
+
 if type "gem" &> /dev/null; then
     echo 'Cleanup any old versions of gems'
     gem cleanup &>/dev/null

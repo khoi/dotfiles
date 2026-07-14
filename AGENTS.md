@@ -7,14 +7,14 @@ macOS dotfiles managed by chezmoi. Source of truth is `chezmoi/` (set via `.chez
 ```bash
 chezmoi apply <target>             # always apply individual files, never all
 chezmoi diff                       # preview changes
+mise bootstrap                     # install tools, packages, apps, and the login shell
 ```
 
 ## Structure
 
 - `chezmoi/` - actual dotfiles source (chezmoi root)
-  - `dot_Brewfile` - Homebrew casks for GUI apps and fonts
-  - `dot_config/mise/config.toml` - mise tools and system packages
-  - `.chezmoiscripts/` - install scripts and macOS prefs
+  - `dot_config/mise/config.toml` - mise tools, formulae, casks, and user bootstrap
+  - `.chezmoiscripts/` - mise bootstrap orchestration and macOS prefs
   - `dot_*` maps to `~/.*`
   - `private_*` prefix for sensitive files
 

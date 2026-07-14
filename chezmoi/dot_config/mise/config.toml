@@ -1,3 +1,5 @@
+min_version = "2026.7.5"
+
 [tools]
 "1password-cli" = "latest"
 rust = "1.95.0"
@@ -16,7 +18,7 @@ ruby = "4"
 "npm:@openai/codex" = "latest"
 bat = "latest"
 chezmoi = "latest"
-eza = "latest"
+eza = "0.23.4"
 fd = "latest"
 fzf = "latest"
 gh = "latest"
@@ -36,6 +38,7 @@ gitleaks = "latest"
 
 [bootstrap.packages]
 "brew:aria2" = "latest"
+"brew:ffmpeg" = "latest"
 "brew:fish" = "latest"
 "brew:git" = "latest"
 "brew:glances" = "latest"
@@ -45,19 +48,28 @@ gitleaks = "latest"
 "brew:mosh" = "latest"
 "brew:parallel" = "latest"
 "brew:pkgconf" = "latest"
+"brew:tmux" = "latest"
+"brew-cask:1password" = "latest"
+"brew-cask:adguard" = "latest"
+"brew-cask:choosy" = "latest"
+"brew-cask:cleanshot" = "latest"
+"brew-cask:font-jetbrains-mono-nerd-font" = "latest"
+"brew-cask:ghostty" = "latest"
+"brew-cask:iina" = "latest"
+"brew-cask:orbstack" = "latest"
+"brew-cask:raycast" = "latest"
+"brew-cask:sf-symbols" = "latest"
+"brew-cask:supacode" = "latest"
+"brew-cask:telegram" = "latest"
 
 [bootstrap.user]
 login_shell = "/opt/homebrew/bin/fish"
 
 [settings]
-experimental = true
-idiomatic_version_file_enable_tools = []
+minimum_release_age = "3d"
+minimum_release_age_excludes = ["npm:@openai/codex"]
+lockfile_platforms = ["macos-arm64"]
 trusted_config_paths = [
   "~/code/github.com/khoi",
   "~/code/github.com/supabitapp",
-  "~/.supacode",
-  "~/.cursor/worktrees/supaterm",
-  "/private/tmp/claude-501/-Users-Developer-code-github-com-supabitapp-supaterm",
 ]
-idiomatic_version_file = true
-paranoid = false
