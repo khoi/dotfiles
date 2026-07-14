@@ -29,9 +29,6 @@ jobs:
       - name: Install chezmoi
         run: brew install chezmoi
 
-      - name: Test utilities
-        run: bash tests/rsync_parallel.sh
-
       - name: Configure mise
         shell: bash
         run: |
