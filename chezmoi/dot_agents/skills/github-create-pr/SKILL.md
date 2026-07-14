@@ -74,9 +74,9 @@ title: [PR title]
 [PR description]
 ```
 
-Ask user: "I've written the PR details to `/tmp/pr_description.md`. You can edit the title, labels, or description directly in that file. Reply 'yes' when ready to create the PR, or provide feedback for changes."
+Create the PR automatically unless the user asks to verify it.
 
-## Create PR (after user approval only)
+## Create PR
 
 Read `/tmp/pr_description.md` to get the (potentially edited) title, labels, and description:
 

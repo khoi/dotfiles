@@ -31,7 +31,6 @@
 - Never mention any competitor products in our code/commits messages.
 - If 1Password authentication is needed, ask the user to do it using the native ask question tool
 - Before submitting a pull request, always run $simplify skill if exists
-- Use `gh attach --issue <number> --image <path>` to attach PNGs to GitHub issues and pull requests
 
 ## Anti-patterns
 
