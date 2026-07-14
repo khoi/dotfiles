@@ -5,6 +5,7 @@
 approval_policy = "never"
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
+model_reasoning_summary = "concise"
 model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
