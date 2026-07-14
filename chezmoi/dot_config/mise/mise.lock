@@ -204,13 +204,15 @@ version = "4.0.5"
 backend = "core:ruby"
 
 [tools.ruby.options]
-compile = "true"
+compile = "false"
+precompiled_url = "jdx/ruby"
 ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
 ruby_install = "false"
 
 [tools.ruby."platforms.macos-arm64"]
-checksum = "sha256:7d6149079a63f8ae1d326c9fa65c6019ba2dc3155eae7b39159817911c88958e"
-url = "https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.5.tar.gz"
+checksum = "sha256:46ff3bcc22e3a6cc524ae857d8efdc826c8c1c70b2ef050e09b7ccaa6d5e8d2e"
+url = "https://github.com/jdx/ruby/releases/download/4.0.5-3/ruby-4.0.5.macos.tar.gz"
+provenance = "github-attestations"
 
 [[tools.rust]]
 version = "1.95.0"

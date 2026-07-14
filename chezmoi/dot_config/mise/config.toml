@@ -69,6 +69,7 @@ login_shell = "/opt/homebrew/bin/fish"
 minimum_release_age = "3d"
 minimum_release_age_excludes = ["npm:@openai/codex"]
 lockfile_platforms = ["macos-arm64"]
+ruby.compile = false
 trusted_config_paths = [
   "~/code/github.com/khoi",
   "~/code/github.com/supabitapp",
