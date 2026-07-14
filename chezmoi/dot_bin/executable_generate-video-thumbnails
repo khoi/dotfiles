@@ -61,15 +61,21 @@ resolve_time() {
     function fail() {
       exit 64
     }
+    function number(text) {
+      return text ~ /^[0-9]+([.][0-9]+)?$/
+    }
     function parse_clock(text, count, parts) {
       count = split(text, parts, ":")
       if (count == 1) {
+        if (!number(parts[1])) fail()
         return parts[1] + 0
       }
       if (count == 2) {
+        if (!number(parts[1]) || !number(parts[2]) || parts[2] >= 60) fail()
         return (parts[1] + 0) * 60 + (parts[2] + 0)
       }
       if (count == 3) {
+        if (!number(parts[1]) || !number(parts[2]) || !number(parts[3]) || parts[2] >= 60 || parts[3] >= 60) fail()
         return (parts[1] + 0) * 3600 + (parts[2] + 0) * 60 + (parts[3] + 0)
       }
       fail()
@@ -77,6 +83,7 @@ resolve_time() {
     BEGIN {
       if (value ~ /%$/) {
         sub(/%$/, "", value)
+        if (!number(value) || value > 100) fail()
         printf "%.12f\n", duration * ((value + 0) / 100)
         exit 0
       }

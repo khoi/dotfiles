@@ -20,5 +20,5 @@ mise bootstrap                     # install tools, packages, apps, and the logi
 
 ## Rules
 
-- Always edit the file individually, do not touch or commit changes that't not yours nodifications.
-- After apply success, commit the files
+- Always edit files individually. Do not touch or commit changes that are not yours.
+- After a successful apply, commit the files.

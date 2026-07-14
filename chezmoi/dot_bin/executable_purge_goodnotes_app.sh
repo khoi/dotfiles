@@ -35,6 +35,9 @@ pkill -9 "Goodnotes" || true
 FILES=(/Applications/Goodnotes.app
   ~/Library/Containers/com.goodnotesapp.x
   ~/Library/Containers/com.goodnotesapp.x.WidgetExtension
+  ~/Library/Group\ Containers/group.com.goodnotesapp.goodnotes
+  ~/Library/Group\ Containers/group.com.goodnotesapp.nexushelper
+  ~/Library/Group\ Containers/group.com.goodnotesapp.open-in-action-extension
 )
 IFS=""
 
@@ -46,6 +49,6 @@ for f in "${FILES[@]}"; do
 done
 
 echo "🗑️ Removing UserDefaults com.goodnotesapp.x"
-defaults delete com.goodnotesapp.x
+defaults delete com.goodnotesapp.x 2>/dev/null || true
 
 echo "✅ Done"

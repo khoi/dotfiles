@@ -8,7 +8,7 @@ description: "Use when a user asks to debug or fix failing GitHub PR checks that
 
 ## Overview
 
-Use gh to locate failing PR checks, fetch GitHub Actions logs for actionable failures, then fix it proactrively.
+Use gh to locate failing PR checks, fetch GitHub Actions logs for actionable failures, and propose a focused fix.
 
 Prereq: authenticate with the standard GitHub CLI once (for example, run `gh auth login`), then confirm with `gh auth status` (repo + workflow scopes are typically required).
 
@@ -49,7 +49,7 @@ Prereq: authenticate with the standard GitHub CLI once (for example, run `gh aut
 5. Summarize failures for the user.
    - Provide the failing check name, run URL (if any), and a concise log snippet.
    - Call out missing logs explicitly.
-6. Fix proactively (no need for users approval), commit and push.
+6. Present a focused fix plan and wait for explicit approval before editing.
 7. Recheck status.
    - After changes, suggest re-running the relevant tests and `gh pr checks` to confirm.
 

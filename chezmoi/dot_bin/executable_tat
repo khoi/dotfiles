@@ -11,14 +11,13 @@ else
 fi
 
 session_name=${2-$path_name}
-path_name="$(basename "$PWD" | tr . -)"
 
 not_in_tmux() {
   [ -z "$TMUX" ]
 }
 
 session_exists() {
-  tmux list-sessions | sed -E 's/:.*$//' | grep -q "^$session_name$"
+  tmux has-session -t "=$session_name" 2>/dev/null
 }
 
 create_detached_session() {
@@ -27,13 +26,11 @@ create_detached_session() {
 
 create_if_needed_and_attach() {
   if not_in_tmux; then
-    tmux new-session -As "$session_name" -c "$root_dir"
-  else
-    if ! session_exists; then
-      create_detached_session
-    fi
-    tmux switch-client -t "$session_name"
+    exec tmux new-session -As "$session_name" -c "$root_dir"
   fi
+
+  session_exists || create_detached_session
+  tmux switch-client -t "=$session_name"
 }
 
 create_if_needed_and_attach

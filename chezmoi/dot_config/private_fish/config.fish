@@ -10,7 +10,6 @@ if not status is-interactive
 end
 
 set -g async_prompt_functions _pure_prompt_git
-set -g pure_enable_single_line_prompt false
 set -g pure_separate_prompt_on_error true
 
 if test -f ~/.config/fish/private_variables.fish
@@ -21,7 +20,7 @@ set -gx EDITOR nvim
 set -gx TLDR_AUTO_UPDATE_DISABLED 1
 
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
-set -gx FZF_CTRL_T_COMMAND 'fd --type f --hidden --exclude .git --strip-cwd-prefix'
+set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
 
 if command -v fzf &>/dev/null
     set -l fzf_cache "$HOME/.cache/fzf_init.fish"
@@ -70,9 +69,3 @@ if command -v gj &>/dev/null
         end
     end
 end
-
-if not contains -- "/Users/khoi/.supacode/hooks/bin/" $PATH
-  set -gx PATH "/Users/khoi/.supacode/hooks/bin/" $PATH
-end
-
-fish_add_path /Users/khoi/.opencode/bin

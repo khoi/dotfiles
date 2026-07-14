@@ -1,42 +1,50 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-KOBO_MOUNT="/Volumes/KOBOeReader"
-COLLECTION_FILE="$KOBO_MOUNT/.adds/koreader/settings/collection.lua"
+mount=/Volumes/KOBOeReader
+collection="$mount/.adds/koreader/settings/collection.lua"
 
-# Check if the file already exists
-if [ ! -f "$COLLECTION_FILE" ]; then
-  echo "Error: Collection file not found at $COLLECTION_FILE"
+if [[ ! -f "$collection" ]]; then
+  echo "Collection file not found at $collection" >&2
   exit 1
 fi
 
-# Start writing the Lua file
-cat >"$COLLECTION_FILE" <<'EOF'
+tmp=$(mktemp "$collection.XXXXXX")
+files=$(mktemp)
+trap 'rm -f "$tmp" "$files"' EXIT
+
+fd -0 -e epub -e pdf -e cbz -e mobi -E '.*' . "$mount" >"$files"
+
+cat >"$tmp" <<'EOF'
 return {
     ["favorites"] = {
 EOF
 
-# Find all epub files and process them
 counter=1
-echo "Processing files..."
-fd -e epub -e pdf -e cbz -e mobi -E '.*' . "$KOBO_MOUNT" | while read -r file; do
-  # Convert the path from $KOBO_MOUNT to /mnt/onboard
-  converted_path=${file//$KOBO_MOUNT//mnt/onboard}
-  echo "[$counter] Processing: $converted_path"
-  # Write array entry
-  cat >>"$COLLECTION_FILE" <<EOF
+while IFS= read -r -d '' file; do
+  path=${file//$mount//mnt/onboard}
+  path=${path//\\/\\\\}
+  path=${path//\"/\\\"}
+  path=${path//$'\n'/\\n}
+  path=${path//$'\r'/\\r}
+  path=${path//$'\t'/\\t}
+  cat >>"$tmp" <<EOF
         [$counter] = {
-            ["file"] = "$converted_path",
+            ["file"] = "$path",
             ["order"] = $counter,
         },
 EOF
-  ((counter++))
-done
+  ((counter += 1))
+done <"$files"
 
-# Add settings and close the structure
-cat >>"$COLLECTION_FILE" <<'EOF'
+cat >>"$tmp" <<'EOF'
         ["settings"] = {
             ["order"] = 1,
         },
     },
 }
 EOF
+
+mv "$tmp" "$collection"
+rm -f "$files"
+trap - EXIT

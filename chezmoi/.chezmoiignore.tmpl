@@ -1,0 +1,7 @@
+.zsh_history
+.pi/agent/auth.json
+.pi/agent/sessions
+{{ if not (stat (joinPath .chezmoi.homeDir ".pfw/skills/pfw/SKILL.md")) }}
+.agents/skills/pfw-*
+.claude/skills/pfw-*
+{{ end }}

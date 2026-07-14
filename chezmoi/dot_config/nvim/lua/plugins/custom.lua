@@ -1,5 +1,4 @@
-local dark_colorscheme = "zenbones"
-local light_colorscheme = "zenbones"
+local colorscheme = "zenbones"
 
 local function set_highlights(groups)
   for group, spec in pairs(groups) do
@@ -72,12 +71,11 @@ local plugins = {
     priority = 1000,
     config = setup_zenbones_highlights,
   },
-  { "LazyVim/LazyVim", opts = { colorscheme = dark_colorscheme } },
+  { "LazyVim/LazyVim", opts = { colorscheme = colorscheme } },
   {
     "f-person/auto-dark-mode.nvim",
     opts = function()
       local function apply(background)
-        local colorscheme = background == "light" and light_colorscheme or dark_colorscheme
         vim.api.nvim_set_option_value("background", background, {})
         vim.cmd.colorscheme(colorscheme)
       end
@@ -92,9 +90,6 @@ local plugins = {
       }
     end,
   },
-}
-
-local rest = {
   {
     "folke/snacks.nvim",
     opts = function(_, opts)
@@ -108,17 +103,6 @@ local rest = {
         hidden = true,
       })
       return opts
-    end,
-  },
-  -- add more treesitter parsers
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = function(_, opts)
-      -- add tsx and treesitter
-      vim.list_extend(opts.ensure_installed, {
-        "tsx",
-        "typescript",
-      })
     end,
   },
   {
@@ -167,17 +151,6 @@ local rest = {
       },
     },
   },
-  -- Configure fzf-lua to show hidden files
-  {
-    "ibhagwan/fzf-lua",
-    opts = {
-      files = {
-        fd_opts = "--color=never --type f --hidden --follow --exclude .git",
-      },
-    },
-  },
 }
-
-vim.list_extend(plugins, rest)
 
 return plugins

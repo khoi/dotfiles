@@ -10,6 +10,7 @@ printf '💾 Backing up with hostname %s to "%s"\n' "$HOST" "$RESTIC_REPOSITORY"
 restic unlock
 restic \
   backup "$HOME" \
+  --retry-lock 3h \
   -H "$HOST" \
   --compression "max" \
   --exclude-caches \
@@ -27,5 +28,3 @@ restic \
   --exclude "$HOME/OrbStack" \
   --exclude "$HOME/.ollama/" \
   "$@"
-
-"$HOME/.bin/restic_maintain.sh"

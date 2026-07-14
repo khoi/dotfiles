@@ -24,10 +24,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install chezmoi
         run: brew install chezmoi
+
+      - name: Test utilities
+        run: bash tests/rsync_parallel.sh
 
       - name: Configure mise
         shell: bash
@@ -72,6 +75,27 @@ jobs:
             --force \
             --refresh-externals=never \
             apply --include=scripts --verbose
+
+      - name: Verify symlinks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          home="$RUNNER_TEMP/home"
+
+          while IFS= read -r -d '' link; do
+            target=$(/usr/bin/readlink "$link")
+            if [[ "$target" = /* ]]; then
+              resolved="$target"
+            else
+              resolved="$(/usr/bin/dirname "$link")/$target"
+            fi
+
+            if [[ ! -e "$resolved" ]]; then
+              echo "Broken symlink: $link -> $target" >&2
+              exit 1
+            fi
+          done < <(/usr/bin/find "$home" -type l -print0)
 
       - name: Verify chezmoi
         shell: bash

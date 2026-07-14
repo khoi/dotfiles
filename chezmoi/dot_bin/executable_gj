@@ -17,7 +17,6 @@ Examples:
   $script_name get org/repo
   $script_name get https://github.com/org/repo
   $script_name get --depth 1 git@github.com:org/repo.git
-  git config --global gj.root ~/Developer/code
 EOF
 }
 

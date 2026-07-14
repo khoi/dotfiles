@@ -2,9 +2,7 @@ theme = light:Zenbones Light,dark:Zenbones Dark
 font-family = "JetBrainsMono Nerd Font"
 font-size = 15
 confirm-close-surface = false
-cursor-style = block
 cursor-style-blink = false
-window-inherit-font-size = true
 unfocused-split-opacity = 0.9
 
 keybind = super+d=new_split:right
@@ -19,4 +17,3 @@ keybind = opt+j=goto_split:bottom
 keybind = opt+k=goto_split:top
 keybind = opt+l=goto_split:right
 keybind = global:super+shift+s=toggle_visibility
-background-opacity = 1.00
