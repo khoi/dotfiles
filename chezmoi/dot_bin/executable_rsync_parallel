@@ -13,16 +13,53 @@ if [[ ! "$parallelism" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 
+reject_option() {
+  echo "unsupported rsync option: $1" >&2
+  exit 2
+}
+
 options=()
+transfer_options=()
+archive=0
 while (( $# > 0 )) && [[ $1 != -- ]]; do
-  options+=("$1")
-  shift
+  case "$1" in
+  -e)
+    if (( $# < 2 )) || [[ $2 == -- ]]; then
+      reject_option "$1"
+    fi
+    options+=("$1" "$2")
+    transfer_options+=("$1" "$2")
+    shift 2
+    ;;
+  --*)
+    reject_option "$1"
+    ;;
+  -?*)
+    flags=${1#-}
+    [[ "$flags" =~ ^[azvhP]+$ ]] || reject_option "$1"
+    [[ "$flags" == *a* ]] && archive=1
+    options+=("$1")
+    transfer_flags=${flags//a/}
+    [[ -n "$transfer_flags" ]] && transfer_options+=("-$transfer_flags")
+    shift
+    ;;
+  *)
+    reject_option "$1"
+    ;;
+  esac
 done
 
 if (( $# != 3 )); then
-  echo "Usage: rsync_parallel [--parallel=N] [rsync options...] -- source destination/" >&2
+  echo "Usage: rsync_parallel [--parallel=N] [-azvhP] [-e command] -- source destination/" >&2
   exit 2
 fi
+
+if (( archive == 0 )); then
+  echo "rsync option -a is required" >&2
+  exit 2
+fi
+
+transfer_options+=(-lptgoD)
 
 shift
 source=$1
@@ -32,20 +69,6 @@ if [[ "$destination" != */ ]]; then
   echo "destination must end in /" >&2
   exit 2
 fi
-
-reject_option() {
-  echo "unsupported rsync option: $1" >&2
-  exit 2
-}
-
-for option in "${options[@]}"; do
-  case "$option" in
-  --del | --delete* | --files-from* | --from0 | --hard-links | --relative | --remove-source-files)
-    reject_option "$option"
-    ;;
-  esac
-  [[ "$option" =~ ^-[^-]*[RH] ]] && reject_option "$option"
-done
 
 transfer_source=$source
 if [[ "$source" != */ ]]; then
@@ -84,7 +107,7 @@ trap stop INT TERM
 
 separator=$'\x1f'
 echo "Determining files for $parallelism parallel transfers"
-rsync "${options[@]}" --out-format="%l${separator}%n" --no-v --dry-run "$source" "$destination" \
+rsync "${options[@]}" --out-format="%l${separator}%n" --no-progress --no-v --dry-run "$source" "$destination" \
   | sort --field-separator="$separator" --key=1,1nr \
   >"$tmpdir/files"
 
@@ -127,7 +150,7 @@ for ((i = 1; i < parallelism; i += 2)); do
 done
 
 for chunk in "$tmpdir"/chunk.*; do
-  rsync "${options[@]}" --files-from="$chunk" "$transfer_source" "$destination" &
+  rsync "${transfer_options[@]}" --files-from="$chunk" "$transfer_source" "$destination" &
   pids+=("$!")
 done
 
@@ -136,4 +159,8 @@ for pid in "${pids[@]}"; do
   wait "$pid" || result=1
 done
 
-exit "$result"
+if (( result != 0 )); then
+  exit "$result"
+fi
+
+rsync "${options[@]}" --include='*/' --exclude='*' "$source" "$destination"
