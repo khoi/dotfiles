@@ -22,3 +22,4 @@ mise bootstrap                     # install tools, packages, apps, and the logi
 
 - Always edit files individually. Do not touch or commit changes that are not yours.
 - After a successful apply, commit the files.
+- Prefer to use mise over homebrew, only use brew as last resort
