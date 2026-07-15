@@ -1,3 +1,7 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
+{{- $managed := fromToml `
 min_version = "2026.7.6"
 
 [tools]
@@ -154,3 +158,6 @@ minimum_release_age = "3d"
 minimum_release_age_excludes = ["npm:@openai/codex"]
 lockfile_platforms = ["macos-arm64"]
 ruby.compile = false
+` -}}
+{{- $config = mergeOverwrite $config $managed -}}
+{{- toToml $config -}}
