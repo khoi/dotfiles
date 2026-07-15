@@ -13,7 +13,7 @@ mise bootstrap                     # install tools, packages, apps, and the logi
 ## Structure
 
 - `chezmoi/` - actual dotfiles source (chezmoi root)
-  - `dot_config/mise/config.toml` - mise tools, formulae, casks, and user bootstrap
+  - `dot_config/mise/modify_config.toml` - mise tools, formulae, casks, and user bootstrap
   - `.chezmoiscripts/` - mise bootstrap orchestration and macOS prefs
   - `dot_*` maps to `~/.*`
   - `private_*` prefix for sensitive files

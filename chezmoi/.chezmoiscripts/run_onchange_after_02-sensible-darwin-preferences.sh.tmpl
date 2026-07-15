@@ -2,7 +2,7 @@
 set -eEuo pipefail
 trap 'printf "failed: %s\n" "$BASH_COMMAND" >&2' ERR
 
-test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
+test -n "{{ include "dot_config/mise/modify_config.toml" | sha256sum }}"
 
 osascript -e 'tell application "System Settings" to quit' || true
 

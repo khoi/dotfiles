@@ -2,7 +2,7 @@
 set -eu
 
 mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
-required_version="{{ (include "dot_config/mise/config.toml" | fromToml).min_version }}"
+required_version="{{ (includeTemplate "dot_config/mise/modify_config.toml" (dict "chezmoi" (dict "stdin" "")) | fromToml).min_version }}"
 
 if [ ! -x "$mise_bin" ]; then
   mkdir -p "{{ .chezmoi.homeDir }}/.local/bin"
