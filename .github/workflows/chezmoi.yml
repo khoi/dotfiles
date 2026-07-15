@@ -131,6 +131,13 @@ jobs:
           MISE_SYSTEM_PACKAGES_MANAGERS=brew "$mise" bootstrap packages status --missing
           "$mise" install --dry-run-code --locked
 
+          brew_status=0
+          test "$(PATH="$home/.bin:$PATH" command -v brew)" = "$home/.bin/brew"
+          brew_help=$(PATH="$home/.bin:$PATH" brew 2>&1) || brew_status=$?
+          test "$brew_status" -eq 127
+          grep -Fq 'mise bootstrap packages apply brew:<formula> --yes' <<<"$brew_help"
+          grep -Fq 'mise bootstrap packages apply brew-cask:<cask> --yes' <<<"$brew_help"
+
           if command -v brew >/dev/null 2>&1; then
             exit 1
           fi
