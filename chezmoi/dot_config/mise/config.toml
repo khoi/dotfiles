@@ -1,4 +1,4 @@
-min_version = "2026.7.5"
+min_version = "2026.7.6"
 
 [tools]
 "1password-cli" = "latest"
