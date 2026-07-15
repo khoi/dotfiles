@@ -12,9 +12,7 @@ permissions:
 
 env:
   GITHUB_TOKEN: ${{ github.token }}
-  HOMEBREW_NO_ANALYTICS: "1"
-  HOMEBREW_NO_ENV_HINTS: "1"
-  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+  PATH: /usr/bin:/bin:/usr/sbin:/sbin
 
 jobs:
   bootstrap:
@@ -26,16 +24,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Install chezmoi
-        run: brew install chezmoi
-
-      - name: Configure mise
+      - name: Remove Homebrew
         shell: bash
         run: |
-          prefix="$RUNNER_TEMP/mise-homebrew"
-          echo "MISE_SYSTEM_BREW_PREFIX=$prefix" >> "$GITHUB_ENV"
-          echo "$prefix/bin" >> "$GITHUB_PATH"
-          echo "$prefix/sbin" >> "$GITHUB_PATH"
+          sudo /bin/mv /opt/homebrew /opt/homebrew-disabled
+
+          if [[ -e /opt/homebrew ]]; then
+            exit 1
+          fi
+
+          if command -v brew >/dev/null 2>&1; then
+            exit 1
+          fi
+
+      - name: Install chezmoi
+        shell: bash
+        run: |
+          bin="$RUNNER_TEMP/bin"
+          mkdir -p "$bin"
+          /bin/sh -c "$(/usr/bin/curl -fsLS https://get.chezmoi.io)" -- -b "$bin"
+          echo "$bin" >> "$GITHUB_PATH"
 
       - name: Apply chezmoi
         shell: bash
@@ -121,3 +129,7 @@ jobs:
           "$mise" --version
           MISE_SYSTEM_PACKAGES_MANAGERS=brew "$mise" bootstrap packages status --missing
           "$mise" install --dry-run-code --locked
+
+          if command -v brew >/dev/null 2>&1; then
+            exit 1
+          fi

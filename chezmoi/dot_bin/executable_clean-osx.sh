@@ -59,13 +59,6 @@ if type "composer" &> /dev/null; then
     composer clearcache &> /dev/null
 fi
 
-if type "brew" &>/dev/null; then
-    echo 'Cleanup Homebrew Cache...'
-    brew cleanup -s &>/dev/null
-    rm -rfv $(brew --cache) &>/dev/null
-    brew tap --repair &>/dev/null
-fi
-
 if type "mise" &> /dev/null; then
     echo 'Cleanup mise...'
     mise prune --configs --yes

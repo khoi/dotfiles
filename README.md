@@ -12,7 +12,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --use-builtin-git=true khoi
 
 ## Manual setup
 
-- mise installs CLI tools, system packages, GUI apps, and fonts from `~/.config/mise/config.toml`
+- mise directly installs CLI tools, system packages, GUI apps, and fonts from `~/.config/mise/config.toml`; the Homebrew CLI is not required
 - 1Password
   - Turn on SSH Agent
   - Integrate with 1Password CLI
