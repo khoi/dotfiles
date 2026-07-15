@@ -4,7 +4,7 @@ set -eu
 
 mise_bin="{{ .chezmoi.homeDir }}/.local/bin/mise"
 
-export PATH="{{ .chezmoi.homeDir }}/.local/bin:{{ .chezmoi.homeDir }}/.bin:$PATH"
+export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
 
 test -n "{{ include "dot_config/mise/modify_config.toml" | sha256sum }}"
 test -n "{{ include "dot_config/mise/mise.lock" | sha256sum }}"
