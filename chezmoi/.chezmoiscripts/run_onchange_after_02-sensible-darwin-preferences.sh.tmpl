@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -eEuo pipefail
+trap 'printf "failed: %s\n" "$BASH_COMMAND" >&2' ERR
+
+test -n "{{ include "dot_config/mise/config.toml" | sha256sum }}"
+
+osascript -e 'tell application "System Settings" to quit' || true
+
+username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
+username="${username#-}"
+username="${username%-}"
+serial="$(ioreg -rd1 -c IOPlatformExpertDevice 2>/dev/null | awk -F'"' '/IOPlatformSerialNumber/ {print $4}' || true)"
+
+if [[ -n "$serial" ]]; then
+	computer_name="$username-$serial"
+else
+	computer_name="$username"
+fi
+
+sudo scutil --set ComputerName "$computer_name"
+sudo scutil --set LocalHostName "$computer_name"
+sudo scutil --set HostName "$computer_name.local"
+
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+enabled_input_sources="$(defaults read com.apple.HIToolbox AppleEnabledInputSources 2>/dev/null || true)"
+
+if [[ "$enabled_input_sources" != *'com.apple.inputmethod.VietnameseIM'* ]]; then
+	defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+		"Bundle ID" = "com.apple.inputmethod.VietnameseIM";
+		InputSourceKind = "Keyboard Input Method";
+	}'
+fi
+
+if [[ "$enabled_input_sources" != *'com.apple.inputmethod.VietnameseTelex'* ]]; then
+	defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+		"Bundle ID" = "com.apple.inputmethod.VietnameseIM";
+		"Input Mode" = "com.apple.inputmethod.VietnameseTelex";
+		InputSourceKind = "Input Mode";
+	}'
+fi
+
+defaults write com.apple.finder FXInfoPanesExpanded -dict \
+	General -bool true \
+	OpenWith -bool true \
+	Privileges -bool true
+
+defaults write com.apple.dock persistent-apps -array
+
+defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
+
+for app in "Activity Monitor" \
+	"Calendar" \
+	"cfprefsd" \
+	"Contacts" \
+	"Dock" \
+	"Finder" \
+	"Mail" \
+	"Messages" \
+	"Photos" \
+	"Safari" \
+	"SystemUIServer"; do
+	killall "$app" &>/dev/null || true
+done

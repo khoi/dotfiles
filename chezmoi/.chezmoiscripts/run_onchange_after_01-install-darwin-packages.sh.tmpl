@@ -12,6 +12,7 @@ test -n "{{ include "dot_config/mise/mise.lock" | sha256sum }}"
 if [ "${CI:-}" = "true" ]; then
   "$mise_bin" bootstrap packages apply --manager brew --yes
   "$mise_bin" bootstrap packages apply --manager brew-cask --dry-run
+  "$mise_bin" bootstrap macos defaults apply --yes
   "$mise_bin" install --yes --locked
 else
   "$mise_bin" bootstrap --yes --locked

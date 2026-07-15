@@ -63,6 +63,89 @@ gitleaks = "latest"
 "brew-cask:supacode" = "latest"
 "brew-cask:telegram" = "latest"
 
+[bootstrap.macos.defaults."com.apple.NetworkBrowser"]
+BrowseAllInterfaces = "1"
+
+[bootstrap.macos.defaults."com.apple.desktopservices"]
+DSDontWriteNetworkStores = true
+DSDontWriteUSBStores = true
+
+[bootstrap.macos.defaults.NSGlobalDomain]
+NSAutomaticWindowAnimationsEnabled = false
+_HIHideMenuBar = true
+NSWindowResizeTime = 0.001
+NSNavPanelExpandedStateForSaveMode = true
+NSNavPanelExpandedStateForSaveMode2 = true
+NSAutomaticCapitalizationEnabled = false
+NSAutomaticDashSubstitutionEnabled = false
+NSAutomaticPeriodSubstitutionEnabled = false
+NSAutomaticQuoteSubstitutionEnabled = false
+NSAutomaticSpellingCorrectionEnabled = false
+"com.apple.mouse.tapBehavior" = 1
+ApplePressAndHoldEnabled = false
+KeyRepeat = 1
+InitialKeyRepeat = 10
+AppleShowAllExtensions = true
+
+[bootstrap.macos.defaults."com.apple.LaunchServices"]
+LSQuarantine = false
+
+[bootstrap.macos.defaults."com.apple.driver.AppleBluetoothMultitouch.trackpad"]
+Clicking = true
+
+[bootstrap.macos.defaults."com.apple.universalaccess"]
+mouseDriverCursorSize = 2.0
+
+[bootstrap.macos.defaults."com.apple.screensaver"]
+askForPassword = 1
+askForPasswordDelay = 0
+
+[bootstrap.macos.defaults."com.apple.finder"]
+QuitMenuItem = true
+DisableAllAnimations = true
+ShowExternalHardDrivesOnDesktop = true
+ShowHardDrivesOnDesktop = true
+ShowMountedServersOnDesktop = true
+ShowRemovableMediaOnDesktop = true
+ShowStatusBar = true
+ShowPathbar = true
+_FXShowPosixPathInTitle = true
+_FXSortFoldersFirst = true
+FXDefaultSearchScope = "SCcf"
+FXEnableExtensionChangeWarning = false
+OpenWindowForNewRemovableDisk = true
+FXPreferredViewStyle = "Nlsv"
+WarnOnEmptyTrash = false
+
+[bootstrap.macos.defaults."com.apple.frameworks.diskimages"]
+"skip-verify" = true
+"skip-verify-locked" = true
+"skip-verify-remote" = true
+"auto-open-ro-root" = true
+"auto-open-rw-root" = true
+
+[bootstrap.macos.defaults."com.apple.dock"]
+"static-only" = true
+"expose-animation-duration" = 0.1
+"autohide-delay" = 0.0
+"autohide-time-modifier" = 0.0
+autohide = true
+"show-recents" = false
+"no-bouncing" = true
+
+[bootstrap.macos.defaults."com.apple.ActivityMonitor"]
+OpenMainWindow = true
+ShowCategory = 0
+SortColumn = "CPUUsage"
+SortDirection = 0
+
+[bootstrap.macos.defaults."com.apple.DiskUtility"]
+DUDebugMenuEnabled = true
+"advanced-image-options" = true
+
+[bootstrap.macos.defaults."com.apple.QuickTimePlayerX"]
+MGPlayMovieOnOpen = true
+
 [bootstrap.user]
 login_shell = "/opt/homebrew/bin/fish"
 

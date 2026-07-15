@@ -127,6 +127,7 @@ jobs:
           test -x "$home/.local/bin/mise"
           mise="$home/.local/bin/mise"
           "$mise" --version
+          "$mise" bootstrap macos defaults status --missing
           MISE_SYSTEM_PACKAGES_MANAGERS=brew "$mise" bootstrap packages status --missing
           "$mise" install --dry-run-code --locked
 
