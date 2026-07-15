@@ -17,9 +17,18 @@ else
 	computer_name="$username"
 fi
 
-sudo scutil --set ComputerName "$computer_name"
-sudo scutil --set LocalHostName "$computer_name"
-sudo scutil --set HostName "$computer_name.local"
+set_computer_name() {
+	local key="$1"
+	local value="$2"
+
+	if [[ "$(scutil --get "$key" 2>/dev/null || true)" != "$value" ]]; then
+		sudo scutil --set "$key" "$value"
+	fi
+}
+
+set_computer_name ComputerName "$computer_name"
+set_computer_name LocalHostName "$computer_name"
+set_computer_name HostName "$computer_name.local"
 
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
