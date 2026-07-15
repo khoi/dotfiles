@@ -11,7 +11,7 @@ storage_box_reachable() {
 
 (( $# > 0 )) || exit 2
 
-while (( SECONDS < 3 * 60 * 60 )); do
+while (( SECONDS < 2 * 60 * 60 )); do
   if on_ac_power && storage_box_reachable; then
     exec /usr/bin/caffeinate -s "$@"
   fi
