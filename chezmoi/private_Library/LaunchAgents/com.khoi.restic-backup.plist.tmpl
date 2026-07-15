@@ -25,9 +25,15 @@
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
+		{{- if eq .chezmoi.hostname "khoi-JQRP62G46R" }}
+		<integer>12</integer>
+		<key>Minute</key>
+		<integer>5</integer>
+		{{- else }}
 		<integer>5</integer>
 		<key>Minute</key>
 		<integer>0</integer>
+		{{- end }}
 	</dict>
 </dict>
 </plist>
