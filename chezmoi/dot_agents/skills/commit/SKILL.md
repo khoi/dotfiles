@@ -54,8 +54,16 @@ description:
 10. Skip trailer ceremony. Add `Fixes #NNN` only when the commit actually
     closes an issue.
 11. Wrap body lines at 72 characters.
-12. Create the commit message with a here-doc or temp file under /tmp (no need to delete the file) and use
-    `git commit -F <file>` so newlines are literal (avoid `-m` with `\n`).
+12. Create multiline commit messages through stdin with a quoted here-doc, for
+    example:
+
+    ```zsh
+    git commit -F - <<'EOF'
+    subject
+
+    body
+    EOF
+    ```
 13. Commit only when the message matches the staged changes: if the staged diff
     includes unrelated files or the message describes work that isn't staged,
     fix the index or revise the message before committing.
