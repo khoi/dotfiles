@@ -30,7 +30,7 @@ enabled = false
 
 [features]
 goals = true
-apps = false
+apps = true
 prevent_idle_sleep = true
 default_mode_request_user_input = true
 ghost_commit = false
