@@ -18,6 +18,7 @@ service_tier = "default"
 "tui.status_line_use_colors" = true
 "tui.session_picker_view" = "dense"
 "tui.pet" = "disabled"
+"tui.show_tooltips" = true
 
 [agents]
 max_threads = 8
