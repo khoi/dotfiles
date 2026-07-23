@@ -168,6 +168,10 @@ backend = "npm:agent-browser"
 version = "0.17.0"
 backend = "npm:hunkdiff"
 
+[[tools."npm:openclaw"]]
+version = "2026.6.11"
+backend = "npm:openclaw"
+
 [[tools."npm:pnpm"]]
 version = "11.11.0"
 backend = "npm:pnpm"
