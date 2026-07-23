@@ -9,7 +9,7 @@ model_reasoning_summary = "concise"
 model_verbosity = "low"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
-plan_mode_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "ultra"
 suppress_unstable_features_warning = true
 approvals_reviewer = "user"
 service_tier = "default"
@@ -21,7 +21,7 @@ service_tier = "default"
 "tui.show_tooltips" = true
 
 [agents]
-max_threads = 8
+max_concurrent_threads_per_session = 8
 
 [analytics]
 enabled = false
@@ -34,22 +34,15 @@ goals = true
 apps = true
 prevent_idle_sleep = true
 default_mode_request_user_input = true
-ghost_commit = false
 unified_exec = true
-skills = true
 shell_snapshot = true
-steer = true
-responses_websockets_v2 = true
-multi_agent = true
+multi_agent_v2 = true
 memories = true
-external_migration = true
 hooks = true
-terminal_resize_reflow = true
-js_repl = false
-rmcp_client = true
-remote_plugin = false
 
 ` -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
+{{- $removed := list "agents.max_threads" "features.external_migration" "features.ghost_commit" "features.js_repl" "features.multi_agent" "features.remote_plugin" "features.responses_websockets_v2" "features.rmcp_client" "features.skills" "features.steer" "features.terminal_resize_reflow" -}}
+{{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
 {{- range $key, $value := $managed -}}{{- $config = setValueAtPath $key $value $config -}}{{- end -}}
 {{- toToml $config -}}
