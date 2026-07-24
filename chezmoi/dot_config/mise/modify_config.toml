@@ -2,7 +2,7 @@
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
 {{- $managed := fromToml `
-min_version = "2026.7.6"
+min_version = "2026.7.12"
 
 [tools]
 "1password-cli" = "latest"
