@@ -2,18 +2,17 @@
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
 {{- $managed := fromToml `
-approval_policy = "on-request"
-approvals_reviewer = "auto_review"
+approval_policy = "never"
 model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 model_reasoning_summary = "concise"
 model_verbosity = "low"
 personality = "pragmatic"
-sandbox_mode = "workspace-write"
+sandbox_mode = "danger-full-access"
 plan_mode_reasoning_effort = "ultra"
 suppress_unstable_features_warning = true
+approvals_reviewer = "user"
 service_tier = "default"
-web_search = "live"
 "tui.status_line" = ["context-used", "model-with-reasoning", "context-window-size", "pull-request-number", "branch-changes"]
 "tui.terminal_title" = ["git-branch", "run-state", "task-progress"]
 "tui.status_line_use_colors" = true
@@ -40,9 +39,6 @@ shell_snapshot = true
 multi_agent_v2 = true
 memories = true
 hooks = true
-
-[sandbox_workspace_write]
-network_access = true
 
 ` -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
