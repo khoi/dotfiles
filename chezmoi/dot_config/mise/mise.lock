@@ -44,7 +44,10 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/46967794
 
 [[tools.eza]]
 version = "0.23.4"
-backend = "asdf:eza"
+backend = "vfox:jdx/vfox-eza"
+
+[tools.eza."platforms.macos-arm64"]
+url = "https://github.com/cargo-bins/cargo-quickinstall/releases/download/eza-0.23.4/eza-0.23.4-aarch64-apple-darwin.tar.gz"
 
 [[tools.fd]]
 version = "10.4.2"
