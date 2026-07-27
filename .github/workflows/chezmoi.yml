@@ -87,20 +87,34 @@ jobs:
           set -euo pipefail
 
           home="$RUNNER_TEMP/home"
+          cache="$RUNNER_TEMP/chezmoi-cache"
+          config="$RUNNER_TEMP/chezmoi.toml"
+          state="$RUNNER_TEMP/chezmoi-state/chezmoistate.boltdb"
 
-          while IFS= read -r -d '' link; do
-            target=$(/usr/bin/readlink "$link")
-            if [[ "$target" = /* ]]; then
-              resolved="$target"
-            else
-              resolved="$(/usr/bin/dirname "$link")/$target"
-            fi
+          links="$RUNNER_TEMP/managed-symlinks"
 
-            if [[ ! -e "$resolved" ]]; then
-              echo "Broken symlink: $link -> $target" >&2
-              exit 1
+          export HOME="$home"
+
+          chezmoi \
+            --source "$GITHUB_WORKSPACE/chezmoi" \
+            --destination "$home" \
+            --cache "$cache" \
+            --config "$config" \
+            --persistent-state "$state" \
+            --no-tty \
+            --refresh-externals=never \
+            managed --include=symlinks --path-style=absolute > "$links"
+
+          broken=0
+
+          while IFS= read -r link; do
+            if [[ ! -e "$link" ]]; then
+              echo "Broken symlink: $link -> $(/usr/bin/readlink "$link")" >&2
+              broken=1
             fi
-          done < <(/usr/bin/find "$home" -type l -print0)
+          done < "$links"
+
+          ((broken == 0))
 
       - name: Verify chezmoi
         shell: bash
