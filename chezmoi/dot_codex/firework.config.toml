@@ -1,2 +1,3 @@
 model = "kimi-fast-latest"
 model_provider = "fireworks-ai"
+service_tier = "default"
