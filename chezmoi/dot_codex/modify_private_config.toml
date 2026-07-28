@@ -40,6 +40,10 @@ multi_agent_v2 = true
 memories = true
 hooks = true
 
+[profiles.firework]
+model = "kimi-fast-latest"
+model_provider = "fireworks-ai"
+
 ` -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
 {{- $removed := list "agents.max_threads" "features.external_migration" "features.ghost_commit" "features.js_repl" "features.multi_agent" "features.remote_plugin" "features.responses_websockets_v2" "features.rmcp_client" "features.skills" "features.steer" "features.terminal_resize_reflow" -}}
