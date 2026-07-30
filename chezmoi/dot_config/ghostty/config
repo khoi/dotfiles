@@ -3,7 +3,7 @@ font-family = "JetBrainsMono Nerd Font"
 font-size = 15
 confirm-close-surface = false
 cursor-style-blink = false
-shell-integration-features = ssh-env,ssh-terminfo
+shell-integration-features = ssh-env
 quit-after-last-window-closed = true
 unfocused-split-opacity = 0.9
 
