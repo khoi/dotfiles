@@ -1,6 +1,4 @@
 Host github.com
-	HostName ssh.github.com
-	Port 443
 	User git
 	IdentityAgent none
 	IdentityFile ~/.ssh/id_ed25519_github
