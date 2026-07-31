@@ -13,14 +13,6 @@
     "DISABLE_TELEMETRY": "1",
     "USE_BUILTIN_RIPGREP": "0"
   },
-  "extraKnownMarketplaces": {
-    "claude-code-warp": {
-      "source": {
-        "repo": "warpdotdev/claude-code-warp",
-        "source": "github"
-      }
-    }
-  },
   "fileCheckpointingEnabled": false,
   "includeCoAuthoredBy": false,
   "model": "claude-fable-5[1m]",
