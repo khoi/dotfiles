@@ -5,12 +5,7 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "enabledPlugins": {
-    "agent-sdk-dev@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "warp@claude-code-warp": true
-  },
+  "enabledPlugins": {},
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_NEW_INIT": "1",
