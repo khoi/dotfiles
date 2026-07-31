@@ -24,11 +24,7 @@
 [user]
 	name = khoi
 	email = 6994441+khoi@users.noreply.github.com
-{{ if eq .chezmoi.hostname "khoi-YY4J1XJ7F3" -}}
-	signingkey = /Users/khoi/.ssh/id_ed25519_github.pub
-{{ else -}}
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEIR0MxbYdOCgxOp1D27lGSjolzabibv88N2wplMbcbE
-{{ end -}}
+	signingkey = ~/.ssh/id_ed25519_github.pub
 [commit]
 	gpgsign = true
 	status = false
@@ -41,10 +37,6 @@
 	required = true
 [gpg]
 	format = ssh
-{{ if ne .chezmoi.hostname "khoi-YY4J1XJ7F3" -}}
-[gpg "ssh"]
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-{{ end -}}
 [alias]
 	find = "!git log --color -S "
 	nuke = "!git reset --hard && git clean -fd"
