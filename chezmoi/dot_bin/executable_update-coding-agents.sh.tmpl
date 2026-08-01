@@ -1,0 +1,6 @@
+#!/bin/sh
+
+status=0
+"{{ .chezmoi.homeDir }}/.local/bin/mise" exec node -- codex update || status=$?
+"{{ .chezmoi.homeDir }}/.local/bin/claude" update || status=$?
+exit "$status"

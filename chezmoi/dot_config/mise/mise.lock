@@ -159,10 +159,6 @@ url = "https://nodejs.org/dist/v26.1.0/node-v26.1.0-darwin-arm64.tar.gz"
 version = "0.73.1"
 backend = "npm:@mariozechner/pi-coding-agent"
 
-[[tools."npm:@openai/codex"]]
-version = "0.144.4"
-backend = "npm:@openai/codex"
-
 [[tools."npm:agent-browser"]]
 version = "0.31.1"
 backend = "npm:agent-browser"

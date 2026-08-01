@@ -14,12 +14,11 @@ uv = "latest"
 "npm:pnpm" = "latest"
 "npm:hunkdiff" = "latest"
 bun = "latest"
-node = "26.1.0"
+node = { version = "26.1.0", postinstall = "npm install --global @openai/codex" }
 ruby = "4"
 "aqua:tealdeer-rs/tealdeer" = "latest"
 "github:MarcoLucidi01/ytcast" = "latest"
 "npm:@mariozechner/pi-coding-agent" = "latest"
-"npm:@openai/codex" = "latest"
 bat = "latest"
 chezmoi = "latest"
 eza = "0.23.4"
@@ -155,9 +154,10 @@ login_shell = "/opt/homebrew/bin/fish"
 
 [settings]
 minimum_release_age = "3d"
-minimum_release_age_excludes = ["npm:@openai/codex"]
 lockfile_platforms = ["macos-arm64"]
 ruby.compile = false
 ` -}}
+{{- $removed := list "settings.minimum_release_age_excludes" "tools.npm:@openai/codex" -}}
+{{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
 {{- $config = mergeOverwrite $config $managed -}}
 {{- toToml $config -}}
