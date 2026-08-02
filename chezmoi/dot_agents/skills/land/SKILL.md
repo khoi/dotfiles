@@ -2,8 +2,8 @@
 name: land
 description:
   Land a PR by monitoring conflicts, resolving them, waiting for checks, and
-  squash-merging when green; use when asked to land, merge, or shepherd a PR to
-  completion.
+  creating a merge commit when green; use when asked to land, merge, or shepherd
+  a PR to completion.
 ---
 
 # Land
@@ -12,7 +12,7 @@ description:
 
 - Ensure the PR is conflict-free with main.
 - Keep CI green and fix failures when they occur.
-- Squash-merge the PR once checks pass.
+- Create a merge commit once checks pass.
 - Do not yield to the user until the PR is merged; keep the watcher loop running
   unless blocked.
 - No need to delete remote branches after merge; the repo auto-deletes head
@@ -37,8 +37,8 @@ description:
 7. Watch checks until complete.
 8. If checks fail, pull logs, fix the issue, commit with the `commit` skill,
    push, and re-run checks.
-9. When all checks are green and review feedback is addressed, squash-merge
-   using the PR title/body for the merge subject/body.
+9. When all checks are green and review feedback is addressed, create a merge
+   commit using the PR title/body for the merge subject/body.
 10. **Context guard:** Before implementing review feedback, confirm it does not
     conflict with the user’s stated intent or task context. If it conflicts,
     respond inline with a justification and ask the user before changing code.
@@ -94,8 +94,7 @@ if ! gh pr checks --watch; then
   exit 1
 fi
 
-# Squash-merge (remote branches auto-delete on merge in this repo)
-gh pr merge --squash --subject "$pr_title" --body "$pr_body"
+gh pr merge --merge --subject "$pr_title" --body "$pr_body"
 ```
 
 ## Async Watch Helper
