@@ -28,6 +28,7 @@
     "type": "command"
   },
   "syntaxHighlightingDisabled": true,
+  "terminalProgressBarEnabled": false,
   "theme": "auto",
   "tui": "default"
 }` -}}
