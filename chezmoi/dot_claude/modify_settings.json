@@ -16,6 +16,7 @@
   "fileCheckpointingEnabled": false,
   "includeCoAuthoredBy": false,
   "model": "claude-fable-5[1m]",
+  "outputStyle": "Proactive",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "deny": [
