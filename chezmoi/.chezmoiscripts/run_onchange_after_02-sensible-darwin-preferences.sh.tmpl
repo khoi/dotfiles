@@ -6,6 +6,11 @@ test -n "{{ include "dot_config/mise/modify_config.toml" | sha256sum }}"
 
 osascript -e 'tell application "System Settings" to quit' || true
 
+if ! grep -Eq '^auth[[:space:]]+sufficient[[:space:]]+pam_tid\.so$' /etc/pam.d/sudo_local 2>/dev/null; then
+	sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
+	sudo sed -i '' 's/^#auth/auth/' /etc/pam.d/sudo_local
+fi
+
 username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
 username="${username#-}"
 username="${username%-}"
