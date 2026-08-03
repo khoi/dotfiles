@@ -1,86 +1,95 @@
 ---
 name: ghidra
-description: "Reverse engineer binaries using Ghidra's headless analyzer. Decompile executables, extract functions, strings, symbols, and analyze call graphs without GUI."
+description: Reverse engineer binaries with Ghidra's headless analyzer. Use when decompiling an executable to C, extracting functions, strings or symbols, mapping a call graph, or triaging firmware and unknown binaries without the Ghidra GUI.
+allowed-tools:
+  - Bash
+  - Read
+  - Grep
+  - Glob
 ---
 
-# Ghidra Headless Analysis Skill
+# Ghidra Headless
 
-Perform automated reverse engineering using Ghidra's `analyzeHeadless` tool. Import binaries, run analysis, decompile to C code, and extract useful information.
+Drive Ghidra's `analyzeHeadless` from the shell: import a binary, analyse it, and
+write the results as C and JSON.
 
-## Quick Reference
+`$SKILL_DIR` below is the directory holding this file.
 
-| Task | Command |
-|------|---------|
-| Full analysis with all exports | `ghidra-analyze.sh -s ExportAll.java -o ./output binary` |
-| Decompile to C code | `ghidra-analyze.sh -s ExportDecompiled.java -o ./output binary` |
-| List functions | `ghidra-analyze.sh -s ExportFunctions.java -o ./output binary` |
-| Extract strings | `ghidra-analyze.sh -s ExportStrings.java -o ./output binary` |
-| Get call graph | `ghidra-analyze.sh -s ExportCalls.java -o ./output binary` |
-| Export symbols | `ghidra-analyze.sh -s ExportSymbols.java -o ./output binary` |
-| Find Ghidra path | `find-ghidra.sh` |
+## Use this when
 
-## Prerequisites
+- Decompiling a binary to C pseudocode
+- Pulling function signatures, strings, or symbols out of an executable
+- Mapping a call graph to understand control flow
+- Triaging unknown binaries or firmware images
+- Auditing compiled code with no source available
 
-- **Ghidra** must be installed. On macOS: `brew install --cask ghidra`
-- **Java** (OpenJDK 17+) must be available
+## Use something else when
 
-The skill automatically locates Ghidra in common installation paths. Set `GHIDRA_HOME` environment variable if Ghidra is installed in a non-standard location.
+- Source is available: read it
+- You need to step through execution: LLDB, GDB, or the Ghidra GUI
+- It is a .NET assembly: dnSpy or ILSpy
+- It is Java bytecode: jadx or cfr
 
----
-
-## Main Wrapper Script
+## Install
 
 ```bash
-./scripts/ghidra-analyze.sh [options] <binary>
+brew install ghidra
 ```
 
-Wrapper that handles project creation/cleanup and provides a simpler interface to `analyzeHeadless`.
+Ghidra is a Homebrew **formula**, not a cask; `brew install --cask ghidra` fails.
+The formula pulls in its own OpenJDK, which Homebrew keeps keg-only, so `java`
+stays off `PATH` and Ghidra's launcher cannot find it. `ghidra-analyze.sh` derives
+`JAVA_HOME` from the formula when you have not set one, so no extra setup is
+needed. Elsewhere, download from https://ghidra-sre.org/ and set `GHIDRA_HOME`.
 
-**Options:**
-- `-o, --output <dir>` - Output directory for results (default: current dir)
-- `-s, --script <name>` - Post-analysis script to run (can be repeated)
-- `-a, --script-args <args>` - Arguments for the last specified script
-- `--script-path <path>` - Additional script search path
-- `-p, --processor <id>` - Processor/architecture (e.g., `x86:LE:32:default`)
-- `-c, --cspec <id>` - Compiler spec (e.g., `gcc`, `windows`)
-- `--no-analysis` - Skip auto-analysis (faster, but less info)
-- `--timeout <seconds>` - Analysis timeout per file
-- `--keep-project` - Keep the Ghidra project after analysis
-- `--project-dir <dir>` - Directory for Ghidra project (default: /tmp)
-- `--project-name <name>` - Project name (default: auto-generated)
-- `-v, --verbose` - Verbose output
-
----
-
-## Built-in Export Scripts
-
-### ExportAll.java
-Comprehensive export - runs all other exports and creates a summary. Best for initial analysis.
-
-**Output files:**
-- `{name}_summary.txt` - Overview: architecture, memory sections, function counts
-- `{name}_decompiled.c` - All functions decompiled to C
-- `{name}_functions.json` - Function list with signatures and calls
-- `{name}_strings.txt` - All strings found
-- `{name}_interesting.txt` - Functions matching security-relevant patterns
+Check what will be used:
 
 ```bash
-./scripts/ghidra-analyze.sh -s ExportAll.java -o ./analysis firmware.bin
+"$SKILL_DIR/scripts/find-ghidra.sh"
 ```
 
-### ExportDecompiled.java
-Decompile all functions to C pseudocode.
-
-**Output:** `{name}_decompiled.c`
+## Run
 
 ```bash
-./scripts/ghidra-analyze.sh -s ExportDecompiled.java -o ./output program.exe
+"$SKILL_DIR/scripts/ghidra-analyze.sh" -o ./analysis <binary>
 ```
 
-### ExportFunctions.java
-Export function list as JSON with addresses, signatures, parameters, and call relationships.
+That writes every section. Narrow it with `-s` when you only need part, which is
+much faster on large binaries:
 
-**Output:** `{name}_functions.json`
+```bash
+"$SKILL_DIR/scripts/ghidra-analyze.sh" -s strings,symbols -o ./analysis <binary>
+```
+
+| Option | Meaning |
+|--------|---------|
+| `-o, --output <dir>` | Where results land (default: current directory) |
+| `-s, --sections <list>` | Comma-separated subset of the sections below |
+| `-p, --processor <id>` | Force architecture, e.g. `ARM:LE:32:v7` |
+| `-c, --cspec <id>` | Force compiler spec, e.g. `gcc`, `windows` |
+| `--no-analysis` | Skip auto-analysis: fast, far less information |
+| `--timeout <seconds>` | Cap analysis time for the binary |
+| `--keep-project` | Keep the Ghidra project and print its path |
+| `-v, --verbose` | Print the `analyzeHeadless` command first |
+
+`GHIDRA_HOME`, `JAVA_HOME`, and `MAXMEM` (analyzer heap, e.g. `4G`) are read from
+the environment.
+
+## Sections
+
+Every file is named after the binary. `ghidra.log` holds the analyzer log.
+
+| Section | File | Contents |
+|---------|------|----------|
+| `summary` | `_summary.txt` | Architecture, endianness, compiler, function counts, memory blocks |
+| `decompiled` | `_decompiled.c` | Every non-thunk function as C pseudocode |
+| `functions` | `_functions.json` | Signatures, parameters, calls, callers |
+| `strings` | `_strings.json` | Strings of 4+ characters with addresses |
+| `calls` | `_calls.json` | Call graph, likely entry points, most-called functions |
+| `symbols` | `_symbols.json` | Imports, exports, named symbols |
+| `interesting` | `_interesting.txt` | Functions matching crypto, network, and memory patterns; unsafe calls |
+
+`_functions.json`:
 
 ```json
 {
@@ -89,113 +98,55 @@ Export function list as JSON with addresses, signatures, parameters, and call re
   "functions": [
     {
       "name": "main",
-      "address": "0x00401000",
+      "address": "00401000",
       "size": 256,
       "signature": "int main(int argc, char **argv)",
       "returnType": "int",
       "callingConvention": "cdecl",
       "isExternal": false,
-      "parameters": [{"name": "argc", "type": "int"}, ...],
-      "calls": ["printf", "malloc", "process_data"],
+      "isThunk": false,
+      "parameters": [{"name": "argc", "type": "int"}],
+      "calls": ["printf", "malloc"],
       "calledBy": ["_start"]
     }
   ]
 }
 ```
 
-### ExportStrings.java
-Extract all strings (ASCII, Unicode) with addresses.
+## Workflows
 
-**Output:** `{name}_strings.json`
-
-```bash
-./scripts/ghidra-analyze.sh -s ExportStrings.java -o ./output malware.exe
-```
-
-### ExportCalls.java
-Export function call graph showing caller/callee relationships.
-
-**Output:** `{name}_calls.json`
-
-Includes:
-- Full call graph
-- Potential entry points (functions with no callers)
-- Most frequently called functions
-
-### ExportSymbols.java
-Export all symbols: imports, exports, and internal symbols.
-
-**Output:** `{name}_symbols.json`
-
----
-
-## Common Workflows
-
-### Analyze an Unknown Binary
+Triage an unknown binary:
 
 ```bash
-# Create output directory
-mkdir -p ./analysis
-
-# Run comprehensive analysis
-./scripts/ghidra-analyze.sh -s ExportAll.java -o ./analysis unknown_binary
-
-# Review the summary first
+"$SKILL_DIR/scripts/ghidra-analyze.sh" -o ./analysis unknown_binary
 cat ./analysis/unknown_binary_summary.txt
-
-# Look at interesting patterns (crypto, network, dangerous functions)
 cat ./analysis/unknown_binary_interesting.txt
-
-# Check specific decompiled functions
-grep -A 50 "encrypt" ./analysis/unknown_binary_decompiled.c
 ```
 
-### Analyze Firmware
+Hunt for memory-safety bugs:
 
 ```bash
-# Specify ARM architecture for firmware
-./scripts/ghidra-analyze.sh \
-    -p "ARM:LE:32:v7" \
-    -s ExportAll.java \
-    -o ./firmware_analysis \
-    firmware.bin
+"$SKILL_DIR/scripts/ghidra-analyze.sh" -s decompiled -o ./analysis target
+grep -n 'strcpy\|sprintf\|gets\|memcpy' ./analysis/target_decompiled.c
 ```
 
-### Quick Function Listing
+Firmware, where auto-detection usually guesses wrong:
 
 ```bash
-# Just get function names and addresses (faster)
-./scripts/ghidra-analyze.sh --no-analysis -s ExportFunctions.java -o . program
-
-# Parse with jq
-cat program_functions.json | jq '.functions[] | "\(.address): \(.name)"'
+"$SKILL_DIR/scripts/ghidra-analyze.sh" -p "ARM:LE:32:v7" -o ./analysis firmware.bin
 ```
 
-### Find Specific Patterns
+Query the JSON with `jq`:
 
 ```bash
-# After running ExportDecompiled, search for patterns
-grep -n "password\|secret\|key" output_decompiled.c
-grep -n "strcpy\|sprintf\|gets" output_decompiled.c
+jq -r '.functions[] | "\(.address) \(.name)"' ./analysis/target_functions.json
+jq -r '.mostCalled[] | "\(.count)\t\(.name)"' ./analysis/target_calls.json
 ```
 
-### Analyze Multiple Binaries
+## Architectures
 
-```bash
-for bin in ./samples/*; do
-    name=$(basename "$bin")
-    ./scripts/ghidra-analyze.sh -s ExportAll.java -o "./results/$name" "$bin"
-done
-```
-
----
-
-## Architecture/Processor IDs
-
-Common processor IDs for the `-p` option:
-
-| Architecture | Processor ID |
-|-------------|--------------|
+| Architecture | `-p` value |
+|--------------|-----------|
 | x86 32-bit | `x86:LE:32:default` |
 | x86 64-bit | `x86:LE:64:default` |
 | ARM 32-bit | `ARM:LE:32:v7` |
@@ -203,52 +154,16 @@ Common processor IDs for the `-p` option:
 | MIPS 32-bit | `MIPS:BE:32:default` or `MIPS:LE:32:default` |
 | PowerPC | `PowerPC:BE:32:default` |
 
-Find all available processors:
+List everything the installed Ghidra supports:
+
 ```bash
-ls "$(dirname $(./scripts/find-ghidra.sh))/../Ghidra/Processors/"
+ls "$(dirname "$("$SKILL_DIR/scripts/find-ghidra.sh")")/../Ghidra/Processors"
 ```
 
----
+## Notes
 
-## Troubleshooting
-
-### Ghidra Not Found
-```bash
-# Check if Ghidra is installed
-./scripts/find-ghidra.sh
-
-# Set GHIDRA_HOME if in non-standard location
-export GHIDRA_HOME=/path/to/ghidra_11.x_PUBLIC
-./scripts/ghidra-analyze.sh ...
-```
-
-### Analysis Takes Too Long
-```bash
-# Set a timeout (seconds)
-./scripts/ghidra-analyze.sh --timeout 300 -s ExportAll.java binary
-
-# Skip analysis for quick export
-./scripts/ghidra-analyze.sh --no-analysis -s ExportSymbols.java binary
-```
-
-### Out of Memory
-Edit the `analyzeHeadless` script or set:
-```bash
-export MAXMEM=4G
-```
-
-### Wrong Architecture Detected
-Explicitly specify the processor:
-```bash
-./scripts/ghidra-analyze.sh -p "ARM:LE:32:v7" -s ExportAll.java firmware.bin
-```
-
----
-
-## Tips
-
-1. **Start with ExportAll.java** - It gives you everything and the summary helps orient you
-2. **Check the interesting.txt file** - It highlights security-relevant functions automatically
-3. **Use jq for JSON parsing** - The JSON exports are designed to be machine-readable
-4. **Decompilation isn't perfect** - Use it as a guide, cross-reference with disassembly
-5. **Large binaries take time** - Use `--timeout` and consider `--no-analysis` for quick scans
+- Decompilation is a guide, not ground truth. Cross-check against disassembly
+  before acting on anything surprising.
+- Large binaries are slow. Reach for `-s` and `--timeout` before `--no-analysis`,
+  which skips the analysis that makes the output worth reading.
+- Out of memory means `MAXMEM=4G`.

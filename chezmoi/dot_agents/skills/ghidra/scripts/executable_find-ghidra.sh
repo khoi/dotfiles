@@ -1,54 +1,40 @@
-#!/bin/bash
-# Locate Ghidra installation and analyzeHeadless script
-# Searches common installation paths and outputs the path to analyzeHeadless
+#!/usr/bin/env bash
+# Print the path to Ghidra's analyzeHeadless, or explain how to install it.
+set -euo pipefail
 
-set -e
+homes=()
 
-# Common locations to search for Ghidra
-SEARCH_PATHS=(
-    # Homebrew on Apple Silicon
-    "/opt/homebrew/Caskroom/ghidra"
-    # Homebrew on Intel
-    "/usr/local/Caskroom/ghidra"
-    # Manual installation locations
-    "/opt/ghidra"
-    "/usr/local/ghidra"
-    "$HOME/ghidra"
-    "$HOME/Applications/ghidra"
-    "/Applications/ghidra"
-    # Linux common paths
-    "/usr/share/ghidra"
-    "/usr/local/share/ghidra"
-)
-
-# Check GHIDRA_HOME environment variable first
-if [[ -n "$GHIDRA_HOME" ]]; then
-    HEADLESS="$GHIDRA_HOME/support/analyzeHeadless"
-    if [[ -x "$HEADLESS" ]]; then
-        echo "$HEADLESS"
-        exit 0
-    fi
+if [[ -n "${GHIDRA_HOME:-}" ]]; then
+    homes+=("$GHIDRA_HOME")
 fi
 
-# Search through common paths
-for base_path in "${SEARCH_PATHS[@]}"; do
-    if [[ -d "$base_path" ]]; then
-        # Find analyzeHeadless in the directory tree (handles versioned paths)
-        HEADLESS=$(find "$base_path" -name "analyzeHeadless" -type f 2>/dev/null | head -n 1)
-        if [[ -n "$HEADLESS" && -x "$HEADLESS" ]]; then
-            echo "$HEADLESS"
-            exit 0
-        fi
+if prefix=$(brew --prefix ghidra 2>/dev/null); then
+    homes+=("$prefix/libexec")
+fi
+
+homes+=(/opt/ghidra /usr/local/ghidra /usr/share/ghidra /Applications/ghidra "$HOME/ghidra")
+
+for versioned in /opt/ghidra_* /Applications/ghidra_* "$HOME"/ghidra_*; do
+    if [[ -d "$versioned" ]]; then
+        homes+=("$versioned")
     fi
 done
 
-# Try to find it anywhere on the system as a last resort
-HEADLESS=$(find /opt /usr/local /Applications "$HOME" -name "analyzeHeadless" -type f 2>/dev/null | head -n 1)
-if [[ -n "$HEADLESS" && -x "$HEADLESS" ]]; then
-    echo "$HEADLESS"
-    exit 0
-fi
+for home in "${homes[@]}"; do
+    if [[ -x "$home/support/analyzeHeadless" ]]; then
+        echo "$home/support/analyzeHeadless"
+        exit 0
+    fi
+done
 
-echo "ERROR: Could not find Ghidra's analyzeHeadless script." >&2
-echo "Please set GHIDRA_HOME environment variable or install Ghidra." >&2
+cat >&2 <<'EOF'
+Ghidra not found.
+
+  macOS:  brew install ghidra          (a formula, not a cask)
+  Linux:  download from https://ghidra-sre.org/
+
+Or point at an existing copy:
+
+  export GHIDRA_HOME=/path/to/ghidra_11.x_PUBLIC
+EOF
 exit 1
