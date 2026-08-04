@@ -14,8 +14,7 @@ uv = "latest"
 "npm:pnpm" = "latest"
 "npm:hunkdiff" = "latest"
 bun = "latest"
-node = "26.1.0"
-codex = "khoi"
+node = { version = "26.1.0", postinstall = "npm install --global @openai/codex" }
 ruby = "4"
 "aqua:tealdeer-rs/tealdeer" = "latest"
 "github:MarcoLucidi01/ytcast" = "latest"
@@ -158,7 +157,7 @@ minimum_release_age = "3d"
 lockfile_platforms = ["macos-arm64"]
 ruby.compile = false
 ` -}}
-{{- $removed := list "settings.minimum_release_age_excludes" "tools.npm:@openai/codex" "tools.node.postinstall" -}}
+{{- $removed := list "settings.minimum_release_age_excludes" "tools.npm:@openai/codex" -}}
 {{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
 {{- $config = mergeOverwrite $config $managed -}}
 {{- toToml $config -}}
