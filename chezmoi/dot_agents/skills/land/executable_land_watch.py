@@ -17,6 +17,7 @@ CODEX_BOTS = {
 }
 MAX_GH_RETRIES = 5
 BASE_GH_BACKOFF_SECONDS = 2
+AGENT_REPLY_MARKER = "<!-- land-ack -->"
 
 
 @dataclass
@@ -238,8 +239,8 @@ def filter_codex_comments(
     comments: list[dict[str, Any]],
     review_requested_at: datetime | None,
 ) -> list[dict[str, Any]]:
-    latest_codex_reply = latest_codex_reply_by_thread(comments)
-    latest_issue_ack = latest_codex_issue_reply_time(comments)
+    latest_agent_reply = latest_agent_reply_by_thread(comments)
+    latest_issue_ack = latest_agent_reply_time(comments)
     codex_comments = [c for c in comments if is_codex_bot_user(c.get("user", {}))]
     filtered: list[dict[str, Any]] = []
     for comment in codex_comments:
@@ -258,7 +259,7 @@ def filter_codex_comments(
             thread_root = thread_root_id(comment)
             last_reply = None
             if thread_root is not None:
-                last_reply = latest_codex_reply.get(thread_root)
+                last_reply = latest_agent_reply.get(thread_root)
             if last_reply and last_reply > created_time:
                 continue
         filtered.append(comment)
@@ -279,21 +280,21 @@ def is_bot_user(user: dict[str, Any]) -> bool:
     return login.endswith("[bot]")
 
 
-def is_codex_reply_body(body: str) -> bool:
-    return body.startswith("[codex]")
+def is_agent_reply_body(body: str) -> bool:
+    return AGENT_REPLY_MARKER in body
 
 
 def is_codex_review_body(body: str) -> bool:
     return body.startswith("## Codex Review")
 
 
-def latest_codex_issue_reply_time(
+def latest_agent_reply_time(
     comments: list[dict[str, Any]],
 ) -> datetime | None:
     latest: datetime | None = None
     for comment in comments:
         body = (comment.get("body") or "").strip()
-        if not is_codex_reply_body(body):
+        if not is_agent_reply_body(body):
             continue
         created_time = comment_time(comment)
         if created_time is None:
@@ -304,13 +305,13 @@ def latest_codex_issue_reply_time(
 
 
 def filter_human_issue_comments(comments: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    latest_ack = latest_codex_issue_reply_time(comments)
+    latest_ack = latest_agent_reply_time(comments)
     filtered: list[dict[str, Any]] = []
     for comment in comments:
         if is_bot_user(comment.get("user", {})):
             continue
         body = (comment.get("body") or "").strip()
-        if is_codex_reply_body(body):
+        if is_agent_reply_body(body):
             continue
         if is_codex_review_body(body):
             continue
@@ -330,7 +331,7 @@ def filter_human_issue_comments(comments: list[dict[str, Any]]) -> list[dict[str
 def filter_codex_review_issue_comments(
     comments: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    latest_ack = latest_codex_issue_reply_time(comments)
+    latest_ack = latest_agent_reply_time(comments)
     filtered: list[dict[str, Any]] = []
     for comment in comments:
         body = (comment.get("body") or "").strip()
@@ -358,13 +359,13 @@ def comment_time(comment: dict[str, Any]) -> datetime | None:
     return parse_time(timestamp)
 
 
-def latest_codex_reply_by_thread(
+def latest_agent_reply_by_thread(
     comments: list[dict[str, Any]],
 ) -> dict[int, datetime]:
     latest: dict[int, datetime] = {}
     for comment in comments:
         body = (comment.get("body") or "").strip()
-        if not is_codex_reply_body(body):
+        if not is_agent_reply_body(body):
             continue
         thread_root = thread_root_id(comment)
         created_time = comment_time(comment)
@@ -379,20 +380,20 @@ def latest_codex_reply_by_thread(
 def filter_human_review_comments(
     comments: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    latest_codex_reply = latest_codex_reply_by_thread(comments)
+    latest_agent_reply = latest_agent_reply_by_thread(comments)
     filtered: list[dict[str, Any]] = []
     for comment in comments:
         if is_bot_user(comment.get("user", {})):
             continue
         body = (comment.get("body") or "").strip()
-        if is_codex_reply_body(body):
+        if is_agent_reply_body(body):
             continue
         thread_root = thread_root_id(comment)
         created_time = comment_time(comment)
-        last_codex_reply = None
+        last_agent_reply = None
         if thread_root is not None:
-            last_codex_reply = latest_codex_reply.get(thread_root)
-        if last_codex_reply and created_time and created_time <= last_codex_reply:
+            last_agent_reply = latest_agent_reply.get(thread_root)
+        if last_agent_reply and created_time and created_time <= last_agent_reply:
             continue
         filtered.append(comment)
     return filtered
@@ -417,7 +418,7 @@ def is_blocking_review(
     state = review.get("state")
     if user_login in CODEX_BOTS:
         return state == "CHANGES_REQUESTED"
-    if body.startswith("[codex]") or state in ("APPROVED", "DISMISSED"):
+    if is_agent_reply_body(body) or state in ("APPROVED", "DISMISSED"):
         return False
     blocking = False
     if body or state == "CHANGES_REQUESTED":
