@@ -32,7 +32,7 @@ enabled = false
 
 [model_providers.balancer]
 name = "OpenAI"
-base_url = "http://127.0.0.1:8317/v1"
+base_url = "https://codex-balancer.exe.xyz/v1"
 requires_openai_auth = true
 supports_websockets = true
 request_max_retries = 100
