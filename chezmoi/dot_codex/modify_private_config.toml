@@ -35,6 +35,10 @@ name = "OpenAI"
 base_url = "http://127.0.0.1:8317/v1"
 requires_openai_auth = true
 supports_websockets = true
+request_max_retries = 100
+stream_max_retries = 100
+stream_idle_timeout_ms = 900000
+websocket_connect_timeout_ms = 60000
 
 [plugins."build-macos-apps@openai-api-curated"]
 enabled = true
