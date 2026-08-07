@@ -1,6 +1,13 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
+{{- $providerBehavior := fromToml `
+supports_websockets = true
+request_max_retries = 100
+stream_max_retries = 100
+stream_idle_timeout_ms = 900000
+websocket_connect_timeout_ms = 60000
+` -}}
 {{- $managed := fromToml `
 approval_policy = "never"
 model = "gpt-5.6-sol"
@@ -34,11 +41,10 @@ enabled = false
 name = "OpenAI"
 base_url = "https://codex-balancer.exe.xyz/v1"
 env_key = "CODEX_BALANCER_API_KEY"
-supports_websockets = true
-request_max_retries = 100
-stream_max_retries = 100
-stream_idle_timeout_ms = 900000
-websocket_connect_timeout_ms = 60000
+
+[model_providers.work]
+name = "OpenAI"
+requires_openai_auth = true
 
 [plugins."build-macos-apps@openai-api-curated"]
 enabled = true
@@ -88,6 +94,11 @@ memories = true
 hooks = true
 
 ` -}}
+{{- range $provider := list "balancer" "work" -}}
+{{- range $key, $value := $providerBehavior -}}
+{{- $managed = setValueAtPath (printf "model_providers.%s.%s" $provider $key) $value $managed -}}
+{{- end -}}
+{{- end -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
 {{- $removed := list "agents.max_threads" "features.external_migration" "features.ghost_commit" "features.js_repl" "features.multi_agent" "features.remote_plugin" "features.responses_websockets_v2" "features.rmcp_client" "features.skills" "features.steer" "features.terminal_resize_reflow" -}}
 {{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
