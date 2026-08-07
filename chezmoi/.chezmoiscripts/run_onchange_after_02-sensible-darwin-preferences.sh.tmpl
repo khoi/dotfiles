@@ -11,6 +11,8 @@ if ! grep -Eq '^auth[[:space:]]+sufficient[[:space:]]+pam_tid\.so$' /etc/pam.d/s
 	sudo sed -i '' 's/^#auth/auth/' /etc/pam.d/sudo_local
 fi
 
+sudo mdutil -a -i off
+
 username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
 username="${username#-}"
 username="${username%-}"
