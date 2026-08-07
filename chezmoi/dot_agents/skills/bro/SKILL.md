@@ -4,9 +4,7 @@ description: Restate the last message in plain simple human language, with no ja
 disable-model-invocation: true
 ---
 
-It's been a long day and my brain is fried, restate your last message to me like I'm 5. 
-
-Small words, short sentences, short paragraphs. If you have to use a big word, explain it right after. Only return what's actually necessary.
+It's been a long day and my brain is fried, restate your last message to me using ASD-STE100 Simplified Technical English.
 
 Just tell me what you did, did it work, what do I do now.
 
