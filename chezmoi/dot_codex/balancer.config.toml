@@ -1,0 +1,11 @@
+model_provider = "balancer"
+
+[model_providers.balancer]
+name = "OpenAI"
+base_url = "https://codex-balancer.exe.xyz/v1"
+requires_openai_auth = true
+supports_websockets = true
+request_max_retries = 100
+stream_max_retries = 100
+stream_idle_timeout_ms = 900000
+websocket_connect_timeout_ms = 60000
