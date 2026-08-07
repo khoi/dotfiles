@@ -4,6 +4,7 @@
 {{- $managed := fromToml `
 approval_policy = "never"
 model = "gpt-5.6-sol"
+model_provider = "balancer"
 model_reasoning_effort = "xhigh"
 model_reasoning_summary = "concise"
 model_verbosity = "low"
@@ -28,6 +29,16 @@ enabled = false
 
 [feedback]
 enabled = false
+
+[model_providers.balancer]
+name = "OpenAI"
+base_url = "https://codex-balancer.exe.xyz/v1"
+env_key = "CODEX_BALANCER_API_KEY"
+supports_websockets = true
+request_max_retries = 100
+stream_max_retries = 100
+stream_idle_timeout_ms = 900000
+websocket_connect_timeout_ms = 60000
 
 [plugins."build-macos-apps@openai-api-curated"]
 enabled = true
@@ -78,7 +89,7 @@ hooks = true
 
 ` -}}
 {{- $managed = setValueAtPath "notify" (list (printf "%s/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient" .chezmoi.homeDir) "turn-ended") $managed -}}
-{{- $removed := list "agents.max_threads" "features.external_migration" "features.ghost_commit" "features.js_repl" "features.multi_agent" "features.remote_plugin" "features.responses_websockets_v2" "features.rmcp_client" "features.skills" "features.steer" "features.terminal_resize_reflow" "model_provider" "model_providers.balancer" -}}
+{{- $removed := list "agents.max_threads" "features.external_migration" "features.ghost_commit" "features.js_repl" "features.multi_agent" "features.remote_plugin" "features.responses_websockets_v2" "features.rmcp_client" "features.skills" "features.steer" "features.terminal_resize_reflow" -}}
 {{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
 {{- range $key, $value := $managed -}}{{- $config = setValueAtPath $key $value $config -}}{{- end -}}
 {{- toToml $config -}}
