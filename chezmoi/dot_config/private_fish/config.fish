@@ -36,8 +36,6 @@ abbr -a lg lazygit
 abbr -a ac "claude --dangerously-skip-permissions"
 abbr -a acf "claude --dangerously-skip-permissions --resume --fork-session"
 abbr -a ad codex
-abbr -a adf "codex --profile fast"
-abbr -a ads "codex --profile slow"
 abbr -a wn 'wt switch --from (__git.default_branch)'
 
 command -v nvim &>/dev/null && alias vim nvim
