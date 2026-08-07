@@ -36,6 +36,7 @@ think of an everyday English equivalent.
 - We want the simplest change possible. We don't care about migration. Code readability matters most, and we're happy to make bigger changes to achieve it.
 - When the user asks for a plan, dive deep into the code first before asking clarifying questions.
 - Add regression test when it fits
+- Do not write tests purely just to assert existence of a string in a file
 - Never disable lint rules without my permissions
 - When you want to access a website, always prepend https://markdown.new/{the original url} to get a friendlier version of it
 - For web research, keep a source ledger across native web tools, browser tools, and shell fetches like `curl`. Canonicalize by unwrapping `markdown.new`, dropping tracking params/fragments, resolving redirects, normalizing host aliases and percent-encoding variants. Do not search a URL you already opened, use an opened URL as a search query, or refetch the same source unless the first attempt failed and the new method can plausibly work.
