@@ -29,6 +29,7 @@ Temporary Items
 
 # Local markdown files
 *.local.md
+AGENTS.override.md
 
 # Git worktrees
 .worktrees/
