@@ -160,7 +160,7 @@ version = "0.73.1"
 backend = "npm:@mariozechner/pi-coding-agent"
 
 [[tools."npm:agent-browser"]]
-version = "0.31.1"
+version = "0.33.2"
 backend = "npm:agent-browser"
 
 [[tools."npm:hunkdiff"]]
