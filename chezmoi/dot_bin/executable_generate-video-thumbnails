@@ -30,6 +30,9 @@ Options:
       --print-command
       --verbose
   -h, --help
+
+Example:
+  fd -t f -e mov -e mp4 -e mkv -e avi -e webm -e m4v -j8 -x generate-video-thumbnails --overwrite -o {}.jpg {}
 EOF
 }
 
@@ -83,7 +86,7 @@ resolve_time() {
     BEGIN {
       if (value ~ /%$/) {
         sub(/%$/, "", value)
-        if (!number(value) || value > 100) fail()
+        if (!number(value) || (value + 0) > 100) fail()
         printf "%.12f\n", duration * ((value + 0) / 100)
         exit 0
       }
