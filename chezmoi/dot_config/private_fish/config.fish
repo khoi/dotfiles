@@ -5,6 +5,8 @@ if test -S "$onepassword_ssh_agent_sock"
     set -gx SSH_AUTH_SOCK "$onepassword_ssh_agent_sock"
 end
 
+fish_add_path -g "$HOME/.local/opt/mosh-osc/bin"
+
 if not status is-interactive
     return
 end
