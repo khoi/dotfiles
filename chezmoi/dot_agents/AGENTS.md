@@ -46,6 +46,7 @@ think of an everyday English equivalent.
 - If 1Password authentication is needed, ask the user to do it using the native ask question tool
 - Do not file issue to issue trackers unless users instruct it or approve
 - Before submitting a pull request, always run $simplify skill if exists
+- When interacting with the computer, always prefer $computer-use if available
 
 ## Anti-patterns
 
