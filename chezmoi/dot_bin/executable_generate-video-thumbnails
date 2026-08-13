@@ -32,7 +32,7 @@ Options:
   -h, --help
 
 Example:
-  fd -t f -e mov -e mp4 -e mkv -e avi -e webm -e m4v -j8 -x generate-video-thumbnails --overwrite -o {}.jpg {}
+  fd -I -t f -e mov -e mp4 -e mkv -e avi -e webm -e m4v -j8 -x generate-video-thumbnails --overwrite -o {}.jpg {}
 EOF
 }
 
