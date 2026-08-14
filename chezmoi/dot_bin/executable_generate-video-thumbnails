@@ -19,13 +19,14 @@ Options:
       --background COLOR         default: white
       --thumb-width INT
       --thumb-height INT
-  -q, --quality INT              default: 2
+  -q, --quality INT              default: 92
       --format auto|jpg|jpeg|png|webp
                                  default: auto
       --hwaccel none|videotoolbox
                                  default: none
       --ffmpeg PATH              default: ffmpeg in PATH
       --ffprobe PATH             default: ffprobe in PATH
+      --magick PATH              default: magick in PATH
       --overwrite
       --print-command
       --verbose
@@ -55,6 +56,10 @@ is_positive_int() {
 
 is_non_negative_int() {
   [[ "$1" =~ ^[0-9]+$ ]]
+}
+
+is_quality() {
+  is_positive_int "$1" && ((10#$1 <= 100))
 }
 
 resolve_time() {
@@ -107,6 +112,23 @@ ffprobe_duration() {
   "$ffprobe_bin" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$input"
 }
 
+format_timestamp() {
+  local start="$1"
+  local duration="$2"
+  local count="$3"
+  local item="$4"
+  awk -v start="$start" -v duration="$duration" -v count="$count" -v item="$item" '
+    BEGIN {
+      seconds = start + duration * (item + 0.5) / count
+      milliseconds = int(seconds * 1000 + 0.5)
+      hours = int(milliseconds / 3600000)
+      minutes = int(milliseconds / 60000) % 60
+      whole_seconds = int(milliseconds / 1000) % 60
+      printf "%02d:%02d:%02d.%03d\n", hours, minutes, whole_seconds, milliseconds % 1000
+    }
+  '
+}
+
 format_from_output() {
   local explicit_format="$1"
   local output="$2"
@@ -142,11 +164,12 @@ margin=2
 background='white'
 thumb_width=
 thumb_height=
-quality=2
+quality=92
 format='auto'
 hwaccel='none'
 ffmpeg_bin="${FFMPEG_BIN:-$(command -v ffmpeg || true)}"
 ffprobe_bin="${FFPROBE_BIN:-$(command -v ffprobe || true)}"
+magick_bin="${MAGICK_BIN:-$(command -v magick || true)}"
 overwrite=0
 print_command=0
 verbose=0
@@ -222,7 +245,7 @@ while [[ $# -gt 0 ]]; do
     ;;
   -q | --quality)
     require_arg "$@"
-    is_positive_int "$2" || die "--quality must be greater than 0"
+    is_quality "$2" || die "--quality must be between 1 and 100"
     quality="$2"
     shift 2
     ;;
@@ -250,6 +273,11 @@ while [[ $# -gt 0 ]]; do
   --ffprobe)
     require_arg "$@"
     ffprobe_bin="$2"
+    shift 2
+    ;;
+  --magick)
+    require_arg "$@"
+    magick_bin="$2"
     shift 2
     ;;
   --overwrite)
@@ -289,11 +317,17 @@ done
 [[ -f "$input" ]] || die "input not found: $input"
 [[ -n "$ffmpeg_bin" ]] || die "missing dependency: ffmpeg"
 [[ -n "$ffprobe_bin" ]] || die "missing dependency: ffprobe"
+[[ -n "$magick_bin" ]] || die "missing dependency: magick"
 need_command "$ffmpeg_bin"
 need_command "$ffprobe_bin"
+need_command "$magick_bin"
 
 if [[ -z "$output" ]]; then
   output="$(default_output "$input" "$format")"
+fi
+
+if [[ -e "$output" && "$overwrite" -eq 0 ]]; then
+  die "output exists: $output"
 fi
 
 duration="$(ffprobe_duration "$ffprobe_bin" "$input")"
@@ -313,7 +347,7 @@ awk -v rows="$rows" -v columns="$columns" -v count="$count" 'BEGIN { exit(rows *
 sample_duration="$(awk -v start="$start_seconds" -v end="$end_seconds" 'BEGIN { printf "%.12f\n", end - start }')"
 fps="$(awk -v count="$count" -v sample_duration="$sample_duration" 'BEGIN { printf "%.12f\n", count / sample_duration }')"
 
-filters=("trim=start=${start_seconds}:end=${end_seconds}" "fps=${fps}" "setsar=1")
+filters=("trim=start=${start_seconds}:end=${end_seconds}" "setpts=PTS-STARTPTS" "fps=${fps}" "setsar=1")
 
 if [[ -n "$thumb_width" && -n "$thumb_height" ]]; then
   filters+=("scale=${thumb_width}:${thumb_height}:force_original_aspect_ratio=decrease")
@@ -335,20 +369,16 @@ done
 
 output_format="$(format_from_output "$format" "$output")"
 
-command=("$ffmpeg_bin" "-hide_banner" "-v" "error")
-if [[ "$overwrite" -eq 1 ]]; then
-  command+=("-y")
-else
-  command+=("-n")
-fi
+mkdir -p "$(dirname "$output")"
+temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/generate-video-thumbnails.XXXXXX")"
+trap 'rm -rf "$temp_dir"' EXIT
+sheet="$temp_dir/sheet.png"
+
+command=("$ffmpeg_bin" "-hide_banner" "-v" "error" "-y")
 if [[ "$hwaccel" != "none" ]]; then
   command+=("-hwaccel" "$hwaccel")
 fi
-command+=("-i" "$input" "-vf" "$filtergraph" "-frames:v" "1")
-case "$output_format" in
-jpg | jpeg | webp) command+=("-q:v" "$quality") ;;
-esac
-command+=("$output")
+command+=("-i" "$input" "-vf" "$filtergraph" "-frames:v" "1" "$sheet")
 
 if [[ "$print_command" -eq 1 || "$verbose" -eq 1 ]]; then
   printf '%q ' "${command[@]}"
@@ -360,8 +390,42 @@ if [[ "$verbose" -eq 1 ]]; then
     "$duration" "$start_seconds" "$end_seconds" "$count" "$columns" "$rows" "$output"
 fi
 
-mkdir -p "$(dirname "$output")"
 "${command[@]}"
+
+read -r image_width image_height < <("$magick_bin" identify -format '%w %h\n' "$sheet")
+cell_width=$(((image_width - 2 * margin - (columns - 1) * padding) / columns))
+cell_height=$(((image_height - 2 * margin - (rows - 1) * padding) / rows))
+point_size=$((cell_height / 18))
+if ((point_size < 12)); then
+  point_size=12
+fi
+inset=$((point_size / 3))
+
+annotate_command=(
+  "$magick_bin" "$sheet"
+  "-font" "/System/Library/Fonts/Monaco.ttf"
+  "-pointsize" "$point_size"
+  "-fill" "white"
+  "-undercolor" "#000000B3"
+  "-gravity" "northwest"
+)
+
+for ((index = 0; index < count; index++)); do
+  column=$((index % columns))
+  row=$((index / columns))
+  x=$((margin + column * (cell_width + padding) + inset))
+  y=$((margin + row * (cell_height + padding) + inset))
+  annotate_command+=("-annotate" "+${x}+${y}" "$(format_timestamp "$start_seconds" "$sample_duration" "$count" "$index")")
+done
+
+annotate_command+=("-quality" "$quality" "${output_format}:$output")
+
+if [[ "$print_command" -eq 1 || "$verbose" -eq 1 ]]; then
+  printf '%q ' "${annotate_command[@]}"
+  printf '\n'
+fi
+
+"${annotate_command[@]}"
 
 if [[ "$verbose" -eq 1 ]]; then
   printf '%s\n' "$output"
