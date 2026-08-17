@@ -31,24 +31,12 @@ gui:
       - "⣯"
       - "⣟"
       - "⡿"
-  # Kanagawa theme
   theme:
     activeBorderColor:
-      - "#DCA561"
+      - yellow
       - bold
-    inactiveBorderColor:
-      - "#727169"
-    optionsTextColor:
-      - "#7aa89f"
     selectedLineBgColor:
-      - "#223249"
-    cherryPickedCommitBgColor:
-      - "#223249"
-    cherryPickedCommitFgColor:
-      - "#dca561"
-    unstagedChangesColor:
-      - "#E82424"
-    defaultFgColor:
-      - "#dcd7ba"
+      - reverse
     searchingActiveBorderColor:
-      - "#DCA561"
+      - yellow
+      - bold
