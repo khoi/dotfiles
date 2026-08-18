@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 SCRIPT_DIRECTORY = Path(__file__).parents[1] / "scripts"
@@ -22,89 +24,124 @@ sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
-class HitFilterTests(unittest.TestCase):
-    def test_ignores_injected_skill_text(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "user-correction")
-        hit = {"session_id": "s1", "text": "<skill> I said this is guidance"}
-        self.assertFalse(MODULE.keep_hit(signal, hit))
+def response_item(payload: dict[str, object]) -> dict[str, object]:
+    return {
+        "timestamp": "2026-08-18T09:00:00Z",
+        "type": "response_item",
+        "payload": payload,
+    }
 
-    def test_keeps_failed_tool_result(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "tool-failure")
-        hit = {
-            "session_id": "s1",
-            "text": "Command: test\nProcess exited with code 2\nOutput:\nfailed",
-        }
-        self.assertTrue(MODULE.keep_hit(signal, hit))
+
+class RecordSignalTests(unittest.TestCase):
+    def test_detects_user_correction(self) -> None:
+        record = response_item(
+            {
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "No, not what I asked"}],
+            }
+        )
+        self.assertEqual(
+            MODULE.record_signals(record, {"user-correction"}),
+            {"user-correction"},
+        )
+
+    def test_ignores_injected_skill_text(self) -> None:
+        record = response_item(
+            {
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "<skill>I said this</skill>"}],
+            }
+        )
+        self.assertEqual(MODULE.record_signals(record, {"user-correction"}), set())
+
+    def test_detects_failed_tool_output(self) -> None:
+        record = response_item(
+            {
+                "type": "custom_tool_call_output",
+                "output": [{"type": "input_text", "text": "Script failed\nOutput: bad"}],
+            }
+        )
+        self.assertEqual(MODULE.record_signals(record, {"tool-failure"}), {"tool-failure"})
 
     def test_ignores_successful_output_that_quotes_failure_text(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "tool-failure")
-        hit = {
-            "session_id": "s1",
-            "text": "Command: inspect\nProcess exited with code 0\nOutput:\nScript failed is a phrase",
-        }
-        self.assertFalse(MODULE.keep_hit(signal, hit))
+        record = response_item(
+            {
+                "type": "custom_tool_call_output",
+                "output": [
+                    {
+                        "type": "input_text",
+                        "text": "Script completed\nOutput:\nScript failed is a phrase",
+                    }
+                ],
+            }
+        )
+        self.assertEqual(MODULE.record_signals(record, {"tool-failure"}), set())
 
-    def test_ignores_search_command_that_mentions_polling(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "manual-poll")
-        hit = {
-            "session_id": "s1",
-            "text": "const query = 'write_stdin'; memex search query",
-        }
-        self.assertFalse(MODULE.keep_hit(signal, hit))
+    def test_detects_direct_poll(self) -> None:
+        record = response_item(
+            {
+                "type": "custom_tool_call",
+                "name": "exec",
+                "input": "const result = await tools.write_stdin({session_id: 12})",
+            }
+        )
+        self.assertEqual(MODULE.record_signals(record, {"manual-poll"}), {"manual-poll"})
 
     def test_ignores_patch_text_that_contains_poll_call(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "manual-poll")
-        hit = {
-            "session_id": "s1",
-            "text": "const patch = 'tools.write_stdin({session_id: 12})'",
-        }
-        self.assertFalse(MODULE.keep_hit(signal, hit))
-
-    def test_keeps_direct_watch_command(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "manual-poll")
-        hit = {
-            "session_id": "s1",
-            "text": 'const result = await tools.exec_command({cmd: "gh pr checks --watch"})',
-        }
-        self.assertTrue(MODULE.keep_hit(signal, hit))
-
-    def test_keeps_write_stdin_call(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "manual-poll")
-        hit = {
-            "session_id": "s1",
-            "text": "const result = await tools.write_stdin({session_id: 12})",
-        }
-        self.assertTrue(MODULE.keep_hit(signal, hit))
-
-
-class SignalReportTests(unittest.TestCase):
-    def test_groups_hits_by_session_and_ranks_repeats(self) -> None:
-        signal = next(item for item in MODULE.SIGNALS if item.key == "manual-poll")
-        hits = [
+        record = response_item(
             {
-                "session_id": "one",
-                "project": "app",
-                "ts": "2026-08-01T00:00:00Z",
-                "snippet": "first",
-            },
-            {
-                "session_id": "one",
-                "project": "app",
-                "ts": "2026-08-01T00:01:00Z",
-                "snippet": "second",
-            },
-            {
-                "session_id": "two",
-                "project": "app",
-                "ts": "2026-08-02T00:00:00Z",
-                "snippet": "third",
-            },
-        ]
-        report = MODULE.signal_report(signal, hits, False, 2)
-        self.assertEqual(report["sampled_hits"], 3)
-        self.assertEqual(report["unique_sessions"], 2)
-        self.assertEqual(report["examples"][0]["session_id"], "one")
-        self.assertEqual(report["examples"][0]["sampled_hits"], 2)
+                "type": "custom_tool_call",
+                "name": "exec",
+                "input": "const patch = 'tools.write_stdin({session_id: 12})'",
+            }
+        )
+        self.assertEqual(MODULE.record_signals(record, {"manual-poll"}), set())
+
+
+class RolloutTests(unittest.TestCase):
+    def test_scans_rollout_without_an_index(self) -> None:
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "rollout.jsonl"
+            records = [
+                {
+                    "timestamp": "2026-08-18T08:00:00Z",
+                    "type": "session_meta",
+                    "payload": {
+                        "id": "session-1",
+                        "session_id": "session-1",
+                        "timestamp": "2026-08-18T08:00:00Z",
+                        "cwd": directory,
+                        "thread_source": "user",
+                        "git": {"repository_url": "git@example.com:owner/repo.git"},
+                    },
+                },
+                response_item(
+                    {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"type": "input_text", "text": "I mean use the helper"}],
+                    }
+                ),
+                response_item(
+                    {
+                        "type": "custom_tool_call_output",
+                        "output": "Script failed\nOutput: bad",
+                    }
+                ),
+            ]
+            path.write_text("\n".join(json.dumps(record) for record in records) + "\n")
+            session = MODULE.load_session(path)
+            self.assertIsNotNone(session)
+            counts, examples, invalid = MODULE.scan_session(
+                session,
+                {"user-correction", "tool-failure"},
+            )
+            self.assertEqual(counts["user-correction"], 1)
+            self.assertEqual(counts["tool-failure"], 1)
+            self.assertEqual(examples["tool-failure"]["source_path"], str(path))
+            self.assertEqual(invalid, 0)
 
 
 if __name__ == "__main__":

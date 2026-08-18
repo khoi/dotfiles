@@ -15,22 +15,26 @@ Keep the review local and read-only. Do not share transcripts, retain a second h
 
 ## Workflow
 
-1. Read the `memex-search` skill.
-2. Refresh the index once with `memex index --include-agents --codex` unless a current index service makes that redundant.
-3. Resolve the loaded skill directory and run the bundled scan:
+1. Resolve the loaded skill directory and run the bundled scanner against local Codex rollout files:
 
 ```bash
 python3 "<skill-directory>/scripts/session_signal_scan.py" --days 30
 python3 "<skill-directory>/scripts/session_signal_scan.py" --cwd . --days 30
 ```
 
-4. Treat the scan as candidate discovery, not proof. It samples explicit user corrections, positive outcomes, tool failures, yielded commands, and manual polling.
-5. Use targeted `memex search` queries for the named workflow or skill. Prefer exact terms first, then semantic or hybrid search only when exact search misses likely evidence.
-6. Fetch each candidate with `memex session <session_id>`. Read the request, the skill version loaded in that session, the failed action, later recovery, and the outcome.
-7. Compare the evidence with the current skill, script, AGENTS.md, and relevant git history. Drop anything already fixed.
-8. Group only failures with the same cause. Similar wording does not prove the same cause.
-9. Rank at most five changes by repeated cost, severity, confidence, and breadth.
-10. Present the evidence and proposed changes. Apply them only when the request authorizes edits.
+2. Add `--include-subagents` only when delegated work matters. Use `--max-sessions 0` only when an uncapped scan is worth the extra local I/O.
+3. Treat the scan as candidate discovery, not proof. It detects explicit user corrections, positive outcomes, tool failures, yielded commands, and manual polling.
+4. For each candidate, open its `source_path` and inspect the relevant `response_item` records:
+
+```bash
+jq -c 'select(.type == "response_item") | {timestamp, payload}' "<source_path>"
+```
+
+5. Read the request, the skill version loaded in that session, the failed action, later recovery, and the outcome.
+6. Compare the evidence with the current skill, script, AGENTS.md, and relevant git history. Drop anything already fixed.
+7. Group only failures with the same cause. Similar wording does not prove the same cause.
+8. Rank at most five changes by repeated cost, severity, confidence, and breadth.
+9. Present the evidence and proposed changes. Apply them only when the request authorizes edits.
 
 ## Evidence Rules
 
