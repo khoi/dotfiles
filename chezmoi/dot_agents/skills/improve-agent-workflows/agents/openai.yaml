@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Agent Workflows"
+  short_description: "Find repeat session failures and improve skills"
+  default_prompt: "Use $improve-agent-workflows to audit recent sessions and recommend the smallest durable workflow improvements."
