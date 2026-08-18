@@ -40,7 +40,7 @@ abbr -a ac "claude --dangerously-skip-permissions"
 abbr -a acf "claude --dangerously-skip-permissions --resume --fork-session"
 abbr -a ad codex
 abbr -a aw "codex --profile work"
-abbr -a wn 'wt switch --from (__git.default_branch)'
+abbr -a wn 'wt switch --copy-ignored --from (__git.default_branch)'
 
 command -v nvim &>/dev/null && alias vim nvim
 command -v bat &>/dev/null && alias cat bat
