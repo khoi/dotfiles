@@ -129,10 +129,11 @@ Exit codes:
 
 ## Review Handling
 
-- Codex reviews now arrive as issue comments posted by GitHub Actions. They
-  start with `## Codex Review — <persona>` and include the reviewer’s
-  methodology + guardrails used. Treat these as feedback that must be
-  acknowledged before merge.
+- Some automated code reviews might come as comments. Treat only comments whose
+  trimmed body starts with `## Codex Review —` as Codex review feedback that
+  must be acknowledged before merge.
+- Ignore unrelated automated comments, including deployment previews, cost
+  reports, and CI status updates. Do not reply to them.
 - Human review comments are blocking and must be addressed (responded to and
   resolved) before requesting a new review or merging.
 - If multiple reviewers comment in the same thread, respond to each comment
@@ -158,10 +159,10 @@ Exit codes:
 - If GraphQL review reply mutation is forbidden, use REST.
 - A 404 on reply typically means the wrong endpoint (missing PR number) or
   insufficient scope; verify by listing comments first.
-- Write every comment as a person would: no bot prefix, no signature, no
+- Write every review reply as a person would: no bot prefix, no signature, no
   attribution. End the body with the hidden marker `<!-- land-ack -->`, which
-  GitHub does not render. The marker is how the land watcher knows the feedback
-  is answered; a comment without it counts as unaddressed.
+  GitHub does not render. Use the marker only for replies to human or Codex
+  review feedback.
 - For Codex review issue comments, reply in the issue thread (not a review
   thread) and state whether you will address the feedback now or defer it
   (include rationale).

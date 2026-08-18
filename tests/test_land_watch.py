@@ -179,6 +179,22 @@ class LandWatchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(raised.exception.code, 2)
         disable_auto_merge.assert_awaited_once_with(pr.number)
 
+    def test_automated_issue_updates_do_not_count_as_feedback(self):
+        issue_comments = [
+            {
+                "body": "<!-- agent-cost-report:v0 -->\n## Agent Cost Report",
+                "created_at": "2026-08-18T10:00:00Z",
+                "user": {"login": "github-actions[bot]", "type": "Bot"},
+            },
+            {
+                "body": "<!-- good-board-pr-preview -->\n## Good-Board PR Preview",
+                "created_at": "2026-08-18T10:01:00Z",
+                "user": {"login": "github-actions[bot]", "type": "Bot"},
+            },
+        ]
+
+        land_watch.raise_on_feedback((issue_comments, [], [], None))
+
 
 if __name__ == "__main__":
     unittest.main()

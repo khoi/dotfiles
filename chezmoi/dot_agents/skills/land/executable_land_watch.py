@@ -589,10 +589,7 @@ def raise_on_feedback(
         reviews,
         review_request_at,
     )
-    bot_comments = filter_codex_comments(
-        issue_comments,
-        review_request_at,
-    ) + filter_codex_comments(review_comments, review_request_at)
+    bot_comments = filter_codex_comments(review_comments, review_request_at)
     if not bot_comments:
         return
     latest = max(
