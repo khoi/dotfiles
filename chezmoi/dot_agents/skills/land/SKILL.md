@@ -34,83 +34,75 @@ description:
    and push the updated branch.
 6. Ensure Codex review comments (if present) are acknowledged and any required
    fixes are handled before merging.
-7. Watch checks until complete.
-8. If checks fail, pull logs, fix the issue, commit with the `commit` skill,
-   push, and re-run checks.
-9. When all checks are green and review feedback is addressed, create a merge
-   commit using the PR title/body for the merge subject/body.
-10. **Context guard:** Before implementing review feedback, confirm it does not
+7. Start the land watcher once. It owns CI, review checks, merge, and merge
+   queue state until the PR merges or needs action.
+8. If the watcher fails, address the cause, push any fix, then start it again.
+9. **Context guard:** Before implementing review feedback, confirm it does not
     conflict with the user’s stated intent or task context. If it conflicts,
     respond inline with a justification and ask the user before changing code.
-11. **Pushback template:** When disagreeing, reply inline with: acknowledge +
+10. **Pushback template:** When disagreeing, reply inline with: acknowledge +
     rationale + offer alternative.
-12. **Ambiguity gate:** When ambiguity blocks progress, use the clarification
+11. **Ambiguity gate:** When ambiguity blocks progress, use the clarification
     flow (assign PR to current GH user, mention them, wait for response). Do not
     implement until ambiguity is resolved.
     - If you are confident you know better than the reviewer, you may proceed
       without asking the user, but reply inline with your rationale.
-13. **Per-comment mode:** For each review comment, choose one of: accept,
+12. **Per-comment mode:** For each review comment, choose one of: accept,
     clarify, or push back. Reply inline (or in the issue thread for Codex
     reviews) stating the mode before changing code.
-14. **Reply before change:** Always respond with intended action before pushing
+13. **Reply before change:** Always respond with intended action before pushing
     code changes (inline for review comments, issue thread for Codex reviews).
 
 ## Commands
 
 ```
-# Ensure branch and PR context
-branch=$(git branch --show-current)
-pr_number=$(gh pr view --json number -q .number)
-pr_title=$(gh pr view --json title -q .title)
-pr_body=$(gh pr view --json body -q .body)
-
-# Check mergeability and conflicts
-mergeable=$(gh pr view --json mergeable -q .mergeable)
-
-if [ "$mergeable" = "CONFLICTING" ]; then
-  git fetch origin main
-  git merge origin/main
-fi
-
-# Preferred: use the Async Watch Helper below. The manual loop is a fallback
-# when Python cannot run or the helper script is unavailable.
-# Wait for review feedback: Codex reviews arrive as issue comments that start
-# with "## Codex Review — <persona>". Treat them like reviewer feedback: reply
-# with an issue comment acknowledging the findings and whether you're addressing
-# or deferring them.
-while true; do
-  gh api repos/{owner}/{repo}/issues/"$pr_number"/comments \
-    --jq '.[] | select(.body | startswith("## Codex Review")) | .id' | rg -q '.' \
-    && break
-  sleep 10
-done
-
-# Watch checks
-if ! gh pr checks --watch; then
-  gh pr checks
-  # Identify failing run and inspect logs
-  # gh run list --branch "$branch"
-  # gh run view <run-id> --log
-  exit 1
-fi
-
-gh pr merge --merge --subject "$pr_title" --body "$pr_body"
-```
-
-## Async Watch Helper
-
-Preferred: use the asyncio watcher to monitor review comments, CI, and head
-updates in parallel:
-
-```
 python3 "$HOME/.agents/skills/land/land_watch.py"
 ```
 
+## Durable Wait
+
+Run the watcher in one `functions.exec` cell. Keep its terminal session alive
+inside that cell:
+
+```javascript
+let result = await tools.exec_command({
+  cmd: 'python3 "$HOME/.agents/skills/land/land_watch.py"',
+  yield_time_ms: 30000,
+  max_output_tokens: 10000,
+})
+let output = result.output
+while (result.session_id) {
+  result = await tools.write_stdin({
+    session_id: result.session_id,
+    chars: "",
+    yield_time_ms: 300000,
+    max_output_tokens: 10000,
+  })
+  output += result.output
+}
+text(output)
+```
+
+If `functions.exec` returns `Script running with cell ID ...`, call
+`functions.wait` with that same cell ID and the longest permitted
+`yield_time_ms`. Repeat only if that same cell still runs. This resumes the
+existing code; it does not start a model polling turn or a new watcher. Call
+`functions.wait` directly, not from another `functions.exec` cell.
+
+While the cell runs, do not start a new `functions.exec`, call
+`tools.write_stdin` from another cell, run `gh pr checks`, `gh run view`, or
+sleep to poll CI. Wait for the cell. The watcher prints only state changes and
+exits when the PR merges or needs action.
+
 Exit codes:
 
+- 0: PR merged
+- 1: GitHub CLI or API failed
 - 2: Review comments detected (address feedback)
-- 3: CI checks failed
-- 4: PR head updated (autofix commit detected)
+- 3: CI or merge queue failed
+- 4: PR head updated
+- 5: PR conflicts with main
+- 6: PR closed without merging
 
 ## Failure Handling
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import asyncio
 import json
 import random
@@ -6,9 +8,11 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
+from urllib.parse import urlparse
 
-POLL_SECONDS = 10
+POLL_SECONDS = 30
 CHECKS_APPEAR_TIMEOUT_SECONDS = 120
+MERGE_APPEAR_TIMEOUT_SECONDS = 120
 CODEX_BOTS = {
     "chatgpt-codex-connector[bot]",
     "github-actions[bot]",
@@ -24,9 +28,20 @@ AGENT_REPLY_MARKER = "<!-- land-ack -->"
 class PrInfo:
     number: int
     url: str
+    title: str
+    body: str
     head_sha: str
+    state: str
     mergeable: str | None
     merge_state: str | None
+    merge_commit: str | None
+
+
+@dataclass
+class MergeQueueInfo:
+    enabled: bool
+    queued: bool
+    state: str | None
 
 
 class RateLimitError(RuntimeError):
@@ -63,20 +78,59 @@ async def run_gh(*args: str) -> str:
     raise RateLimitError(last_error)
 
 
-async def get_pr_info() -> PrInfo:
-    data = await run_gh(
-        "pr",
-        "view",
-        "--json",
-        "number,url,headRefOid,mergeable,mergeStateStatus",
+async def get_pr_info(pr_number: int | None = None) -> PrInfo:
+    args = ["pr", "view"]
+    if pr_number is not None:
+        args.append(str(pr_number))
+    args.extend(
+        [
+            "--json",
+            "number,url,title,body,headRefOid,state,mergeable,mergeStateStatus,mergeCommit",
+        ],
     )
+    data = await run_gh(*args)
     parsed = json.loads(data)
+    merge_commit = parsed.get("mergeCommit")
     return PrInfo(
         number=parsed["number"],
         url=parsed["url"],
+        title=parsed["title"],
+        body=parsed.get("body") or "",
         head_sha=parsed["headRefOid"],
+        state=parsed["state"],
         mergeable=parsed.get("mergeable"),
         merge_state=parsed.get("mergeStateStatus"),
+        merge_commit=merge_commit.get("oid") if merge_commit else None,
+    )
+
+
+def repo_from_url(url: str) -> tuple[str, str]:
+    parts = urlparse(url).path.strip("/").split("/")
+    if len(parts) < 2:
+        raise RuntimeError(f"Invalid PR URL: {url}")
+    return parts[0], parts[1]
+
+
+async def get_merge_queue_info(pr: PrInfo) -> MergeQueueInfo:
+    owner, repo = repo_from_url(pr.url)
+    data = await run_gh(
+        "api",
+        "graphql",
+        "-f",
+        "query=query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$number){isInMergeQueue,isMergeQueueEnabled,mergeQueueEntry{state}}}}",
+        "-f",
+        f"owner={owner}",
+        "-f",
+        f"repo={repo}",
+        "-F",
+        f"number={pr.number}",
+    )
+    parsed = json.loads(data)["data"]["repository"]["pullRequest"]
+    entry = parsed.get("mergeQueueEntry")
+    return MergeQueueInfo(
+        enabled=parsed["isMergeQueueEnabled"],
+        queued=parsed["isInMergeQueue"],
+        state=entry.get("state") if entry else None,
     )
 
 
@@ -98,6 +152,8 @@ async def get_paginated_list(endpoint: str) -> list[dict[str, Any]]:
         if not batch:
             break
         items.extend(batch)
+        if len(batch) < 100:
+            break
         page += 1
     return items
 
@@ -132,6 +188,8 @@ async def get_reviews(pr_number: int) -> list[dict[str, Any]]:
         if not batch:
             break
         reviews.extend(batch)
+        if len(batch) < 100:
+            break
         page += 1
     return reviews
 
@@ -156,7 +214,9 @@ async def get_check_runs(head_sha: str) -> list[dict[str, Any]]:
             break
         check_runs.extend(batch)
         total_count = payload.get("total_count")
-        if total_count is not None and len(check_runs) >= total_count:
+        if len(batch) < 100 or (
+            total_count is not None and len(check_runs) >= total_count
+        ):
             break
         page += 1
     return check_runs
@@ -479,10 +539,12 @@ async def fetch_review_context(
     list[dict[str, Any]],
     datetime | None,
 ]:
-    issue_comments = await get_issue_comments(pr_number)
+    issue_comments, review_comments, reviews = await asyncio.gather(
+        get_issue_comments(pr_number),
+        get_review_comments(pr_number),
+        get_reviews(pr_number),
+    )
     review_request_at = latest_review_request_at(issue_comments)
-    review_comments = await get_review_comments(pr_number)
-    reviews = await get_reviews(pr_number)
     return issue_comments, review_comments, reviews, review_request_at
 
 
@@ -512,107 +574,172 @@ def raise_on_human_feedback(
         raise SystemExit(2)
 
 
-async def wait_for_codex(pr_number: int, checks_done: asyncio.Event) -> None:
-    print("Waiting for review feedback...", flush=True)
-    while True:
-        (
-            issue_comments,
-            review_comments,
-            reviews,
-            review_request_at,
-        ) = await fetch_review_context(pr_number)
-        bot_issue_comments = filter_codex_comments(issue_comments, review_request_at)
-        bot_review_comments = filter_codex_comments(review_comments, review_request_at)
-        bot_comments = bot_issue_comments + bot_review_comments
-        raise_on_human_feedback(
-            issue_comments,
-            review_comments,
-            reviews,
-            review_request_at,
+def raise_on_feedback(
+    review_context: tuple[
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+        datetime | None,
+    ],
+) -> None:
+    issue_comments, review_comments, reviews, review_request_at = review_context
+    raise_on_human_feedback(
+        issue_comments,
+        review_comments,
+        reviews,
+        review_request_at,
+    )
+    bot_comments = filter_codex_comments(
+        issue_comments,
+        review_request_at,
+    ) + filter_codex_comments(review_comments, review_request_at)
+    if not bot_comments:
+        return
+    latest = max(
+        bot_comments,
+        key=lambda comment: parse_time(comment["created_at"]),
+    )
+    body = sanitize_terminal_output(latest.get("body") or "").strip()
+    if body:
+        print("Codex left comments. Address feedback before merge.")
+        print(body)
+        raise SystemExit(2)
+
+
+def raise_on_pr_change(pr: PrInfo, head_sha: str) -> None:
+    if pr.state == "CLOSED":
+        print("PR closed without merging")
+        raise SystemExit(6)
+    if is_merge_conflicting(pr):
+        print(
+            "PR has merge conflicts. Resolve against main and push before "
+            "running land_watch again.",
         )
-        if bot_comments:
-            latest = max(
-                bot_comments,
-                key=lambda comment: parse_time(comment["created_at"]),
-            )
-            body = sanitize_terminal_output(latest.get("body") or "").strip()
-            if body:
-                print("Codex left comments. Address feedback before merge.")
-                print(body)
-                raise SystemExit(2)
-        if checks_done.is_set():
-            return
-        await asyncio.sleep(POLL_SECONDS)
+        raise SystemExit(5)
+    if pr.head_sha != head_sha:
+        print("PR head updated; pull the new head and restart land_watch")
+        raise SystemExit(4)
 
 
-async def wait_for_checks(head_sha: str, checks_done: asyncio.Event) -> None:
-    print("Waiting for CI checks...", flush=True)
+async def wait_until_ready(pr: PrInfo) -> PrInfo:
+    print("Waiting for CI and review feedback...", flush=True)
     empty_seconds = 0
     while True:
-        check_runs = await get_check_runs(head_sha)
+        current, check_runs, review_context = await asyncio.gather(
+            get_pr_info(pr.number),
+            get_check_runs(pr.head_sha),
+            fetch_review_context(pr.number),
+        )
+        if current.state == "MERGED":
+            print_merged(current)
+            return current
+        raise_on_pr_change(current, pr.head_sha)
+        raise_on_feedback(review_context)
         if not check_runs:
             empty_seconds += POLL_SECONDS
             if empty_seconds >= CHECKS_APPEAR_TIMEOUT_SECONDS:
-                print(
-                    "No checks detected after 120s; check CI configuration",
-                )
+                print("No checks detected after 120s; check CI configuration")
                 raise SystemExit(3)
-            await asyncio.sleep(POLL_SECONDS)
-            continue
-        empty_seconds = 0
-        pending, failed, failures = summarize_checks(check_runs)
-        if failed:
-            print("Checks failed:")
-            for failure in failures:
-                print(f"- {failure}")
-            raise SystemExit(3)
-        if not pending:
-            print("Checks passed")
-            checks_done.set()
+        else:
+            empty_seconds = 0
+            pending, failed, failures = summarize_checks(check_runs)
+            if failed:
+                print("Checks failed:")
+                for failure in failures:
+                    print(f"- {failure}")
+                raise SystemExit(3)
+            if not pending and current.mergeable != "UNKNOWN":
+                print("Checks passed")
+                return current
+        await asyncio.sleep(POLL_SECONDS)
+
+
+async def merge_pr(pr: PrInfo, queue: MergeQueueInfo) -> None:
+    args = [
+        "pr",
+        "merge",
+        str(pr.number),
+        "--subject",
+        pr.title,
+        "--body",
+        pr.body,
+        "--match-head-commit",
+        pr.head_sha,
+    ]
+    if not queue.enabled:
+        args.append("--merge")
+    await run_gh(*args)
+    print("Merge requested", flush=True)
+
+
+async def disable_auto_merge(pr_number: int) -> None:
+    try:
+        await run_gh("pr", "merge", str(pr_number), "--disable-auto")
+    except RuntimeError as error:
+        print(f"Could not cancel queued merge: {error}")
+
+
+def print_merged(pr: PrInfo) -> None:
+    suffix = f" at {pr.merge_commit}" if pr.merge_commit else ""
+    print(f"Merged {pr.url}{suffix}")
+
+
+async def wait_until_merged(pr: PrInfo) -> None:
+    queue_seen = False
+    absent_seconds = 0
+    last_queue_state: str | None = None
+    while True:
+        current = await get_pr_info(pr.number)
+        if current.state == "MERGED":
+            print_merged(current)
             return
+        raise_on_pr_change(current, pr.head_sha)
+        queue, review_context = await asyncio.gather(
+            get_merge_queue_info(current),
+            fetch_review_context(pr.number),
+        )
+        try:
+            raise_on_feedback(review_context)
+        except SystemExit as error:
+            if error.code == 2 and queue.enabled:
+                await disable_auto_merge(pr.number)
+            raise
+        if queue.queued:
+            queue_seen = True
+            absent_seconds = 0
+            if queue.state != last_queue_state:
+                print(f"Merge queue state: {queue.state or 'QUEUED'}", flush=True)
+                last_queue_state = queue.state
+            if queue.state == "UNMERGEABLE":
+                print("Merge queue rejected the PR")
+                raise SystemExit(3)
+        else:
+            absent_seconds += POLL_SECONDS
+            if absent_seconds >= MERGE_APPEAR_TIMEOUT_SECONDS:
+                if queue_seen:
+                    print("PR left the merge queue without merging")
+                else:
+                    print("PR did not enter the merge queue or merge")
+                raise SystemExit(3)
         await asyncio.sleep(POLL_SECONDS)
 
 
 async def watch_pr() -> None:
     pr = await get_pr_info()
-    if is_merge_conflicting(pr):
-        print(
-            "PR has merge conflicts. Resolve/rebase against main and push before "
-            "running land_watch again.",
-        )
-        raise SystemExit(5)
-    head_sha = pr.head_sha
-    checks_done = asyncio.Event()
-    codex_task = asyncio.create_task(wait_for_codex(pr.number, checks_done))
-    checks_task = asyncio.create_task(wait_for_checks(head_sha, checks_done))
-
-    async def head_monitor() -> None:
-        while True:
-            current = await get_pr_info()
-            if is_merge_conflicting(current):
-                print(
-                    "PR has merge conflicts. Resolve/rebase against main and push "
-                    "before running land_watch again.",
-                )
-                raise SystemExit(5)
-            if current.head_sha != head_sha:
-                print("PR head updated; pull/amend/force-push to retrigger CI")
-                raise SystemExit(4)
-            await asyncio.sleep(POLL_SECONDS)
-
-    monitor_task = asyncio.create_task(head_monitor())
-    success_task = asyncio.gather(codex_task, checks_task)
-
-    done, pending = await asyncio.wait(
-        [monitor_task, success_task],
-        return_when=asyncio.FIRST_COMPLETED,
+    if pr.state == "MERGED":
+        print_merged(pr)
+        return
+    raise_on_pr_change(pr, pr.head_sha)
+    ready = await wait_until_ready(pr)
+    if ready.state == "MERGED":
+        return
+    queue, review_context = await asyncio.gather(
+        get_merge_queue_info(ready),
+        fetch_review_context(ready.number),
     )
-    for task in pending:
-        task.cancel()
-    for task in done:
-        exc = task.exception()
-        if exc:
-            raise exc
+    raise_on_feedback(review_context)
+    await merge_pr(ready, queue)
+    await wait_until_merged(ready)
 
 
 if __name__ == "__main__":
@@ -620,3 +747,6 @@ if __name__ == "__main__":
         asyncio.run(watch_pr())
     except SystemExit as exc:
         raise SystemExit(exc.code) from None
+    except RuntimeError as exc:
+        print(exc)
+        raise SystemExit(1) from None
