@@ -11,7 +11,9 @@ if ! grep -Eq '^auth[[:space:]]+sufficient[[:space:]]+pam_tid\.so$' /etc/pam.d/s
 	sudo sed -i '' 's/^#auth/auth/' /etc/pam.d/sudo_local
 fi
 
-sudo mdutil -a -i off
+if mdutil -as 2>/dev/null | grep -q 'Indexing enabled'; then
+	sudo mdutil -a -i off
+fi
 
 username="$(printf %s "$(id -un)" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-')"
 username="${username#-}"
