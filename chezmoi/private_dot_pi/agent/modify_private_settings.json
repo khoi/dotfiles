@@ -1,0 +1,42 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $settings := dict -}}
+{{- if .chezmoi.stdin -}}{{- $settings = fromJson .chezmoi.stdin -}}{{- end -}}
+{{- $managed := fromJson `{
+  "codex-web-search": {
+    "deepFreshness": "live",
+    "deepMaxSources": 10,
+    "deepQueryBudget": 24,
+    "deepTimeoutMs": 240000,
+    "defaultMode": "fast",
+    "defuddleMode": "direct",
+    "defuddleTimeoutMs": 45000,
+    "fastFreshness": "cached",
+    "fastMaxSources": 10,
+    "fastQueryBudget": 10,
+    "fastTimeoutMs": 90000,
+    "model": "gpt-5.3-codex-spark",
+    "reasoningEffort": "low"
+  },
+  "collapseChangelog": true,
+  "defaultProjectTrust": "always",
+  "enableInstallTelemetry": false,
+  "hideThinkingBlock": true,
+  "packages": [
+    "git:github.com/supabitapp/supaterm-skills",
+    "git:github.com/khoi/pi",
+    "npm:pi-web-access",
+    "npm:pi-compact-thinking",
+    "npm:@plannotator/pi-extension"
+  ],
+  "pi-codex-fast": {
+    "enabled": true
+  },
+  "quietStartup": false,
+  "showHardwareCursor": false,
+  "steeringMode": "all",
+  "theme": "zenbones-dark",
+  "treeFilterMode": "user-only"
+}` -}}
+{{- $settings = deleteValueAtPath "enabledModels" $settings -}}
+{{- range $key, $value := $managed -}}{{- $settings = setValueAtPath $key $value $settings -}}{{- end -}}
+{{- $settings | toPrettyJson -}}
