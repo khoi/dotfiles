@@ -1,7 +1,6 @@
 # The Fundamental Principles
 
 - Always address me using my name 'khoi'
-- Never do backwards compatibility; we move only forward
 - Do not have any dead code, unused code should be cleaned up.
 - Do not write any comments, code is truth
 - Do not store what you can compute. Do not send what can be derived. Each piece of data exists in one place
