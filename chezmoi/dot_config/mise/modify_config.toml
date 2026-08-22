@@ -2,7 +2,7 @@
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}{{- $config = fromToml .chezmoi.stdin -}}{{- end -}}
 {{- $managed := fromToml `
-min_version = "2026.7.13"
+min_version = "2026.8.10"
 
 [tools]
 "1password-cli" = "latest"
@@ -18,7 +18,7 @@ node = { version = "26.1.0", postinstall = "npm install --global @openai/codex" 
 ruby = "4"
 "aqua:tealdeer-rs/tealdeer" = "latest"
 "github:MarcoLucidi01/ytcast" = "latest"
-"npm:@mariozechner/pi-coding-agent" = "latest"
+"npm:@earendil-works/pi-coding-agent" = "latest"
 bat = "latest"
 chezmoi = "latest"
 eza = "0.23.4"
@@ -158,7 +158,7 @@ minimum_release_age = "3d"
 lockfile_platforms = ["macos-arm64"]
 ruby.compile = false
 ` -}}
-{{- $removed := list "settings.minimum_release_age_excludes" "tools.npm:@openai/codex" -}}
+{{- $removed := list "settings.minimum_release_age_excludes" "tools.codex" "tools.colima" "tools.lima" "tools.npm:@mariozechner/pi-coding-agent" "tools.npm:@openai/codex" "tools.npm:openclaw" -}}
 {{- range $removed -}}{{- $config = deleteValueAtPath . $config -}}{{- end -}}
 {{- $config = mergeOverwrite $config $managed -}}
 {{- toToml $config -}}

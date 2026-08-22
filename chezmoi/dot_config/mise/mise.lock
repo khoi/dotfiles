@@ -41,6 +41,7 @@ backend = "aqua:twpayne/chezmoi"
 checksum = "sha256:8b03d7be6b5d500a503c712ae6da7dd6817b6c3328223b4ae8be7a8be5a2fa3a"
 url = "https://github.com/twpayne/chezmoi/releases/download/v2.71.0/chezmoi_2.71.0_darwin_arm64.tar.gz"
 url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/469677947"
+provenance = "cosign"
 
 [[tools.eza]]
 version = "0.23.4"
@@ -155,9 +156,9 @@ backend = "core:node"
 checksum = "sha256:91063f665c2f5d6e69e4f8fcb66d3d476bc2785ace82267274bf4da789985ceb"
 url = "https://nodejs.org/dist/v26.1.0/node-v26.1.0-darwin-arm64.tar.gz"
 
-[[tools."npm:@mariozechner/pi-coding-agent"]]
-version = "0.73.1"
-backend = "npm:@mariozechner/pi-coding-agent"
+[[tools."npm:@earendil-works/pi-coding-agent"]]
+version = "0.84.2"
+backend = "npm:@earendil-works/pi-coding-agent"
 
 [[tools."npm:agent-browser"]]
 version = "0.33.2"
@@ -166,10 +167,6 @@ backend = "npm:agent-browser"
 [[tools."npm:hunkdiff"]]
 version = "0.17.0"
 backend = "npm:hunkdiff"
-
-[[tools."npm:openclaw"]]
-version = "2026.6.11"
-backend = "npm:openclaw"
 
 [[tools."npm:pnpm"]]
 version = "11.11.0"
@@ -180,8 +177,8 @@ version = "3.14.6"
 backend = "core:python"
 
 [tools.python."platforms.macos-arm64"]
-checksum = "sha256:35d774f61d63c1fd4f1bc9495a7ada92e500dc4382a0df8a9910eb87ea48e8cf"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260623/cpython-3.14.6+20260623-aarch64-apple-darwin-install_only_stripped.tar.gz"
+checksum = "sha256:e0d4e5066aef3248c22e08a07546bfd5edeaca904c91fadc296be720998ec2ec"
+url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260804/cpython-3.14.6+20260804-aarch64-apple-darwin-install_only_stripped.tar.gz"
 provenance = "github-attestations"
 
 [[tools.restic]]

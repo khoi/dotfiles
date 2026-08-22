@@ -15,6 +15,23 @@ if [ "${CI:-}" = "true" ]; then
   "$mise_bin" bootstrap macos defaults apply --yes
   "$mise_bin" install --yes --locked
 else
-  "$mise_bin" bootstrap --yes --locked
+  "$mise_bin" bootstrap packages apply --manager brew --yes
+
+  set --
+  while IFS= read -r package; do
+    if [ -n "$package" ] && { ! command -v brew >/dev/null 2>&1 || ! brew list --cask "$package" >/dev/null 2>&1; }; then
+      set -- "$@" "brew-cask:$package"
+    fi
+  done <<EOF
+$("$mise_bin" config get --file "{{ .chezmoi.homeDir }}/.config/mise/config.toml" bootstrap.packages | sed -n 's/^"brew-cask:\([^"]*\)".*/\1/p')
+EOF
+
+  if [ "$#" -gt 0 ]; then
+    "$mise_bin" bootstrap packages apply --yes "$@"
+  fi
+
+  "$mise_bin" bootstrap macos defaults apply --yes
+  "$mise_bin" bootstrap user apply --yes
+  "$mise_bin" install --yes --locked
 fi
 {{ end -}}
